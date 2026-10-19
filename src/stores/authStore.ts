@@ -31,12 +31,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       } catch {}
 
       if (!isSupabaseConfigured) {
-        set({ user: null, profile: null, isLoading: false, isInitialized: true })
+        set({
+          user: null,
+          profile: null,
+          isLoading: false,
+          isInitialized: true,
+        })
         return
       }
 
-      const { data: { session }, error: sessionError } =
-        await supabase.auth.getSession()
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession()
 
       if (sessionError) throw sessionError
 
@@ -49,11 +56,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
         if (!profile) {
           await new Promise((resolve) => setTimeout(resolve, 600))
+
           const { data: retryProfile } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .maybeSingle()
+
           profile = retryProfile
         }
 
@@ -97,11 +106,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
           if (!profile) {
             await new Promise((resolve) => setTimeout(resolve, 600))
+
             const { data: retryProfile } = await supabase
               .from('profiles')
               .select('*')
               .eq('id', newSession.user.id)
               .maybeSingle()
+
             profile = retryProfile
           }
 
@@ -137,6 +148,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       })
     } catch (err: any) {
       console.warn('Auth initialization error:', err?.message)
+
       set({
         user: null,
         profile: null,
@@ -146,7 +158,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  signInWithGoogle: async (targetPath?: string) => {
+  signInWithGoogle: async (_targetPath?: string) => {
     set({ isLoading: true, error: null })
 
     try {
@@ -156,8 +168,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         )
       }
 
-      const path = (targetPath || '/dashboard').replace(/^\/+/, '')
-      const redirectUrl = `${window.location.origin}/#/${path}`
+      // Keep the OAuth callback on the URL query string, not in the hash.
+      const redirectUrl = window.location.origin
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -171,11 +183,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       })
 
       if (error) throw error
+
       return { success: true }
     } catch (err: any) {
       const msg =
         err?.message || 'Failed to initiate Google sign-in. Please try again.'
-      set({ isLoading: false, error: msg })
+
+      set({
+        isLoading: false,
+        error: msg,
+      })
+
       return { success: false, error: msg }
     }
   },
@@ -193,11 +211,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     }
 
-    set({ user: null, profile: null, error: null, isLoading: false })
+    set({
+      user: null,
+      profile: null,
+      error: null,
+      isLoading: false,
+    })
   },
 
   refreshProfile: async () => {
     const { user } = get()
+
     if (!user || !isSupabaseConfigured) return
 
     try {
