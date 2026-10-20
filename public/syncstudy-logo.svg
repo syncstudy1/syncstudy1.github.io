@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title">
+  <title id="title">SyncStudy</title>
+  <defs>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0ea5e9"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="purple" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <path fill="#173b73" d="M128 18 48 51a6 6 0 0 0 0 11l80 33 80-33a6 6 0 0 0 0-11z"/>
+  <path fill="#173b73" d="M71 72v39c0 11 25 20 57 20s57-9 57-20V72l-13 5v31c-9 6-26 10-44 10s-35-4-44-10V77z"/>
+  <path fill="#173b73" d="M201 65h9v35a9 9 0 1 1-9 0z"/>
+  <path fill="#173b73" d="M51 105h27a10 10 0 0 1 10 10v78h80v-78a10 10 0 0 1 10-10h27a22 22 0 0 1 22 22v76a22 22 0 0 1-22 22H51a22 22 0 0 1-22-22v-76a22 22 0 0 1 22-22m10 18a4 4 0 0 0-4 4v64h142v-64a4 4 0 0 0-4-4h-9v78H70v-78z"/>
+  <path fill="url(#blue)" d="M73 130h54v82H61v-70a12 12 0 0 1 12-12"/>
+  <path fill="url(#purple)" d="M183 130h-54v82h66v-70a12 12 0 0 0-12-12"/>
+  <path fill="#0f172a" d="M128 129h2v83h-2z"/>
+  <path fill="none" stroke="#0f172a" stroke-linecap="round" stroke-width="5" d="m78 153 35 10m-35 10 35 10m-35 10 35 10m30-40 35-10m-35 30 35-10m-35 30 35-10"/>
+  <path fill="#173b73" d="M41 218h174a13 13 0 0 1 13 13H28a13 13 0 0 1 13-13m69 7h36a4 4 0 0 1 0 8h-36a4 4 0 0 1 0-8"/>
+  <path fill="none" stroke="#0ea5e9" stroke-linecap="round" stroke-width="10" d="M99 106a30 30 0 0 1 50-23"/>
+  <path fill="none" stroke="#8b5cf6" stroke-linecap="round" stroke-width="10" d="M157 91a30 30 0 0 1-49 23"/>
+  <path fill="#0ea5e9" d="m143 78 17 3-4 17z"/>
+  <path fill="#8b5cf6" d="m113 122-17-3 4-17z"/>
+</svg>

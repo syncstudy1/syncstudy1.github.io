@@ -3,6 +3,7 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { useAuthStore } from './authStore'
 import { callGemini } from '@/lib/gemini'
 import type { StudyPlan, StudyPlanJson } from '@/types/database'
+import { recordQualifyingActivity } from '@/lib/activity'
 
 interface PlannerState {
   currentPlan: StudyPlan | null
@@ -68,6 +69,7 @@ export const usePlannerStore = create<PlannerState>((set, get) => ({
         type: 'schedule',
         data: params,
       })) as StudyPlanJson
+      await recordQualifyingActivity('study_plan')
 
       const newPlan: StudyPlan = {
         id: `plan-${Date.now()}`,

@@ -3,7 +3,8 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/stores/authStore"
 import { useSubscriptionStore } from "@/stores/subscriptionStore"
 import { useStudySessions } from "@/hooks/useStudySessions"
-import { calculateCurrentStreak } from "@/lib/streak"
+import { useQualifyingActivity } from "@/hooks/useQualifyingActivity"
+import { getLocalDateKeyFromTimestamp, calculateStreakStats } from "@/lib/activity"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { Button } from "@/ui/button"
 import { Badge } from "@/ui/badge"
@@ -27,12 +28,19 @@ export function Navbar() {
   const navigate = useNavigate()
   const { user, profile, signOut } = useAuthStore()
   const { sessions, loading: sessionsLoading } = useStudySessions()
+  const { activities } = useQualifyingActivity()
   const { isPremium, getRemainingDays } = useSubscriptionStore()
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
 
   const premiumActive = isPremium()
   const remainingDays = getRemainingDays()
-  const currentStreak = React.useMemo(() => calculateCurrentStreak(sessions), [sessions])
+  const currentStreak = React.useMemo(() => {
+    const dates = new Set(activities.map((activity) => activity.activity_date))
+    sessions
+      .filter((session) => (session.actual_duration_s || 0) >= 300)
+      .forEach((session) => dates.add(getLocalDateKeyFromTimestamp(session.started_at)))
+    return calculateStreakStats(dates).currentStreak
+  }, [activities, sessions])
 
   const navLinks = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard, authRequired: true },
@@ -54,7 +62,7 @@ export function Navbar() {
         {/* Logo */}
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <img src="/syncstudy-logo.png" alt="" className="h-10 w-10 object-contain rounded-xl group-hover:scale-105 transition-transform" />
+            <img src="/syncstudy-logo.svg" alt="SyncStudy" className="h-10 w-10 object-contain group-hover:scale-105 transition-transform" />
             <div className="flex flex-col">
               <span className="font-bold text-lg leading-tight tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
                 SyncStudy
@@ -129,7 +137,7 @@ export function Navbar() {
                 aria-label={`View your ${sessionsLoading ? "current" : currentStreak}-day study streak`}
                 title="View study streak"
               >
-                <img src="/streak-flame.png" alt="" className="h-5 w-5 object-contain" />
+                <img src="/streak-flame.svg" alt="" className="h-5 w-5 object-contain" />
                 <span className="text-xs font-extrabold tabular-nums">{sessionsLoading ? "..." : currentStreak}</span>
                 <span className="hidden lg:inline text-[10px] font-bold uppercase tracking-wide">streak</span>
               </button>
@@ -223,7 +231,7 @@ export function Navbar() {
                   className="flex items-center gap-1.5 rounded-full border border-orange-300/70 bg-orange-50 px-2.5 py-1.5 text-xs font-bold text-orange-950 dark:border-orange-400/40 dark:bg-orange-950/50 dark:text-orange-100"
                   aria-label={`View your ${sessionsLoading ? "current" : currentStreak}-day study streak`}
                 >
-                  <img src="/streak-flame.png" alt="" className="h-5 w-5 object-contain" />
+                  <img src="/streak-flame.svg" alt="" className="h-5 w-5 object-contain" />
                   {sessionsLoading ? "..." : currentStreak} day streak
                 </button>
                 <Link

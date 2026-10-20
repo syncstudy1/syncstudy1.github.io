@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import type { StudySession, Subject } from '@/types/database'
+import { getLocalDateKeyFromTimestamp, recordQualifyingActivity } from '@/lib/activity'
 
 export interface SaveSessionInput {
   subject_id?: string | null
@@ -76,6 +77,12 @@ export function useStudySessions() {
 
     const sessionData = created as StudySession
     setSessions((prev) => [sessionData, ...prev])
+    if (sessionData.actual_duration_s >= 300) {
+      await recordQualifyingActivity(
+        'study_session',
+        getLocalDateKeyFromTimestamp(sessionData.started_at)
+      )
+    }
     return sessionData
   }
 

@@ -14,7 +14,6 @@ import {
   ShieldCheck,
   Zap,
   ArrowRight,
-  Flame,
   LogIn,
 } from "lucide-react"
 
@@ -83,7 +82,7 @@ export function HomePage() {
               <Zap className="w-4 h-4 text-amber-500" /> Real-time head pitch & yaw detection
             </span>
             <span className="flex items-center gap-1.5">
-              <Flame className="w-4 h-4 text-rose-500" /> Daily streak retention
+              <img src="/streak-flame.svg" alt="" className="w-4 h-4 object-contain" /> Daily streak retention
             </span>
           </div>
         </div>
@@ -100,7 +99,8 @@ export function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="hover:shadow-md transition-all border-border/80">
+            <Link to="/study" className="group block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Card className="h-full hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-700 transition-all border-border/80">
               <CardHeader>
                 <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-2">
                   <Eye className="w-6 h-6" />
@@ -114,8 +114,10 @@ export function HomePage() {
                 Sustained distraction triggers progressive warning alerts and auto-pauses the timer to preserve clean session data.
               </CardContent>
             </Card>
+            </Link>
 
-            <Card className="hover:shadow-md transition-all border-border/80">
+            <Link to="/planner" className="group block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Card className="h-full hover:shadow-md hover:border-purple-300 dark:hover:border-purple-700 transition-all border-border/80">
               <CardHeader>
                 <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/60 flex items-center justify-center text-purple-600 dark:text-purple-400 mb-2">
                   <CalendarCheck className="w-6 h-6" />
@@ -129,8 +131,10 @@ export function HomePage() {
                 Approve, revise, or regenerate schedules into structured cards with actionable time blocks.
               </CardContent>
             </Card>
+            </Link>
 
-            <Card className="hover:shadow-md transition-all border-border/80">
+            <Link to="/quiz" className="group block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Card className="h-full hover:shadow-md hover:border-pink-300 dark:hover:border-pink-700 transition-all border-border/80">
               <CardHeader>
                 <div className="w-12 h-12 rounded-xl bg-pink-50 dark:bg-pink-950/60 flex items-center justify-center text-pink-600 dark:text-pink-400 mb-2">
                   <BrainCircuit className="w-6 h-6" />
@@ -144,8 +148,10 @@ export function HomePage() {
                 Instant grading with in-depth question explanations and targeted revision suggestions.
               </CardContent>
             </Card>
+            </Link>
 
-            <Card className="hover:shadow-md transition-all border-border/80">
+            <Link to="/study" className="group block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Card className="h-full hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-700 transition-all border-border/80">
               <CardHeader>
                 <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-2">
                   <Timer className="w-6 h-6" />
@@ -159,8 +165,10 @@ export function HomePage() {
                 Log completed sessions, distraction counts, and session notes directly to Supabase.
               </CardContent>
             </Card>
+            </Link>
 
-            <Card className="hover:shadow-md transition-all border-border/80">
+            <Link to="/analytics" className="group block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Card className="h-full hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition-all border-border/80">
               <CardHeader>
                 <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/60 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-2">
                   <BarChart className="w-6 h-6" />
@@ -174,8 +182,10 @@ export function HomePage() {
                 GitHub-style streak calendar heatmap keeps you motivated every day of the semester.
               </CardContent>
             </Card>
+            </Link>
 
-            <Card className="hover:shadow-md transition-all border-border/80">
+            <Link to="/premium" className="group block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <Card className="h-full hover:shadow-md hover:border-amber-300 dark:hover:border-amber-700 transition-all border-border/80">
               <CardHeader>
                 <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/60 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-2">
                   <Sparkles className="w-6 h-6" />
@@ -189,6 +199,7 @@ export function HomePage() {
                 Available at just ₹129/month or with verified academic redeem vouchers.
               </CardContent>
             </Card>
+            </Link>
           </div>
         </div>
       </section>

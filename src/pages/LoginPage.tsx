@@ -75,7 +75,7 @@ export function LoginPage() {
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-12">
       <Card className="w-full max-w-md shadow-xl border-border/80">
         <CardHeader className="space-y-3 text-center pb-6">
-          <img src="/syncstudy-logo.png" alt="SyncStudy logo" className="mx-auto h-16 w-16 object-contain mb-1" />
+          <img src="/syncstudy-logo.svg" alt="SyncStudy logo" className="mx-auto h-16 w-16 object-contain mb-1" />
           <CardTitle className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             Welcome to SyncStudy
           </CardTitle>

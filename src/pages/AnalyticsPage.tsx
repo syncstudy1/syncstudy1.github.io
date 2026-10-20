@@ -19,7 +19,6 @@ import {
   Legend,
 } from 'recharts'
 import {
-  Flame,
   Trophy,
   Download,
   Lock,
@@ -60,6 +59,7 @@ export function AnalyticsPage() {
     warningStats,
     currentStreak,
     longestStreak,
+    recordDays,
     calendarData,
     totalSecondsAllTime,
     completedSessionsCount,
@@ -170,7 +170,7 @@ export function AnalyticsPage() {
         <div className="flex flex-wrap items-center gap-3">
           {/* Current Streak Badge */}
           <Badge className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800 px-3 py-1.5 text-xs gap-1.5 font-semibold">
-            <Flame className="w-4 h-4 fill-amber-500 text-amber-500" />
+            <img src="/streak-flame.svg" alt="" className="w-4 h-4 object-contain" />
             <span>{currentStreak} Day Streak</span>
           </Badge>
 
@@ -178,6 +178,12 @@ export function AnalyticsPage() {
           <Badge className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-400 border border-purple-300 dark:border-purple-800 px-3 py-1.5 text-xs gap-1.5 font-semibold">
             <Trophy className="w-4 h-4 text-purple-500" />
             <span>Record: {longestStreak} Days</span>
+          </Badge>
+
+          {/* Distinct qualifying activity days */}
+          <Badge className="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-300 dark:border-indigo-800 px-3 py-1.5 text-xs gap-1.5 font-semibold">
+            <Calendar className="w-4 h-4 text-indigo-500" />
+            <span>Record Days: {recordDays}</span>
           </Badge>
 
           {/* Export Data Button */}
@@ -273,7 +279,7 @@ export function AnalyticsPage() {
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Best Day This Week
             </CardTitle>
-            <Flame className="w-4 h-4 text-amber-500" />
+            <img src="/streak-flame.svg" alt="" className="w-4 h-4 object-contain" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold tracking-tight text-foreground">

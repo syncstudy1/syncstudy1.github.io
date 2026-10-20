@@ -24,6 +24,7 @@ import {
   RefreshCw,
 } from 'lucide-react'
 import type { QuizQuestion, QuizDifficulty } from '@/types/database'
+import { recordQualifyingActivity } from '@/lib/activity'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -143,6 +144,7 @@ export function QuizPage() {
 
       // Validate the response structure
       const validated = validateQuizResponse(rawResult, requestCount, requestSubject, requestTopic)
+      await recordQualifyingActivity('quiz')
 
       // Initialize quiz state with a clean slate
       setActiveQuizMeta({

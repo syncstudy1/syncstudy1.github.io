@@ -66,9 +66,9 @@ export function Footer() {
                   setOpenRedeem(true)
                   clearRedeemMessages()
                 }}
-                className="inline-flex items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-600 px-5 py-3 text-sm font-extrabold text-white shadow-md shadow-indigo-600/20 transition-all hover:-translate-y-0.5 hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:border-indigo-400/40 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                className="inline-flex items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-600 px-5 py-3 text-sm font-extrabold text-amber-700 shadow-md shadow-indigo-600/20 transition-all hover:-translate-y-0.5 hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:border-indigo-400/40 dark:bg-indigo-500 dark:text-amber-300 dark:hover:bg-indigo-400"
               >
-                <Ticket className="w-4 h-4" />
+                <Ticket className="w-4 h-4 text-amber-700 dark:text-amber-300" />
                 <span>Redeem a Code</span>
               </button>
 

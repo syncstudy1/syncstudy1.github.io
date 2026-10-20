@@ -2,16 +2,16 @@ import * as React from 'react'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
 import { useStudySessions } from '@/hooks/useStudySessions'
+import { useQualifyingActivity } from '@/hooks/useQualifyingActivity'
 import { useTasks } from '@/hooks/useTasks'
 import { useSubjects } from '@/hooks/useSubjects'
-import { calculateCurrentStreak } from '@/lib/streak'
+import { calculateStreakStats, getLocalDateKeyFromTimestamp } from '@/lib/activity'
 import { Button } from '@/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/ui/card'
 import { Badge } from '@/ui/badge'
 import {
   Timer,
   Clock,
-  Flame,
   CheckCircle2,
   Calendar,
   Sparkles,
@@ -42,13 +42,20 @@ function getGreeting(): string {
 export function DashboardPage() {
   const { user, profile } = useAuthStore()
   const { sessions, loading: sessionsLoading, todayTotalSeconds, weekTotalSeconds } = useStudySessions()
+  const { activities } = useQualifyingActivity()
   const { tasks, loading: tasksLoading, updateTaskStatus } = useTasks()
   const { subjects } = useSubjects()
 
   const userName = profile?.full_name || user?.user_metadata?.full_name || 'Scholar'
   const greeting = getGreeting()
 
-  const currentStreak = React.useMemo(() => calculateCurrentStreak(sessions), [sessions])
+  const currentStreak = React.useMemo(() => {
+    const dates = new Set(activities.map((activity) => activity.activity_date))
+    sessions
+      .filter((session) => (session.actual_duration_s || 0) >= 300)
+      .forEach((session) => dates.add(getLocalDateKeyFromTimestamp(session.started_at)))
+    return calculateStreakStats(dates).currentStreak
+  }, [activities, sessions])
 
   // Pending tasks
   const pendingTasks = React.useMemo(() => {
@@ -132,7 +139,7 @@ export function DashboardPage() {
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Current Streak
             </CardTitle>
-            <Flame className="w-4 h-4 text-amber-500" />
+            <img src="/streak-flame.svg" alt="" className="w-4 h-4 object-contain" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono tracking-tight text-foreground flex items-center gap-1.5">
