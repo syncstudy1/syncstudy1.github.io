@@ -20,10 +20,10 @@ export function parseGeminiJson(rawContent: string): unknown {
       arrStart >= 0 && (objStart < 0 || arrStart < objStart)
         ? arrStart
         : objStart
-    if (start < 0) throw new Error('AI response did not contain JSON.')
+    if (start < 0) throw new Error('The generated response was incomplete. Please try again.')
     const closer = text[start] === '[' ? ']' : '}'
     const end = text.lastIndexOf(closer)
-    if (end <= start) throw new Error('AI response did not contain JSON.')
+    if (end <= start) throw new Error('The generated response was incomplete. Please try again.')
     return JSON.parse(text.slice(start, end + 1))
   }
 }
@@ -43,7 +43,7 @@ export function unwrapQuizArray(parsed: unknown): unknown {
 }
 
 /**
- * Validates the parsed JSON array returned by the Gemini quiz endpoint.
+ * Validates the parsed JSON array returned by the quiz generation endpoint.
  * Throws a descriptive error if the structure is invalid so the caller
  * can surface a meaningful message instead of silently showing bad data.
  */
@@ -56,7 +56,7 @@ export function validateQuizResponse(
   const unwrapped = unwrapQuizArray(raw)
 
   if (!Array.isArray(unwrapped)) {
-    throw new Error('AI returned an unexpected response structure (expected a JSON array of questions).')
+    throw new Error('The generated response had an unexpected response structure. Please try again.')
   }
 
   const validated: QuizQuestion[] = []
@@ -117,7 +117,7 @@ export function validateQuizResponse(
 
   if (deduplicated.length < expectedCount) {
     throw new Error(
-      `The AI returned ${deduplicated.length} valid questions but ${expectedCount} were requested. Please try again.`,
+      `${deduplicated.length} valid questions but ${expectedCount} were requested. Please try again.`,
     )
   }
 

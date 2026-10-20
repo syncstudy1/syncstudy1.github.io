@@ -69,8 +69,6 @@ export const usePlannerStore = create<PlannerState>((set, get) => ({
         type: 'schedule',
         data: params,
       })) as StudyPlanJson
-      await recordQualifyingActivity('study_plan')
-
       const newPlan: StudyPlan = {
         id: `plan-${Date.now()}`,
         user_id: user.id,
@@ -120,6 +118,12 @@ export const usePlannerStore = create<PlannerState>((set, get) => ({
       if (error) throw error
 
       const created = data as StudyPlan
+      try {
+        await recordQualifyingActivity('study_plan')
+      } catch (activityError) {
+        console.error('Plan saved, but activity-day recording failed:', activityError)
+        window.dispatchEvent(new CustomEvent('syncstudy:activity-recorded'))
+      }
       set((state) => ({
         savedPlans: [created, ...state.savedPlans],
         currentPlan: null,

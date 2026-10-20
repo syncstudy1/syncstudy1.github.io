@@ -104,7 +104,7 @@ export function QuizPage() {
     if (!premium && remainingFreeQuizzes <= 0) {
       toast({
         title: 'Daily Quiz Limit Reached',
-        description: 'Free tier includes 1 AI quiz per day. Upgrade to Premium for unlimited quiz generation.',
+        description: 'Free tier includes 1 practice quiz per day. Upgrade to Premium for unlimited quiz generation.',
         type: 'error',
       })
       return
@@ -144,7 +144,6 @@ export function QuizPage() {
 
       // Validate the response structure
       const validated = validateQuizResponse(rawResult, requestCount, requestSubject, requestTopic)
-      await recordQualifyingActivity('quiz')
 
       // Initialize quiz state with a clean slate
       setActiveQuizMeta({
@@ -163,8 +162,8 @@ export function QuizPage() {
       setGenerationError(null)
 
       toast({
-        title: 'Quiz Ready!',
-        description: `Generated ${validated.length} ${requestDifficulty} questions on "${requestTopic}".`,
+        title: 'Your practice quiz is ready.',
+        description: `Prepared ${validated.length} questions on "${requestTopic}".`,
         type: 'success',
       })
     } catch (err: any) {
@@ -223,6 +222,12 @@ export function QuizPage() {
           score,
           total: activeQuizQuestions.length,
         })
+        try {
+          await recordQualifyingActivity('quiz')
+        } catch (activityError) {
+          console.error('Quiz saved, but activity-day recording failed:', activityError)
+          window.dispatchEvent(new CustomEvent('syncstudy:activity-recorded'))
+        }
       } catch (err) {
         console.error('Error saving quiz record:', err)
       }
@@ -299,7 +304,7 @@ export function QuizPage() {
             Practice Quiz
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Generate subject-specific multiple-choice quizzes with Gemini.
+            Create practice questions for your subjects, choose a topic, and test your understanding.
           </p>
         </div>
 
@@ -321,10 +326,10 @@ export function QuizPage() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-500" />
-              Configure Practice Test
+              Set Up Your Practice Quiz
             </CardTitle>
             <CardDescription className="text-xs">
-              Select a subject, enter the specific topic or chapter, and choose difficulty to generate fresh AI questions.
+              Select a subject, enter a topic or chapter, and choose a difficulty level for fresh practice questions.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -483,12 +488,12 @@ export function QuizPage() {
                 {isGenerating ? (
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Generating questions with Gemini…</span>
+                    <span>Preparing your practice questions...</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4" />
-                    <span>Generate Quiz ({questionCount} questions · {difficulty})</span>
+                    <span>Generate Practice Quiz</span>
                   </div>
                 )}
               </Button>

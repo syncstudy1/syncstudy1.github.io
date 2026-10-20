@@ -491,7 +491,7 @@ export function StudySessionPage() {
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-sm">Focus Eye & Posture Monitoring</span>
                     <Badge variant="outline" className="text-[10px] py-0 border-indigo-200">
-                      AI Vision
+                      Focus Monitoring
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">

@@ -40,11 +40,11 @@ function getStatusLabel(status: FaceMonitorStatus, progress: number): string {
     case 'starting_video_playback':
       return 'Starting video stream...'
     case 'loading_library':
-      return 'Loading MediaPipe vision library...'
+      return 'Loading focus monitoring...'
     case 'loading_wasm':
       return 'Loading WASM runtime...'
     case 'loading_model':
-      return 'Loading AI posture models...'
+      return 'Loading posture monitoring...'
     case 'calibrating':
       return `Calibrating baseline pose... (${progress}%)`
     case 'monitoring':
@@ -58,7 +58,7 @@ function getStatusLabel(status: FaceMonitorStatus, progress: number): string {
     case 'video_playback_failed':
       return 'Video preview playback failed'
     case 'model_loading_failed':
-      return 'AI vision model loading failed'
+      return 'Focus monitoring could not be loaded'
     case 'monitoring_stopped':
       return 'Vision monitor stopped'
     case 'simulation_mode':

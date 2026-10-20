@@ -20,7 +20,7 @@ let loadingPromise: Promise<FaceLandmarker> | null = null
 export type VisionLoadingStage = 'loading_library' | 'loading_wasm' | 'loading_model'
 
 /**
- * Loads and initializes the MediaPipe FaceLandmarker instance.
+ * Loads and initializes the face landmark monitor.
  * - Imports the official @mediapipe/tasks-vision package directly.
  * - Resolves WASM from local assets first, with fallback to pinned CDN.
  * - Resolves model from local assets first, with fallback to Google Cloud Storage.
@@ -40,7 +40,7 @@ export async function loadFaceLandmarker(
 
   loadingPromise = (async () => {
     onProgress?.('loading_wasm')
-    console.log('[SyncStudy Vision] Initializing MediaPipe FilesetResolver...')
+    console.log('[SyncStudy Vision] Initializing focus monitor...')
 
     let wasmFileset: Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>
 
@@ -56,7 +56,7 @@ export async function loadFaceLandmarker(
       } catch (cdnWasmErr) {
         console.error('[SyncStudy Vision] Failed to load WASM fileset from both local and CDN:', cdnWasmErr)
         throw new Error(
-          `Failed to load MediaPipe WASM runtime. Please check internet connection or CDN availability.`
+          `Failed to load the focus monitoring runtime. Please check your internet connection and try again.`
         )
       }
     }
@@ -118,7 +118,7 @@ export async function loadFaceLandmarker(
     cachedLandmarker = null
     const errMessage =
       lastError instanceof Error ? lastError.message : String(lastError || 'Unknown model loading failure')
-    throw new Error(`MediaPipe Face Landmarker model could not be initialized: ${errMessage}`)
+    throw new Error(`Focus monitoring could not be initialized: ${errMessage}`)
   })().finally(() => {
     loadingPromise = null
   })
@@ -174,7 +174,7 @@ export function extractHeadAngles(result: FaceLandmarkerResult): HeadAngles | nu
       : []
 
     if (matrixData.length >= 12) {
-      // Column-major 4x4 matrix from MediaPipe:
+      // Column-major 4x4 matrix from the face landmark monitor:
       // [m0, m4, m8,  m12]
       // [m1, m5, m9,  m13]
       // [m2, m6, m10, m14]

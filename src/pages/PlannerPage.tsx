@@ -117,7 +117,7 @@ export function PlannerPage() {
       })
 
       toast({
-        title: 'Study Plan Generated!',
+        title: 'Your study plan is ready.',
         description: 'Review your personalized schedule below.',
         type: 'success',
       })
@@ -189,7 +189,7 @@ export function PlannerPage() {
                 Study Planner
               </h1>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Unlock automated, evidence-based study schedules generated with Gemini 2.0 Flash. Distribute cognitive loads efficiently and crush upcoming exams without burnout.
+                Create evidence-based study schedules that distribute cognitive load efficiently and help you prepare without burnout.
               </p>
             </div>
 
@@ -256,7 +256,7 @@ export function PlannerPage() {
             Study Planner
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Personalized, spaced-repetition schedules generated with Gemini 2.0 Flash.
+            Create a personalized study schedule that fits your goals, available time, and upcoming deadlines.
           </p>
         </div>
 
@@ -273,7 +273,7 @@ export function PlannerPage() {
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-amber-500" />
-              Configure Your Study Period
+              Configure Your Study Plan
             </CardTitle>
             <CardDescription className="text-xs">
               Select which subjects and tasks to schedule, and define your daily study bandwidth.
@@ -367,7 +367,7 @@ export function PlannerPage() {
                   Included Backlog Tasks ({tasks.filter((t) => t.status !== 'done').length} pending)
                 </span>
                 <span className="text-muted-foreground text-[11px]">
-                  AI will factor in nearest deadlines
+                  Deadlines will be prioritized in your schedule
                 </span>
               </div>
               <div className="flex flex-wrap gap-1.5 pt-1">
@@ -395,12 +395,12 @@ export function PlannerPage() {
               {isGenerating ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Synthesizing Optimal Schedule with Gemini 2.0 Flash...</span>
+                  <span>Creating your study plan...</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
-                  <span>Generate AI Study Plan ({availableHours}h/day)</span>
+                  <span>Create My Study Plan</span>
                 </div>
               )}
             </Button>

@@ -88,7 +88,7 @@ export function useAnalytics() {
 
     // Preserve historical qualifying activity from records created before migration 003.
     sessions.forEach((session) => {
-      if ((session.actual_duration_s || 0) >= 300) {
+      if ((session.actual_duration_s || 0) > 0) {
         const date = getLocalDateKeyFromTimestamp(session.started_at)
         activityDates.add(date)
         activityCountByDate.set(date, (activityCountByDate.get(date) || 0) + 1)

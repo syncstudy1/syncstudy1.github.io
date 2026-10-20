@@ -37,18 +37,18 @@ export function HomePage() {
         <div className="container mx-auto px-4 relative z-10 text-center max-w-4xl">
           <Badge variant="outline" className="mb-6 py-1.5 px-4 rounded-full border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 gap-2 font-medium">
             <Sparkles className="w-4 h-4 text-amber-500" />
-            <span>AI-Powered Focus & Adaptive Learning Assistant</span>
+            <span>Your Personal Study & Focus Companion</span>
           </Badge>
 
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground leading-[1.1] mb-6">
-            Master Deep Focus with{" "}
+            Build Better Study Habits. Stay Focused.{" "}
             <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Intelligent Computer Vision
+              Make Progress.
             </span>
           </h1>
 
           <p className="text-lg sm:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
-            SyncStudy combines on-device MediaPipe posture monitoring with Gemini AI study schedules and adaptive quizzes to keep your productivity at its peak.
+            Plan your study sessions, stay focused with real-time monitoring, and track your progress as you work toward your goals.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -56,7 +56,7 @@ export function HomePage() {
               <Link to="/study">
                 <Button size="lg" className="h-12 px-8 text-base gap-2 rounded-xl shadow-lg shadow-indigo-600/20 bg-indigo-600 hover:bg-indigo-700 text-white">
                   <Timer className="w-5 h-5" />
-                  Enter Study Room
+                  Start Studying
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </Link>
@@ -67,7 +67,7 @@ export function HomePage() {
                   className="h-12 px-8 text-base gap-2 rounded-xl shadow-lg shadow-indigo-600/20 bg-indigo-600 hover:bg-indigo-700 text-white"
                 >
                   <LogIn className="w-4 h-4 mr-1" />
-                  Sign In to Study
+                  Start Studying
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
               </Link>
@@ -107,7 +107,7 @@ export function HomePage() {
                 </div>
                 <CardTitle className="text-lg">Computer Vision Guard</CardTitle>
                 <CardDescription>
-                  MediaPipe Face Landmarker continuously measures head yaw and pitch relative to your calibrated baseline.
+                  Real-time focus monitoring helps you stay present during each study session.
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
@@ -124,7 +124,7 @@ export function HomePage() {
                 </div>
                 <CardTitle className="text-lg">Study Planner</CardTitle>
                 <CardDescription>
-                  Gemini 2.0 Flash crafts tailored study schedules based on your exams, task loads, and available daily hours.
+                  Create tailored study schedules based on your exams, task loads, and available daily hours.
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
@@ -192,7 +192,7 @@ export function HomePage() {
                 </div>
                 <CardTitle className="text-lg">Premium Flexibility</CardTitle>
                 <CardDescription>
-                  Full access to unlimited camera monitoring, unlimited AI quizzes, and complete study history.
+                  Full access to unlimited camera monitoring, practice quizzes, and complete study history.
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">

@@ -48,7 +48,7 @@ export function PremiumPage() {
         </h1>
 
         <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-          Gain unlimited access to AI curriculum scheduling, adaptive question synthesis, uninterrupted computer vision focus monitoring, and quarterly streak analytics.
+          Gain unlimited access to personalized study scheduling, practice question generation, uninterrupted focus monitoring, and quarterly streak analytics.
         </p>
 
         {premium && (
@@ -129,7 +129,7 @@ export function PremiumPage() {
                 <div className="p-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 shrink-0">
                   <Check className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-foreground font-medium">Priority AI Response & Faster Invocations</span>
+                <span className="text-foreground font-medium">Priority Responses & Faster Invocations</span>
               </div>
             </div>
           </CardContent>

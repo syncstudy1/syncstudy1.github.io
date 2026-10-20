@@ -77,11 +77,16 @@ export function useStudySessions() {
 
     const sessionData = created as StudySession
     setSessions((prev) => [sessionData, ...prev])
-    if (sessionData.actual_duration_s >= 300) {
-      await recordQualifyingActivity(
-        'study_session',
-        getLocalDateKeyFromTimestamp(sessionData.started_at)
-      )
+    if (sessionData.actual_duration_s > 0) {
+      try {
+        await recordQualifyingActivity(
+          'study_session',
+          getLocalDateKeyFromTimestamp(sessionData.started_at)
+        )
+      } catch (activityError) {
+        console.error('Session saved, but activity-day recording failed:', activityError)
+        window.dispatchEvent(new CustomEvent('syncstudy:activity-recorded'))
+      }
     }
     return sessionData
   }

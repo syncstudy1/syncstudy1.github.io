@@ -33,8 +33,10 @@ export function useQualifyingActivity() {
             .eq('user_id', user.id),
         ])
 
-      if (activityError) throw activityError
       if (planError) throw planError
+      if (activityError) {
+        console.error('Failed to load recorded activity days:', activityError)
+      }
 
       const merged = new Map<string, QualifyingActivity>()
       for (const activity of (recorded || []) as QualifyingActivity[]) {

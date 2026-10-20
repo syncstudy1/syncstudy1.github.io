@@ -37,7 +37,7 @@ export function Navbar() {
   const currentStreak = React.useMemo(() => {
     const dates = new Set(activities.map((activity) => activity.activity_date))
     sessions
-      .filter((session) => (session.actual_duration_s || 0) >= 300)
+      .filter((session) => (session.actual_duration_s || 0) > 0)
       .forEach((session) => dates.add(getLocalDateKeyFromTimestamp(session.started_at)))
     return calculateStreakStats(dates).currentStreak
   }, [activities, sessions])

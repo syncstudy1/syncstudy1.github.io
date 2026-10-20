@@ -82,7 +82,7 @@ async function readFunctionsErrorMessage(error: unknown, data: unknown): Promise
   }
 
   if (error instanceof Error && error.message) return error.message
-  return 'Failed to call AI study proxy.'
+  return 'Something went wrong. Please try again.'
 }
 
 // ─── Main callGemini function ────────────────────────────────────────────────
@@ -109,12 +109,11 @@ export async function callGemini(payload: CallGeminiPayload): Promise<unknown> {
     // For quiz in demo mode, tell the user Supabase must be configured
     if (payload.type === 'quiz') {
       throw new Error(
-        'AI quiz generation requires a configured Supabase project with the GEMINI_API_KEY secret. ' +
-        'Please set up your environment variables as described in the README.'
+        'Practice quiz generation is not configured. Please try again later.'
       )
     }
 
-    throw new Error(`Unsupported AI payload type: ${payload.type}`)
+    throw new Error(`Unsupported generation type: ${payload.type}`)
   }
 
   // ── Live Supabase mode ─────────────────────────────────────────────────────
@@ -138,7 +137,7 @@ export async function callGemini(payload: CallGeminiPayload): Promise<unknown> {
     return data
   } catch (err: any) {
     if (err.name === 'AbortError') {
-      throw new Error('AI request timed out after 45 seconds. The Gemini API may be under load — please try again.')
+      throw new Error('The request timed out. Please try again.')
     }
 
     // Re-throw the original error without any mock/hardcoded fallback.

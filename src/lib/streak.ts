@@ -6,7 +6,7 @@ export function calculateCurrentStreak(sessions: StudySession[]): number {
 
   const qualifyingDates = new Set(
     sessions
-      .filter((session) => (session.actual_duration_s || 0) >= 300)
+      .filter((session) => (session.actual_duration_s || 0) > 0)
       .map((session) => getLocalDateKeyFromTimestamp(session.started_at))
   )
   return calculateStreakStats(qualifyingDates).currentStreak

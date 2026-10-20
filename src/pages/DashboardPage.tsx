@@ -52,7 +52,7 @@ export function DashboardPage() {
   const currentStreak = React.useMemo(() => {
     const dates = new Set(activities.map((activity) => activity.activity_date))
     sessions
-      .filter((session) => (session.actual_duration_s || 0) >= 300)
+      .filter((session) => (session.actual_duration_s || 0) > 0)
       .forEach((session) => dates.add(getLocalDateKeyFromTimestamp(session.started_at)))
     return calculateStreakStats(dates).currentStreak
   }, [activities, sessions])
@@ -86,7 +86,7 @@ export function DashboardPage() {
             {greeting}, {userName}! 👋
           </h1>
           <p className="text-sm text-indigo-200/90 max-w-xl">
-            Track your focus, follow your personalized study schedule, and test your knowledge with adaptive AI quizzes.
+            Track your focus, follow your personalized study schedule, and test your knowledge with practice quizzes.
           </p>
         </div>
         <div className="relative z-10 flex flex-wrap items-center gap-3">

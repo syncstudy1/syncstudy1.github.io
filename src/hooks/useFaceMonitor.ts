@@ -466,7 +466,7 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
           return
         }
 
-        // 5. Load MediaPipe FaceLandmarker
+        // 5. Load the face landmark monitor
         let landmarker: FaceLandmarker
         try {
           landmarker = await loadFaceLandmarker((stage: VisionLoadingStage) => {
@@ -479,7 +479,7 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
           console.error('[SyncStudy Vision] FaceLandmarker loading error:', modelErr)
           cleanupHardware()
           setStatus('model_loading_failed')
-          setErrorMessage(modelErr.message || 'Failed to initialize AI posture model.')
+          setErrorMessage(modelErr.message || 'Focus monitoring could not be initialized.')
           return
         }
 

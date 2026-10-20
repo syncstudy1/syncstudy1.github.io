@@ -41,7 +41,7 @@ export function Footer() {
             </Link>
             <span>&copy; {new Date().getFullYear()}</span>
             <span>&bull;</span>
-            <span>AI-Driven Study Companion</span>
+            <span>Personal Study Companion</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs">
@@ -66,9 +66,9 @@ export function Footer() {
                   setOpenRedeem(true)
                   clearRedeemMessages()
                 }}
-                className="inline-flex items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-600 px-5 py-3 text-sm font-extrabold text-amber-700 shadow-md shadow-indigo-600/20 transition-all hover:-translate-y-0.5 hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:border-indigo-400/40 dark:bg-indigo-500 dark:text-amber-300 dark:hover:bg-indigo-400"
+                className="inline-flex items-center gap-2 rounded-xl border border-border bg-background px-5 py-3 text-sm font-extrabold text-foreground shadow-md transition-all hover:-translate-y-0.5 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-card"
               >
-                <Ticket className="w-4 h-4 text-amber-700 dark:text-amber-300" />
+                <Ticket className="w-4 h-4 text-foreground" />
                 <span>Redeem a Code</span>
               </button>
 
