@@ -2,13 +2,14 @@ import * as React from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuthStore } from "@/stores/authStore"
 import { useSubscriptionStore } from "@/stores/subscriptionStore"
+import { useStudySessions } from "@/hooks/useStudySessions"
+import { calculateCurrentStreak } from "@/lib/streak"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { Button } from "@/ui/button"
 import { Badge } from "@/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/ui/avatar"
 import {
   Sparkles,
-  BookOpen,
   LayoutDashboard,
   Timer,
   CalendarDays,
@@ -25,11 +26,13 @@ export function Navbar() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, profile, signOut } = useAuthStore()
+  const { sessions, loading: sessionsLoading } = useStudySessions()
   const { isPremium, getRemainingDays } = useSubscriptionStore()
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
 
   const premiumActive = isPremium()
   const remainingDays = getRemainingDays()
+  const currentStreak = React.useMemo(() => calculateCurrentStreak(sessions), [sessions])
 
   const navLinks = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard, authRequired: true },
@@ -51,9 +54,7 @@ export function Navbar() {
         {/* Logo */}
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-sm shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-              <BookOpen className="h-5 w-5" />
-            </div>
+            <img src="/syncstudy-logo.png" alt="" className="h-10 w-10 object-contain rounded-xl group-hover:scale-105 transition-transform" />
             <div className="flex flex-col">
               <span className="font-bold text-lg leading-tight tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
                 SyncStudy
@@ -120,6 +121,18 @@ export function Navbar() {
                   </Button>
                 </Link>
               )}
+
+              <button
+                type="button"
+                onClick={() => navigate("/analytics")}
+                className="flex items-center gap-1.5 rounded-full border border-orange-300/70 bg-orange-50 px-2.5 py-1.5 text-orange-950 shadow-sm transition-all hover:-translate-y-0.5 hover:bg-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 dark:border-orange-400/40 dark:bg-orange-950/50 dark:text-orange-100 dark:hover:bg-orange-900/60"
+                aria-label={`View your ${sessionsLoading ? "current" : currentStreak}-day study streak`}
+                title="View study streak"
+              >
+                <img src="/streak-flame.png" alt="" className="h-5 w-5 object-contain" />
+                <span className="text-xs font-extrabold tabular-nums">{sessionsLoading ? "..." : currentStreak}</span>
+                <span className="hidden lg:inline text-[10px] font-bold uppercase tracking-wide">streak</span>
+              </button>
 
               {/* User menu / Sign out */}
               <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-border">
@@ -201,6 +214,18 @@ export function Navbar() {
               })}
 
               <div className="pt-2 border-t mt-2 flex justify-between items-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    navigate("/analytics")
+                  }}
+                  className="flex items-center gap-1.5 rounded-full border border-orange-300/70 bg-orange-50 px-2.5 py-1.5 text-xs font-bold text-orange-950 dark:border-orange-400/40 dark:bg-orange-950/50 dark:text-orange-100"
+                  aria-label={`View your ${sessionsLoading ? "current" : currentStreak}-day study streak`}
+                >
+                  <img src="/streak-flame.png" alt="" className="h-5 w-5 object-contain" />
+                  {sessionsLoading ? "..." : currentStreak} day streak
+                </button>
                 <Link
                   to="/premium"
                   onClick={() => setMobileMenuOpen(false)}

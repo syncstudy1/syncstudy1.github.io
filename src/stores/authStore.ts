@@ -1,3 +1,4 @@
+
 import { create } from 'zustand'
 import type { User } from '@supabase/supabase-js'
 import { supabase, isSupabaseConfigured } from '@/lib/supabase'
@@ -30,12 +31,20 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       } catch {}
 
       if (!isSupabaseConfigured) {
-        set({ user: null, profile: null, isLoading: false, isInitialized: true })
+        set({
+          user: null,
+          profile: null,
+          isLoading: false,
+          isInitialized: true,
+        })
         return
       }
 
-      // Check current active session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession()
+
       if (sessionError) throw sessionError
 
       if (session?.user) {
@@ -45,14 +54,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           .eq('id', session.user.id)
           .maybeSingle()
 
-        // If trigger hasn't finished inserting yet, wait briefly and retry once
         if (!profile) {
-          await new Promise((r) => setTimeout(r, 600))
+          await new Promise((resolve) => setTimeout(resolve, 600))
+
           const { data: retryProfile } = await supabase
             .from('profiles')
             .select('*')
             .eq('id', session.user.id)
             .maybeSingle()
+
           profile = retryProfile
         }
 
@@ -78,10 +88,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isInitialized: true,
         })
       } else {
-        set({ user: null, profile: null, isLoading: false, isInitialized: true })
+        set({
+          user: null,
+          profile: null,
+          isLoading: false,
+          isInitialized: true,
+        })
       }
 
-      // Subscribe to real-time auth changes (including OAuth redirects)
       supabase.auth.onAuthStateChange(async (_event, newSession) => {
         if (newSession?.user) {
           let { data: profile } = await supabase
@@ -91,12 +105,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             .maybeSingle()
 
           if (!profile) {
-            await new Promise((r) => setTimeout(r, 600))
+            await new Promise((resolve) => setTimeout(resolve, 600))
+
             const { data: retryProfile } = await supabase
               .from('profiles')
               .select('*')
               .eq('id', newSession.user.id)
               .maybeSingle()
+
             profile = retryProfile
           }
 
@@ -132,19 +148,28 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       })
     } catch (err: any) {
       console.warn('Auth initialization error:', err?.message)
-      set({ user: null, profile: null, isLoading: false, isInitialized: true })
+
+      set({
+        user: null,
+        profile: null,
+        isLoading: false,
+        isInitialized: true,
+      })
     }
   },
 
-  signInWithGoogle: async (targetPath?: string) => {
+  signInWithGoogle: async (_targetPath?: string) => {
     set({ isLoading: true, error: null })
+
     try {
       if (!isSupabaseConfigured) {
-        throw new Error('Supabase is not configured. Please check your environment variables.')
+        throw new Error(
+          'Supabase is not configured. Please check your environment variables.'
+        )
       }
 
-      const path = targetPath || '/dashboard'
-      const redirectUrl = `${window.location.origin}${path}`
+      // Keep the OAuth callback on the URL query string, not in the hash.
+      const redirectUrl = window.location.origin
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -158,10 +183,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       })
 
       if (error) throw error
+
       return { success: true }
     } catch (err: any) {
-      const msg = err?.message || 'Failed to initiate Google sign-in. Please try again.'
-      set({ isLoading: false, error: msg })
+      const msg =
+        err?.message || 'Failed to initiate Google sign-in. Please try again.'
+
+      set({
+        isLoading: false,
+        error: msg,
+      })
+
       return { success: false, error: msg }
     }
   },
@@ -179,11 +211,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     }
 
-    set({ user: null, profile: null, error: null, isLoading: false })
+    set({
+      user: null,
+      profile: null,
+      error: null,
+      isLoading: false,
+    })
   },
 
   refreshProfile: async () => {
     const { user } = get()
+
     if (!user || !isSupabaseConfigured) return
 
     try {
@@ -193,9 +231,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         .eq('id', user.id)
         .maybeSingle()
 
-      if (data) {
-        set({ profile: data })
-      }
+      if (data) set({ profile: data })
     } catch (err) {
       console.error('Error refreshing profile:', err)
     }

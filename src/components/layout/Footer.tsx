@@ -4,7 +4,15 @@ import { useSubscriptionStore } from "@/stores/subscriptionStore"
 import { useAuthStore } from "@/stores/authStore"
 import { Input } from "@/ui/input"
 import { Button } from "@/ui/button"
-import { Loader2, KeyRound, CheckCircle2, AlertCircle } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/ui/dialog"
+import { Loader2, KeyRound, CheckCircle2, AlertCircle, Ticket } from "lucide-react"
 
 export function Footer() {
   const location = useLocation()
@@ -19,8 +27,8 @@ export function Footer() {
   const handleRedeem = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!code.trim()) return
-    await redeemCode(code)
-    setCode("")
+    const result = await redeemCode(code)
+    if (result.success) setCode("")
   }
 
   return (
@@ -55,52 +63,86 @@ export function Footer() {
               <button
                 type="button"
                 onClick={() => {
-                  setOpenRedeem(!openRedeem)
+                  setOpenRedeem(true)
                   clearRedeemMessages()
                 }}
-                className="text-xs text-muted-foreground/80 hover:text-foreground underline-offset-4 hover:underline flex items-center gap-1.5 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-600 px-5 py-3 text-sm font-extrabold text-white shadow-md shadow-indigo-600/20 transition-all hover:-translate-y-0.5 hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:border-indigo-400/40 dark:bg-indigo-500 dark:hover:bg-indigo-400"
               >
-                <KeyRound className="w-3.5 h-3.5" />
-                <span>Redeem Code</span>
+                <Ticket className="w-4 h-4" />
+                <span>Redeem a Code</span>
               </button>
 
-              {openRedeem && (
-                <div className="mt-4 w-full max-w-sm transition-all animate-in fade-in-50 zoom-in-95">
-                  <form onSubmit={handleRedeem} className="flex gap-2">
-                    <Input
-                      type="text"
-                      placeholder="Enter code"
-                      value={code}
-                      onChange={(e) => setCode(e.target.value.toUpperCase())}
-                      className="h-9 text-xs uppercase font-mono tracking-wider"
-                      disabled={isChecking}
-                    />
-                    <Button type="submit" size="sm" className="h-9 px-4 shrink-0 text-xs" disabled={isChecking}>
-                      {isChecking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Redeem"}
-                    </Button>
+              <Dialog open={openRedeem} onOpenChange={(open) => {
+                setOpenRedeem(open)
+                if (!open) clearRedeemMessages()
+              }}>
+                <DialogContent className="w-[calc(100%-2rem)] max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2 text-2xl font-extrabold">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
+                        <KeyRound className="h-5 w-5" />
+                      </span>
+                      Redeem Code
+                    </DialogTitle>
+                    <DialogDescription>
+                      Enter your premium access code below. Codes contain letters and numbers only.
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <form onSubmit={handleRedeem} className="space-y-4">
+                    <div className="space-y-2">
+                      <label htmlFor="redeem-code" className="text-sm font-semibold text-foreground">
+                        Access code
+                      </label>
+                      <Input
+                        id="redeem-code"
+                        type="text"
+                        placeholder="Enter code here"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase())}
+                        className="h-11 uppercase font-mono tracking-wider"
+                        inputMode="text"
+                        autoComplete="off"
+                        disabled={isChecking}
+                        aria-describedby="redeem-code-help"
+                      />
+                      <p id="redeem-code-help" className="text-xs text-muted-foreground">
+                        Letters and numbers only.
+                      </p>
+                    </div>
+
+                    {redeemError && (
+                      <div className="flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300" role="alert">
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                        <span>{redeemError}</span>
+                      </div>
+                    )}
+
+                    {redeemSuccess && (
+                      <div className="flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-300" role="status">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                        <span>{redeemSuccess}</span>
+                      </div>
+                    )}
+
+                    {!user && (
+                      <p className="text-xs text-muted-foreground">
+                        Sign in before redeeming a code.
+                      </p>
+                    )}
+
+                    <DialogFooter className="gap-2 sm:gap-2">
+                      <Button type="button" variant="outline" onClick={() => setOpenRedeem(false)} disabled={isChecking}>
+                        Cancel
+                      </Button>
+                      <Button type="submit" className="gap-2 bg-indigo-600 text-white hover:bg-indigo-700" disabled={isChecking || !code}>
+                        {isChecking ? <Loader2 className="h-4 w-4 animate-spin" /> : <Ticket className="h-4 w-4" />}
+                        Redeem
+                      </Button>
+                    </DialogFooter>
                   </form>
-
-                  {redeemError && (
-                    <div className="mt-2 flex items-center gap-1.5 text-xs text-rose-500">
-                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                      <span>{redeemError}</span>
-                    </div>
-                  )}
-
-                  {redeemSuccess && (
-                    <div className="mt-2 flex items-center gap-1.5 text-xs text-emerald-600">
-                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-                      <span>{redeemSuccess}</span>
-                    </div>
-                  )}
-
-                  {!user && openRedeem && (
-                    <p className="mt-1.5 text-[11px] text-muted-foreground text-center">
-                      Sign in before redeeming code
-                    </p>
-                  )}
-                </div>
-              )}
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         )}

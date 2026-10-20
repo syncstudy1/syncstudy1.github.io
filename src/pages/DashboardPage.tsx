@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { useStudySessions } from '@/hooks/useStudySessions'
 import { useTasks } from '@/hooks/useTasks'
 import { useSubjects } from '@/hooks/useSubjects'
+import { calculateCurrentStreak } from '@/lib/streak'
 import { Button } from '@/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/ui/card'
 import { Badge } from '@/ui/badge'
@@ -47,34 +48,7 @@ export function DashboardPage() {
   const userName = profile?.full_name || user?.user_metadata?.full_name || 'Scholar'
   const greeting = getGreeting()
 
-  // Calculate current streak
-  const currentStreak = React.useMemo(() => {
-    if (!sessions || sessions.length === 0) return 0
-    const qualifyingDates = new Set(
-      sessions
-        .filter((s) => (s.actual_duration_s || 0) >= 300) // 5 min minimum
-        .map((s) => new Date(s.started_at).toISOString().split('T')[0])
-    )
-
-    let streak = 0
-    let checkDate = new Date()
-    // check today or yesterday to start streak
-    const todayStr = checkDate.toISOString().split('T')[0]
-    if (!qualifyingDates.has(todayStr)) {
-      checkDate.setDate(checkDate.getDate() - 1)
-    }
-
-    while (true) {
-      const dateStr = checkDate.toISOString().split('T')[0]
-      if (qualifyingDates.has(dateStr)) {
-        streak += 1
-        checkDate.setDate(checkDate.getDate() - 1)
-      } else {
-        break
-      }
-    }
-    return streak
-  }, [sessions])
+  const currentStreak = React.useMemo(() => calculateCurrentStreak(sessions), [sessions])
 
   // Pending tasks
   const pendingTasks = React.useMemo(() => {

@@ -2,7 +2,7 @@ import * as React from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/ui/dialog"
 import { Button } from "@/ui/button"
 import { useAuthStore } from "@/stores/authStore"
-import { Loader2, BookOpen } from "lucide-react"
+import { Loader2 } from "lucide-react"
 
 interface AuthModalProps {
   open: boolean
@@ -34,9 +34,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-1">
-            <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold">
-              <BookOpen className="w-4 h-4" />
-            </div>
+            <img src="/syncstudy-logo.png" alt="" className="h-8 w-8 rounded-lg object-contain" />
             <DialogTitle className="text-xl">Welcome to SyncStudy</DialogTitle>
           </div>
           <DialogDescription>

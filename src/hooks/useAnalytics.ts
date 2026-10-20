@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useStudySessions } from './useStudySessions'
 import { useQuizSessions } from './useQuizSessions'
+import { calculateCurrentStreak } from '@/lib/streak'
 
 export interface DailyDataPoint {
   date: string
@@ -166,7 +167,6 @@ export function useAnalytics() {
     })
 
     // 5. Streaks: A day qualifies if actual >= 300 seconds (5 min)
-    let current = 0
     let longest = 0
     let tempStreak = 0
 
@@ -181,26 +181,7 @@ export function useAnalytics() {
       }
     }
 
-    // Compute current streak (walking back from today or yesterday)
-    let checkDate = new Date()
-    const todayStr = checkDate.toISOString().split('T')[0]
-    const todayData = sessionMapByDate.get(todayStr)
-
-    if (!todayData || todayData.actual < 300) {
-      // Check if yesterday had study time
-      checkDate.setDate(checkDate.getDate() - 1)
-    }
-
-    while (true) {
-      const curStr = checkDate.toISOString().split('T')[0]
-      const curData = sessionMapByDate.get(curStr)
-      if (curData && curData.actual >= 300) {
-        current += 1
-        checkDate.setDate(checkDate.getDate() - 1)
-      } else {
-        break
-      }
-    }
+    const current = calculateCurrentStreak(sessions)
 
     // 6. Aggregate Totals
     let totalSecs = 0

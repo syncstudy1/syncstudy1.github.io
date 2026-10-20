@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom"
 import { useAuthStore } from "@/stores/authStore"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui/card"
 import { Button } from "@/ui/button"
-import { BookOpen, Loader2, AlertCircle, ShieldCheck } from "lucide-react"
+import { Loader2, AlertCircle, ShieldCheck } from "lucide-react"
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -75,9 +75,7 @@ export function LoginPage() {
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 py-12">
       <Card className="w-full max-w-md shadow-xl border-border/80">
         <CardHeader className="space-y-3 text-center pb-6">
-          <div className="mx-auto h-12 w-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20 mb-1">
-            <BookOpen className="h-6 w-6" />
-          </div>
+          <img src="/syncstudy-logo.png" alt="SyncStudy logo" className="mx-auto h-16 w-16 object-contain mb-1" />
           <CardTitle className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             Welcome to SyncStudy
           </CardTitle>
