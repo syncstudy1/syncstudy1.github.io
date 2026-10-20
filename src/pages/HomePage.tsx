@@ -122,7 +122,7 @@ export function HomePage() {
                 <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/60 flex items-center justify-center text-purple-600 dark:text-purple-400 mb-2">
                   <CalendarCheck className="w-6 h-6" />
                 </div>
-                <CardTitle className="text-lg">AI Study Planner</CardTitle>
+                <CardTitle className="text-lg">Study Planner</CardTitle>
                 <CardDescription>
                   Gemini 2.0 Flash crafts tailored study schedules based on your exams, task loads, and available daily hours.
                 </CardDescription>
@@ -139,7 +139,7 @@ export function HomePage() {
                 <div className="w-12 h-12 rounded-xl bg-pink-50 dark:bg-pink-950/60 flex items-center justify-center text-pink-600 dark:text-pink-400 mb-2">
                   <BrainCircuit className="w-6 h-6" />
                 </div>
-                <CardTitle className="text-lg">AI Quiz Generator</CardTitle>
+                <CardTitle className="text-lg">Practice Quiz</CardTitle>
                 <CardDescription>
                   Generate adaptive diagnostic quizzes for any subject with Easy, Medium, or Hard difficulty settings.
                 </CardDescription>

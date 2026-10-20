@@ -191,7 +191,7 @@ export function DashboardPage() {
                 <BrainCircuit className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-foreground">AI Study Planner</h4>
+                <h4 className="text-sm font-semibold text-foreground">Study Planner</h4>
                 <p className="text-xs text-muted-foreground">Generate tailored 7-day study timetables</p>
               </div>
             </div>
@@ -206,7 +206,7 @@ export function DashboardPage() {
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-foreground">AI Quiz Generator</h4>
+                <h4 className="text-sm font-semibold text-foreground">Practice Quiz</h4>
                 <p className="text-xs text-muted-foreground">Adaptive practice questions & instant scoring</p>
               </div>
             </div>

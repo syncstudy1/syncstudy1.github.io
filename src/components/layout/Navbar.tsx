@@ -45,8 +45,8 @@ export function Navbar() {
   const navLinks = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard, authRequired: true },
     { name: "Study Room", path: "/study", icon: Timer, authRequired: true },
-    { name: "AI Planner", path: "/planner", icon: CalendarDays, authRequired: true, badge: "AI" },
-    { name: "AI Quiz", path: "/quiz", icon: FileQuestion, authRequired: true, badge: "AI" },
+    { name: "Study Planner", path: "/planner", icon: CalendarDays, authRequired: true },
+    { name: "Practice Quiz", path: "/quiz", icon: FileQuestion, authRequired: true },
     { name: "Analytics", path: "/analytics", icon: BarChart3, authRequired: true },
   ]
 
@@ -91,11 +91,6 @@ export function Navbar() {
                   >
                     <Icon className="h-4 w-4" />
                     <span>{item.name}</span>
-                    {item.badge && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-                        {item.badge}
-                      </span>
-                    )}
                   </Link>
                 )
               })}

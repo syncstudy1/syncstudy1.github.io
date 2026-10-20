@@ -186,7 +186,7 @@ export function PlannerPage() {
                 SyncStudy Premium Exclusive
               </Badge>
               <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-                AI Study Planner
+                Study Planner
               </h1>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 Unlock automated, evidence-based study schedules generated with Gemini 2.0 Flash. Distribute cognitive loads efficiently and crush upcoming exams without burnout.
@@ -253,7 +253,7 @@ export function PlannerPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <BrainCircuit className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
-            AI Study Planner
+            Study Planner
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Personalized, spaced-repetition schedules generated with Gemini 2.0 Flash.

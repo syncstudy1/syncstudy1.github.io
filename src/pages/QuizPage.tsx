@@ -296,7 +296,7 @@ export function QuizPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <BrainCircuit className="w-8 h-8 text-amber-500" />
-            AI Practice Quiz
+            Practice Quiz
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Generate subject-specific multiple-choice quizzes with Gemini.

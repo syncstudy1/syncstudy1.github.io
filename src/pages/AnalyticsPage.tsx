@@ -415,7 +415,7 @@ export function AnalyticsPage() {
                 </CardDescription>
               </div>
               <Badge variant="outline" className="text-xs text-amber-600 border-amber-300">
-                AI Quizzes
+                Practice Quizzes
               </Badge>
             </div>
           </CardHeader>

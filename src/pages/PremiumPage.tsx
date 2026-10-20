@@ -87,14 +87,14 @@ export function PremiumPage() {
                 <div className="p-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 shrink-0">
                   <Check className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-foreground font-medium">Unlimited AI Study Planner</span>
+                <span className="text-foreground font-medium">Unlimited Study Planner</span>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className="p-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 shrink-0">
                   <Check className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-foreground font-medium">Unlimited AI Quiz Generation</span>
+                <span className="text-foreground font-medium">Unlimited Practice Quiz Generation</span>
               </div>
 
               <div className="flex items-center gap-3">
@@ -198,7 +198,7 @@ export function PremiumPage() {
               <tr className="hover:bg-muted/10">
                 <td className="p-4 font-medium flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-indigo-500" />
-                  <span>AI Study Planner</span>
+                  <span>Study Planner</span>
                 </td>
                 <td className="p-4 text-center text-rose-500 font-bold">
                   ❌
@@ -211,7 +211,7 @@ export function PremiumPage() {
               <tr className="hover:bg-muted/10">
                 <td className="p-4 font-medium flex items-center gap-2">
                   <Zap className="w-4 h-4 text-indigo-500" />
-                  <span>AI Quiz Generator</span>
+                  <span>Practice Quiz</span>
                 </td>
                 <td className="p-4 text-center text-muted-foreground">
                   ✅ 1 quiz / day
