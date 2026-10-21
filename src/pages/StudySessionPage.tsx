@@ -769,12 +769,19 @@ export function StudySessionPage() {
       <div className="pt-6 border-t">
         <button
           type="button"
-          className="w-full flex items-center justify-between py-2 text-left text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+          className="w-full flex items-start justify-between gap-4 rounded-xl px-3 py-3 text-left text-foreground transition-colors hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30"
           onClick={() => setShowManagement(!showManagement)}
         >
-          <span className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-indigo-500" />
-            Manage Subjects & Backlog Tasks ({subjects.length} subjects, {tasks.length} tasks)
+          <span className="flex min-w-0 items-start gap-2.5">
+            <BookOpen className="mt-0.5 h-5 w-5 shrink-0 text-indigo-600 dark:text-indigo-400" />
+            <span className="min-w-0">
+              <span className="block text-base font-bold leading-6 text-foreground">
+                Manage Subjects &amp; Backlog Tasks
+              </span>
+              <span className="mt-0.5 block text-sm font-medium leading-5 text-muted-foreground">
+                {subjects.length} subjects, {tasks.length} tasks
+              </span>
+            </span>
           </span>
           {showManagement ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </button>

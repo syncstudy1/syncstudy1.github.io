@@ -40,11 +40,20 @@ function formatSecondsHhMm(totalSeconds: number): string {
 }
 
 function getHeatmapColor(minutes: number): string {
-  if (!minutes || minutes === 0) return 'bg-muted/40 border-border/40'
-  if (minutes <= 30) return 'bg-emerald-200 dark:bg-emerald-950 border-emerald-300 dark:border-emerald-800'
-  if (minutes <= 60) return 'bg-emerald-400 dark:bg-emerald-800 border-emerald-500 dark:border-emerald-700'
-  if (minutes <= 120) return 'bg-emerald-500 dark:bg-emerald-600 border-emerald-600 dark:border-emerald-500'
-  return 'bg-emerald-600 dark:bg-emerald-400 border-emerald-700 dark:border-emerald-300'
+  if (!minutes || minutes === 0) return 'bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700'
+  if (minutes <= 30) return 'bg-indigo-100 border-indigo-200 dark:bg-indigo-950 dark:border-indigo-900'
+  if (minutes <= 60) return 'bg-indigo-300 border-indigo-400 dark:bg-indigo-800 dark:border-indigo-700'
+  if (minutes <= 120) return 'bg-indigo-500 border-indigo-600 dark:bg-indigo-600 dark:border-indigo-500'
+  return 'bg-indigo-700 border-indigo-800 dark:bg-indigo-400 dark:border-indigo-300'
+}
+
+function formatHeatmapDate(date: string): string {
+  return new Date(`${date}T12:00:00`).toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
 }
 
 export function AnalyticsPage() {
@@ -159,12 +168,13 @@ export function AnalyticsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="flex items-center gap-2 text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white">
-            <span className="rounded-xl bg-indigo-50 p-2 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-300"><TrendingUp className="h-6 w-6" /></span>
-            Analytics & Progress
+          <p className="section-kicker mb-2">Your study signals</p>
+          <h1 className="page-heading flex items-center gap-3">
+            <span className="rounded-2xl bg-[#eeedff] p-2.5 text-indigo-700 shadow-sm dark:bg-indigo-950/60 dark:text-indigo-300"><TrendingUp className="h-6 w-6" /></span>
+            Analytics &amp; Progress
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Track daily study output, streak momentum, focus retention, and quiz achievements.
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+            See how consistently you study, where your time goes, and how your practice is building momentum.
           </p>
         </div>
 
@@ -229,13 +239,13 @@ export function AnalyticsPage() {
       )}
 
       {/* Key Stats Row (4 Cards) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="surface-panel">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Card className="surface-panel border-l-4 border-l-indigo-400">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               {premium ? 'Total Time (All Time)' : 'Total Time (7 Days)'}
             </CardTitle>
-            <Clock className="w-4 h-4 text-indigo-500" />
+            <span className="rounded-lg bg-[#eeedff] p-2 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300"><Clock className="h-4 w-4" /></span>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono tracking-tight text-foreground">
@@ -250,7 +260,7 @@ export function AnalyticsPage() {
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Sessions Completed
             </CardTitle>
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            <span className="rounded-lg bg-[#ddf5ea] p-2 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"><CheckCircle2 className="h-4 w-4" /></span>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono tracking-tight text-foreground">
@@ -265,7 +275,7 @@ export function AnalyticsPage() {
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Avg. Session Length
             </CardTitle>
-            <Calendar className="w-4 h-4 text-purple-500" />
+            <span className="rounded-lg bg-[#e8f1ff] p-2 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300"><Calendar className="h-4 w-4" /></span>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono tracking-tight text-foreground">
@@ -275,12 +285,12 @@ export function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="surface-panel">
+        <Card className="surface-panel border-l-4 border-l-amber-400">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Best Day This Week
             </CardTitle>
-            <img src="/streak-flame.svg" alt="" className="w-4 h-4 object-contain" />
+            <span className="rounded-lg bg-[#fff8ec] p-2 dark:bg-amber-950/50"><img src="/streak-flame.svg" alt="" className="h-4 w-4 object-contain" /></span>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold tracking-tight text-foreground">
@@ -371,9 +381,9 @@ export function AnalyticsPage() {
       </div>
 
       {/* Secondary Charts: Weekly Trend Line Chart & Quiz Mastery */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Weekly Trend */}
-        <Card className="shadow-sm">
+        <Card className="surface-panel">
           <CardHeader>
             <CardTitle className="text-base">Weekly Study Hours Trend</CardTitle>
             <CardDescription className="text-xs">
@@ -406,7 +416,7 @@ export function AnalyticsPage() {
         </Card>
 
         {/* Quiz Scores Mastery Trend */}
-        <Card className="shadow-sm">
+        <Card className="surface-panel">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -462,11 +472,12 @@ export function AnalyticsPage() {
       </div>
 
       {/* Streak Calendar (Heatmap) - Premium Feature */}
-      <Card className="shadow-sm overflow-hidden relative">
-        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <Card className="surface-panel overflow-hidden">
+        <CardHeader className="flex flex-col gap-4 border-b border-border/70 bg-gradient-to-r from-[#f8f7ff] to-white sm:flex-row sm:items-center sm:justify-between dark:from-indigo-950/30 dark:to-card">
           <div>
             <div className="flex items-center gap-2">
-              <CardTitle className="text-base">Streak Calendar (90 Days)</CardTitle>
+              <span className="rounded-lg bg-[#eeedff] p-2 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300"><Calendar className="h-4 w-4" /></span>
+              <CardTitle className="text-lg">Study Activity</CardTitle>
               {!premium && (
                 <Badge variant="secondary" className="gap-1 text-[10px]">
                   <Lock className="w-3 h-3 text-amber-500" />
@@ -474,38 +485,51 @@ export function AnalyticsPage() {
                 </Badge>
               )}
             </div>
-            <CardDescription className="text-xs">
-              Daily habit consistency heatmap over the past quarter
+            <CardDescription className="mt-1 text-xs">
+              Your recorded focus sessions and qualifying study activity across the last 90 days.
             </CardDescription>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground" aria-label="Activity intensity legend">
             <span>Less</span>
-            <div className="w-3 h-3 rounded-sm bg-muted/40 border border-border/40" />
-            <div className="w-3 h-3 rounded-sm bg-emerald-200 dark:bg-emerald-950 border border-emerald-300 dark:border-emerald-800" />
-            <div className="w-3 h-3 rounded-sm bg-emerald-400 dark:bg-emerald-800 border border-emerald-500 dark:border-emerald-700" />
-            <div className="w-3 h-3 rounded-sm bg-emerald-500 dark:bg-emerald-600 border border-emerald-600 dark:border-emerald-500" />
-            <div className="w-3 h-3 rounded-sm bg-emerald-600 dark:bg-emerald-400 border border-emerald-700 dark:border-emerald-300" />
+            {[0, 30, 60, 120, 121].map((level) => (
+              <span key={level} className={`h-3.5 w-3.5 rounded-[4px] border ${getHeatmapColor(level)}`} />
+            ))}
             <span>More</span>
           </div>
         </CardHeader>
         <CardContent className="relative">
           <div
-            className={`overflow-x-auto pb-2 ${
+            className={`overflow-x-auto pb-3 ${
               !premium ? 'blur-sm select-none pointer-events-none' : ''
             }`}
           >
-            <div className="inline-flex gap-1.5 min-w-max p-1">
-              {calendarWeeks.map((week, wIdx) => (
-                <div key={wIdx} className="flex flex-col gap-1.5">
+            <div className="inline-flex min-w-max flex-col gap-2 p-1">
+              <div className="grid grid-cols-[3rem_repeat(13,minmax(1rem,1fr))] gap-1.5 text-[10px] font-medium text-muted-foreground">
+                <span />
+                {calendarWeeks.map((week, wIdx) => (
+                  <span key={wIdx} className="text-center">
+                    {new Date(`${week[0]?.date}T12:00:00`).toLocaleDateString(undefined, { month: 'short' })}
+                  </span>
+                ))}
+              </div>
+              <div className="grid grid-cols-[3rem_repeat(13,minmax(1rem,1fr))] gap-1.5">
+                <div className="grid grid-rows-7 gap-1.5 text-[10px] font-medium text-muted-foreground">
+                  {['Mon', '', 'Wed', '', 'Fri', '', 'Sun'].map((label, index) => <span key={index}>{label}</span>)}
+                </div>
+                {calendarWeeks.map((week, wIdx) => (
+                <div key={wIdx} className="grid grid-rows-7 gap-1.5">
                   {week.map((day) => (
                     <div
                       key={day.date}
-                      className={`w-3.5 h-3.5 rounded-sm border ${getHeatmapColor(day.minutes)}`}
-                      title={`${day.date}: ${day.minutes} min`}
+                      className={`h-4 w-4 rounded-[4px] border transition-transform hover:scale-125 hover:ring-2 hover:ring-indigo-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${getHeatmapColor(day.minutes)}`}
+                      title={`${formatHeatmapDate(day.date)} — ${day.minutes} minutes, ${day.count} ${day.count === 1 ? 'activity' : 'activities'}`}
+                      aria-label={`${formatHeatmapDate(day.date)}: ${day.minutes} minutes, ${day.count} ${day.count === 1 ? 'activity' : 'activities'}`}
+                      tabIndex={0}
                     />
                   ))}
                 </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
@@ -532,7 +556,7 @@ export function AnalyticsPage() {
       </Card>
 
       {/* Warning Stats & Distraction Trends */}
-      <Card className="shadow-sm">
+      <Card className="surface-panel">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -565,7 +589,7 @@ export function AnalyticsPage() {
       </Card>
 
       {/* Recent Sessions Table (Last 20) */}
-      <Card className="shadow-sm">
+      <Card className="surface-panel">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-base">Focus Sessions Record</CardTitle>
