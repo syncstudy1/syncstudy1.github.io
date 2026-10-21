@@ -11,7 +11,6 @@ import {
   Mail,
   ArrowLeft,
   UserCheck,
-  AlertTriangle,
 } from "lucide-react"
 
 export function PrivacyPage() {
@@ -50,18 +49,6 @@ export function PrivacyPage() {
           <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
             This Privacy Policy explains how SyncStudy collects, uses, and safeguards your information when you use our web application. SyncStudy is designed to help students build consistent study habits, track productive hours, and stay focused during study sessions.
           </p>
-        </div>
-
-        {/* Contact Placeholder Notice Alert */}
-        <div className="rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/50 dark:bg-amber-950/20 p-4 text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2.5">
-          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
-          <div>
-            <span className="font-semibold">Notice:</span> If you have any questions or data requests regarding this policy, please contact:{" "}
-            <code className="bg-amber-100 dark:bg-amber-900/50 px-1.5 py-0.5 rounded font-mono font-bold text-amber-900 dark:text-amber-200">
-              [INSERT_CONTACT_EMAIL]
-            </code>
-            .
-          </div>
         </div>
 
         {/* Content Cards */}
@@ -193,16 +180,7 @@ export function PrivacyPage() {
               </p>
               <div className="p-4 rounded-lg bg-secondary/50 border border-border space-y-1 text-xs sm:text-sm font-mono">
                 <div><strong>Project:</strong> SyncStudy</div>
-                <div>
-                  <strong>Contact Email:</strong>{" "}
-                  <span className="text-indigo-600 dark:text-indigo-400 font-bold underline">
-                    [INSERT_CONTACT_EMAIL]
-                  </span>
-                </div>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Please replace the placeholder above with your operational support email before submitting for verification.
-              </p>
             </CardContent>
           </Card>
         </div>

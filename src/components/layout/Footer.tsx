@@ -47,7 +47,6 @@ export function Footer() {
           <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs">
             {isHomepage && (
               <>
-                <a href="#features" className="hover:text-foreground transition-colors">Features</a>
                 <Link to="/premium" className="hover:text-foreground transition-colors">Pricing</Link>
                 <span className="text-muted-foreground/40 hidden sm:inline">|</span>
               </>
