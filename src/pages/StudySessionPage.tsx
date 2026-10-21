@@ -293,8 +293,8 @@ export function StudySessionPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Clock className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+          <h1 className="flex items-center gap-2 text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white">
+            <span className="rounded-xl bg-indigo-50 p-2 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-300"><Clock className="h-6 w-6" /></span>
             Study Room
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -391,7 +391,7 @@ export function StudySessionPage() {
                 <div className="relative">
                   <select
                     id="subject-select"
-                    className="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="w-full h-11 rounded-xl border border-input bg-card px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
                     value={selectedSubjectId}
                     onChange={(e) => setSelectedSubjectId(e.target.value)}
                   >
@@ -420,7 +420,7 @@ export function StudySessionPage() {
                 </Label>
                 <select
                   id="task-select"
-                  className="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full h-11 rounded-xl border border-input bg-card px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   value={selectedTaskId}
                   onChange={(e) => setSelectedTaskId(e.target.value)}
                 >

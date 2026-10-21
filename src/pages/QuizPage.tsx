@@ -299,8 +299,8 @@ export function QuizPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <BrainCircuit className="w-8 h-8 text-amber-500" />
+          <h1 className="flex items-center gap-2 text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white">
+            <span className="rounded-xl bg-indigo-50 p-2 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-300"><BrainCircuit className="h-6 w-6" /></span>
             Practice Quiz
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -361,7 +361,7 @@ export function QuizPage() {
                   </Label>
                   <select
                     id="quiz-subject"
-                    className={`w-full h-10 px-3 py-2 rounded-md border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-colors ${
+                    className={`w-full h-11 rounded-xl border bg-card px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring transition-colors ${
                       formErrors.subject
                         ? 'border-rose-500 focus:ring-rose-500'
                         : 'border-input'

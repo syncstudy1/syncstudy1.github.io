@@ -1,7 +1,6 @@
 import * as React from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/ui/button"
-import { Badge } from "@/ui/badge"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/ui/card"
 import { useAuthStore } from "@/stores/authStore"
 import {
@@ -31,31 +30,22 @@ export function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden border-b border-indigo-100/70 bg-[radial-gradient(circle_at_top_right,_rgba(99,102,241,0.16),_transparent_38%),linear-gradient(180deg,#eef2ff_0%,#f8fafc_70%)] pt-20 pb-24 md:pt-28 md:pb-32 dark:border-indigo-950 dark:bg-[radial-gradient(circle_at_top_right,_rgba(99,102,241,0.18),_transparent_38%),linear-gradient(180deg,#111936_0%,#0f172a_70%)]">
-        <div className="absolute -left-24 top-20 h-72 w-72 rounded-full bg-indigo-300/20 blur-3xl dark:bg-indigo-600/10" />
-        <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-purple-300/20 blur-3xl dark:bg-purple-700/10" />
-        
-        <div className="container mx-auto px-4 relative z-10 text-center max-w-5xl">
-          <Badge variant="outline" className="mb-7 border-indigo-200 bg-white/70 px-4 py-1.5 text-indigo-700 shadow-sm backdrop-blur dark:border-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300">
-            <Sparkles className="w-4 h-4 text-amber-500" />
-            <span>Your Personal Study & Focus Companion</span>
-          </Badge>
-
-          <h1 className="mx-auto mb-6 max-w-4xl text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-950 sm:text-6xl lg:text-7xl dark:text-white">
-            Build Better Study Habits. Stay Focused.{" "}
-            <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Make Progress.
-            </span>
+      <section className="relative overflow-hidden border-b border-border/70 bg-[#f5f7fb] py-14 sm:py-20 dark:bg-slate-950">
+        <div className="absolute right-0 top-0 h-96 w-96 rounded-full bg-indigo-200/30 blur-3xl dark:bg-indigo-900/20" />
+        <div className="container relative z-10 mx-auto grid max-w-6xl items-center gap-12 px-4 lg:grid-cols-[1.02fr_0.98fr] lg:gap-16">
+          <div>
+          <p className="mb-5 text-xs font-bold uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400">Your personal study workspace</p>
+          <h1 className="mb-6 max-w-2xl text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-950 sm:text-5xl lg:text-6xl dark:text-white">
+            Study smarter. Stay focused.{" "}
+            <span className="text-indigo-600 dark:text-indigo-400">See your progress.</span>
           </h1>
-
-          <p className="mx-auto mb-10 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-xl dark:text-slate-300">
+          <p className="mb-8 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg dark:text-slate-300">
             Plan your study sessions, stay focused with real-time monitoring, and track your progress as you work toward your goals.
           </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col items-start gap-4 sm:flex-row">
             {user ? (
               <Link to="/study">
-                <Button size="lg" className="h-12 px-8 text-base gap-2 rounded-xl shadow-lg shadow-indigo-600/20 bg-indigo-600 hover:bg-indigo-700 text-white">
+                <Button size="lg" className="h-12 gap-2 px-7 text-base shadow-lg shadow-indigo-600/20">
                   <Timer className="w-5 h-5" />
                   Start Studying
                   <ArrowRight className="w-4 h-4 ml-1" />
@@ -65,7 +55,7 @@ export function HomePage() {
               <Link to="/login">
                 <Button
                   size="lg"
-                  className="h-12 px-8 text-base gap-2 rounded-xl shadow-lg shadow-indigo-600/20 bg-indigo-600 hover:bg-indigo-700 text-white"
+                  className="h-12 gap-2 px-7 text-base shadow-lg shadow-indigo-600/20"
                 >
                   <LogIn className="w-4 h-4 mr-1" />
                   Start Studying
@@ -75,7 +65,7 @@ export function HomePage() {
             )}
           </div>
 
-          <div className="mx-auto mt-12 flex max-w-3xl flex-wrap items-center justify-center gap-x-7 gap-y-3 text-xs font-medium text-slate-600 dark:text-slate-300">
+          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-xs font-medium text-slate-600 dark:text-slate-300">
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-500" /> 100% Client-Side Video (No server storage)
             </span>
@@ -85,6 +75,34 @@ export function HomePage() {
             <span className="flex items-center gap-1.5">
               <img src="/streak-flame.svg" alt="" className="w-4 h-4 object-contain" /> Daily streak retention
             </span>
+          </div>
+          </div>
+
+          <div className="relative mx-auto w-full max-w-lg">
+            <div className="absolute -inset-5 rounded-[2rem] bg-indigo-200/35 blur-2xl dark:bg-indigo-900/25" />
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-900">
+              <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 dark:border-slate-800">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300"><Timer className="h-4 w-4" /></div>
+                  <div><p className="text-sm font-bold text-slate-900 dark:text-white">Study Room</p><p className="text-[11px] text-slate-500">A focused study flow</p></div>
+                </div>
+                <span className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600"><span className="h-2 w-2 rounded-full bg-emerald-500" />Ready</span>
+              </div>
+              <div className="grid gap-5 p-5 sm:grid-cols-[1.05fr_0.95fr]">
+                <div className="flex flex-col items-center justify-center rounded-xl bg-slate-50 p-5 dark:bg-slate-800/70">
+                  <div className="relative flex h-36 w-36 items-center justify-center rounded-full border-[10px] border-indigo-100 dark:border-indigo-950">
+                    <div className="absolute inset-0 rounded-full border-[10px] border-indigo-500 border-b-transparent border-l-transparent -rotate-45" />
+                    <span className="font-mono text-2xl font-bold tracking-tight text-slate-900 dark:text-white">25:00</span>
+                  </div>
+                  <span className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-500">Focus session</span>
+                </div>
+                <div className="space-y-3">
+                  <div className="rounded-xl border border-slate-200 p-3 dark:border-slate-700"><p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Today’s plan</p><p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">Deep work, one block at a time.</p></div>
+                  <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-3 dark:border-emerald-900/60 dark:bg-emerald-950/30"><div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-300"><ShieldCheck className="h-4 w-4" />Camera stays on-device</div><p className="mt-1 text-[11px] leading-relaxed text-emerald-700/80 dark:text-emerald-300/80">Private focus monitoring for your workspace.</p></div>
+                  <div className="flex items-center gap-2 rounded-xl bg-indigo-50 p-3 text-xs font-semibold text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300"><Sparkles className="h-4 w-4" />Plan, focus, reflect.</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

@@ -251,8 +251,8 @@ export function PlannerPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <BrainCircuit className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+          <h1 className="flex items-center gap-2 text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white">
+            <span className="rounded-xl bg-indigo-50 p-2 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-300"><BrainCircuit className="h-6 w-6" /></span>
             Study Planner
           </h1>
           <p className="text-sm text-muted-foreground mt-1">

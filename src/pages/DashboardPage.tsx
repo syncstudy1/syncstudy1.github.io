@@ -75,23 +75,16 @@ export function DashboardPage() {
 
   return (
     <div className="container max-w-7xl mx-auto px-4 py-8 sm:py-10 space-y-8">
-      {/* Welcome Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 overflow-hidden rounded-3xl border border-indigo-200/30 bg-gradient-to-br from-[#312e81] via-[#4338ca] to-[#4f46e5] p-6 text-white shadow-xl shadow-indigo-900/15 relative sm:p-8">
-        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 space-y-1">
-          <Badge className="bg-white/10 hover:bg-white/20 text-indigo-200 border-none mb-2 backdrop-blur-sm">
-            Ready to learn
-          </Badge>
-          <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-            {greeting}, {userName}! 👋
-          </h1>
-          <p className="text-sm text-indigo-200/90 max-w-xl">
-            Track your focus, follow your personalized study schedule, and test your knowledge with practice quizzes.
-          </p>
+      {/* Welcome Panel */}
+      <div className="flex flex-col justify-between gap-5 rounded-2xl border border-indigo-100 bg-white p-6 shadow-sm shadow-slate-900/[0.03] sm:flex-row sm:items-center sm:p-7 dark:border-indigo-900/60 dark:bg-slate-900">
+        <div className="space-y-1">
+          <Badge className="mb-2 border border-indigo-100 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300">Ready to learn</Badge>
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl dark:text-white">{greeting}, {userName}!</h1>
+          <p className="max-w-xl text-sm text-slate-600 dark:text-slate-300">Track your focus, follow your personalized study schedule, and test your knowledge with practice quizzes.</p>
         </div>
-        <div className="relative z-10 flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Link to="/study">
-            <Button className="bg-white text-indigo-900 hover:bg-indigo-50 font-semibold shadow-md gap-2">
+            <Button className="gap-2">
               <Timer className="w-4 h-4" />
               Start Study Session
             </Button>
@@ -102,12 +95,12 @@ export function DashboardPage() {
       {/* Stats Grid (4 Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Today's study time */}
-        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:shadow-md">
+        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:-translate-y-0.5 hover:shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Today's Focus
             </CardTitle>
-            <Clock className="w-4 h-4 text-indigo-500" />
+            <span className="rounded-lg bg-indigo-50 p-2 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-300"><Clock className="w-4 h-4" /></span>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono tracking-tight text-foreground">
@@ -118,12 +111,12 @@ export function DashboardPage() {
         </Card>
 
         {/* This week's total */}
-        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:shadow-md">
+        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:-translate-y-0.5 hover:shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               This Week
             </CardTitle>
-            <Calendar className="w-4 h-4 text-emerald-500" />
+            <span className="rounded-lg bg-emerald-50 p-2 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-300"><Calendar className="w-4 h-4" /></span>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono tracking-tight text-foreground">
@@ -134,12 +127,12 @@ export function DashboardPage() {
         </Card>
 
         {/* Current streak */}
-        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:shadow-md">
+        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:-translate-y-0.5 hover:shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Current Streak
             </CardTitle>
-            <img src="/streak-flame.svg" alt="" className="w-4 h-4 object-contain" />
+            <span className="rounded-lg bg-amber-50 p-2 dark:bg-amber-950/60"><img src="/streak-flame.svg" alt="" className="w-4 h-4 object-contain" /></span>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono tracking-tight text-foreground flex items-center gap-1.5">
@@ -151,12 +144,12 @@ export function DashboardPage() {
         </Card>
 
         {/* Pending tasks count */}
-        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:shadow-md">
+        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:-translate-y-0.5 hover:shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Pending Tasks
             </CardTitle>
-            <CheckCircle2 className="w-4 h-4 text-blue-500" />
+            <span className="rounded-lg bg-sky-50 p-2 text-sky-600 dark:bg-sky-950/60 dark:text-sky-300"><CheckCircle2 className="w-4 h-4" /></span>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono tracking-tight text-foreground">
