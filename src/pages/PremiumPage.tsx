@@ -35,7 +35,7 @@ export function PremiumPage() {
   const [paymentNoticeOpen, setPaymentNoticeOpen] = React.useState<boolean>(false)
 
   return (
-    <div className="container max-w-5xl mx-auto px-4 py-12 space-y-16">
+    <div className="container max-w-5xl mx-auto px-4 py-10 sm:py-14 space-y-14">
       {/* Hero Section */}
       <div className="text-center space-y-4 max-w-2xl mx-auto">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/10 via-amber-500/20 to-amber-500/10 border border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400 text-xs font-semibold">
@@ -43,7 +43,7 @@ export function PremiumPage() {
           <span>Elevate Your Focus & Grades</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-foreground">
+        <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">
           Unlock Your Full Academic Potential
         </h1>
 
@@ -61,7 +61,7 @@ export function PremiumPage() {
 
       {/* Centered Pricing Card */}
       <div className="flex justify-center">
-        <Card className="w-full max-w-md border-2 border-indigo-500 shadow-2xl relative overflow-hidden bg-card">
+        <Card className="relative w-full max-w-md overflow-hidden border-2 border-indigo-500 bg-card shadow-2xl shadow-indigo-900/10">
           <div className="absolute top-0 right-0 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider py-1 px-3 rounded-bl-lg">
             Most Popular
           </div>

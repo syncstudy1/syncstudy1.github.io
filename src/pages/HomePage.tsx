@@ -31,23 +31,24 @@ export function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-20 pb-24 md:pt-32 md:pb-36 bg-gradient-to-b from-indigo-50/50 via-background to-background dark:from-indigo-950/20">
-        <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,#fff,rgba(255,255,255,0.6))] dark:bg-grid-slate-700/25 dark:[mask-image:linear-gradient(0deg,rgba(255,255,255,0.1),rgba(255,255,255,0.5))]" />
+      <section className="relative overflow-hidden border-b border-indigo-100/70 bg-[radial-gradient(circle_at_top_right,_rgba(99,102,241,0.16),_transparent_38%),linear-gradient(180deg,#eef2ff_0%,#f8fafc_70%)] pt-20 pb-24 md:pt-28 md:pb-32 dark:border-indigo-950 dark:bg-[radial-gradient(circle_at_top_right,_rgba(99,102,241,0.18),_transparent_38%),linear-gradient(180deg,#111936_0%,#0f172a_70%)]">
+        <div className="absolute -left-24 top-20 h-72 w-72 rounded-full bg-indigo-300/20 blur-3xl dark:bg-indigo-600/10" />
+        <div className="absolute right-0 top-0 h-80 w-80 rounded-full bg-purple-300/20 blur-3xl dark:bg-purple-700/10" />
         
-        <div className="container mx-auto px-4 relative z-10 text-center max-w-4xl">
-          <Badge variant="outline" className="mb-6 py-1.5 px-4 rounded-full border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 gap-2 font-medium">
+        <div className="container mx-auto px-4 relative z-10 text-center max-w-5xl">
+          <Badge variant="outline" className="mb-7 border-indigo-200 bg-white/70 px-4 py-1.5 text-indigo-700 shadow-sm backdrop-blur dark:border-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300">
             <Sparkles className="w-4 h-4 text-amber-500" />
             <span>Your Personal Study & Focus Companion</span>
           </Badge>
 
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-foreground leading-[1.1] mb-6">
+          <h1 className="mx-auto mb-6 max-w-4xl text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-950 sm:text-6xl lg:text-7xl dark:text-white">
             Build Better Study Habits. Stay Focused.{" "}
             <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
               Make Progress.
             </span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="mx-auto mb-10 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-xl dark:text-slate-300">
             Plan your study sessions, stay focused with real-time monitoring, and track your progress as you work toward your goals.
           </p>
 
@@ -74,7 +75,7 @@ export function HomePage() {
             )}
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground font-medium">
+          <div className="mx-auto mt-12 flex max-w-3xl flex-wrap items-center justify-center gap-x-7 gap-y-3 text-xs font-medium text-slate-600 dark:text-slate-300">
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-500" /> 100% Client-Side Video (No server storage)
             </span>
@@ -89,18 +90,19 @@ export function HomePage() {
       </section>
 
       {/* Feature Cards Grid */}
-      <section id="features" className="py-20 border-t bg-muted/20">
+      <section id="features" className="border-t border-border/70 bg-white py-20 dark:bg-slate-950/40">
         <div className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold tracking-tight mb-3">Engineered for Academic Excellence</h2>
+          <div className="mx-auto mb-14 max-w-2xl text-center">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400">Everything in one workspace</p>
+            <h2 className="mb-3 text-3xl font-bold tracking-tight sm:text-4xl">Engineered for Academic Excellence</h2>
             <p className="text-muted-foreground">
               Every feature works together to build uninterrupted focus loops and structured knowledge retention.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             <Link to="/study" className="group block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <Card className="h-full hover:shadow-md hover:border-indigo-300 dark:hover:border-indigo-700 transition-all border-border/80">
+            <Card className="h-full border-border/70 transition-all hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-900/5 dark:hover:border-indigo-800">
               <CardHeader>
                 <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-2">
                   <Eye className="w-6 h-6" />
@@ -117,7 +119,7 @@ export function HomePage() {
             </Link>
 
             <Link to="/planner" className="group block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <Card className="h-full hover:shadow-md hover:border-purple-300 dark:hover:border-purple-700 transition-all border-border/80">
+            <Card className="h-full border-border/70 transition-all hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-900/5 dark:hover:border-indigo-800">
               <CardHeader>
                 <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/60 flex items-center justify-center text-purple-600 dark:text-purple-400 mb-2">
                   <CalendarCheck className="w-6 h-6" />
@@ -134,7 +136,7 @@ export function HomePage() {
             </Link>
 
             <Link to="/quiz" className="group block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <Card className="h-full hover:shadow-md hover:border-pink-300 dark:hover:border-pink-700 transition-all border-border/80">
+            <Card className="h-full border-border/70 transition-all hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-900/5 dark:hover:border-indigo-800">
               <CardHeader>
                 <div className="w-12 h-12 rounded-xl bg-pink-50 dark:bg-pink-950/60 flex items-center justify-center text-pink-600 dark:text-pink-400 mb-2">
                   <BrainCircuit className="w-6 h-6" />
@@ -151,7 +153,7 @@ export function HomePage() {
             </Link>
 
             <Link to="/study" className="group block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <Card className="h-full hover:shadow-md hover:border-emerald-300 dark:hover:border-emerald-700 transition-all border-border/80">
+            <Card className="h-full border-border/70 transition-all hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-900/5 dark:hover:border-indigo-800">
               <CardHeader>
                 <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-2">
                   <Timer className="w-6 h-6" />
@@ -168,7 +170,7 @@ export function HomePage() {
             </Link>
 
             <Link to="/analytics" className="group block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <Card className="h-full hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition-all border-border/80">
+            <Card className="h-full border-border/70 transition-all hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-900/5 dark:hover:border-indigo-800">
               <CardHeader>
                 <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/60 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-2">
                   <BarChart className="w-6 h-6" />
@@ -185,7 +187,7 @@ export function HomePage() {
             </Link>
 
             <Link to="/premium" className="group block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            <Card className="h-full hover:shadow-md hover:border-amber-300 dark:hover:border-amber-700 transition-all border-border/80">
+            <Card className="h-full border-border/70 transition-all hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-900/5 dark:hover:border-indigo-800">
               <CardHeader>
                 <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/60 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-2">
                   <Sparkles className="w-6 h-6" />

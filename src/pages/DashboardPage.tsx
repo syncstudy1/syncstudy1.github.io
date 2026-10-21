@@ -74,15 +74,15 @@ export function DashboardPage() {
   }, [sessions])
 
   return (
-    <div className="container max-w-7xl mx-auto px-4 py-8 space-y-8">
+    <div className="container max-w-7xl mx-auto px-4 py-8 sm:py-10 space-y-8">
       {/* Welcome Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-indigo-900 via-indigo-800 to-indigo-950 text-white shadow-xl relative overflow-hidden">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 overflow-hidden rounded-3xl border border-indigo-200/30 bg-gradient-to-br from-[#312e81] via-[#4338ca] to-[#4f46e5] p-6 text-white shadow-xl shadow-indigo-900/15 relative sm:p-8">
         <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 space-y-1">
           <Badge className="bg-white/10 hover:bg-white/20 text-indigo-200 border-none mb-2 backdrop-blur-sm">
             Ready to learn
           </Badge>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
             {greeting}, {userName}! 👋
           </h1>
           <p className="text-sm text-indigo-200/90 max-w-xl">
@@ -102,7 +102,7 @@ export function DashboardPage() {
       {/* Stats Grid (4 Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Today's study time */}
-        <Card className="border-indigo-100 dark:border-indigo-950 shadow-sm hover:shadow transition-shadow">
+        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Today's Focus
@@ -118,7 +118,7 @@ export function DashboardPage() {
         </Card>
 
         {/* This week's total */}
-        <Card className="border-indigo-100 dark:border-indigo-950 shadow-sm hover:shadow transition-shadow">
+        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               This Week
@@ -134,7 +134,7 @@ export function DashboardPage() {
         </Card>
 
         {/* Current streak */}
-        <Card className="border-indigo-100 dark:border-indigo-950 shadow-sm hover:shadow transition-shadow">
+        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Current Streak
@@ -151,7 +151,7 @@ export function DashboardPage() {
         </Card>
 
         {/* Pending tasks count */}
-        <Card className="border-indigo-100 dark:border-indigo-950 shadow-sm hover:shadow transition-shadow">
+        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Pending Tasks
@@ -170,7 +170,7 @@ export function DashboardPage() {
       {/* Quick Actions Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Link to="/study" className="group">
-          <div className="p-5 rounded-xl border bg-card hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-sm flex items-center justify-between">
+          <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md">
             <div className="flex items-center gap-3">
               <div className="p-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 group-hover:scale-105 transition-transform">
                 <Timer className="w-5 h-5" />
