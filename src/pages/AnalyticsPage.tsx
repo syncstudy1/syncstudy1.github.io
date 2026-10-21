@@ -154,7 +154,8 @@ export function AnalyticsPage() {
   }, [calendarData])
 
   return (
-    <div className="container max-w-7xl mx-auto px-4 py-8 sm:py-10 space-y-8">
+    <div className="page-shell">
+    <div className="page-container space-y-8">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -229,7 +230,7 @@ export function AnalyticsPage() {
 
       {/* Key Stats Row (4 Cards) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="shadow-sm">
+        <Card className="surface-panel">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               {premium ? 'Total Time (All Time)' : 'Total Time (7 Days)'}
@@ -244,7 +245,7 @@ export function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className="surface-panel">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Sessions Completed
@@ -259,7 +260,7 @@ export function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className="surface-panel">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Avg. Session Length
@@ -274,7 +275,7 @@ export function AnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className="surface-panel">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Best Day This Week
@@ -293,9 +294,9 @@ export function AnalyticsPage() {
       </div>
 
       {/* Main Charts: Daily Study Time & Planned vs Actual */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Daily Study Time Chart */}
-        <Card className="shadow-sm">
+        <Card className="surface-panel">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -328,7 +329,7 @@ export function AnalyticsPage() {
         </Card>
 
         {/* Planned vs Actual Comparison */}
-        <Card className="shadow-sm">
+        <Card className="surface-panel">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -641,6 +642,7 @@ export function AnalyticsPage() {
           )}
         </CardContent>
       </Card>
+    </div>
     </div>
   )
 }

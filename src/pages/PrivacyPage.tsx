@@ -19,7 +19,7 @@ export function PrivacyPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-background px-4 py-10 text-foreground sm:px-6 sm:py-14 lg:px-8">
+    <div className="page-shell min-h-screen px-4 py-10 text-foreground sm:px-6 sm:py-14 lg:px-8">
       <div className="mx-auto max-w-4xl space-y-8">
         {/* Navigation Breadcrumb / Back button */}
         <div className="flex items-center justify-between">

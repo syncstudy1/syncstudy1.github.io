@@ -28,7 +28,7 @@ export function HomePage() {
   }, [navigate])
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="page-shell flex flex-col">
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-border/70 bg-[#f5f7fb] py-14 sm:py-20 dark:bg-slate-950">
         <div className="absolute right-0 top-0 h-96 w-96 rounded-full bg-indigo-200/30 blur-3xl dark:bg-indigo-900/20" />
@@ -108,7 +108,7 @@ export function HomePage() {
       </section>
 
       {/* Feature Cards Grid */}
-      <section id="features" className="border-t border-border/70 bg-white py-20 dark:bg-slate-950/40">
+      <section id="features" className="border-t border-border/70 bg-white py-16 sm:py-20 dark:bg-slate-950/40">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="mx-auto mb-14 max-w-2xl text-center">
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400">Everything in one workspace</p>
@@ -122,7 +122,7 @@ export function HomePage() {
             <Link to="/study" className="group block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <Card className="h-full border-border/70 transition-all hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-900/5 dark:hover:border-indigo-800">
               <CardHeader>
-                <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-2">
+                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
                   <Eye className="w-6 h-6" />
                 </div>
                 <CardTitle className="text-lg">Computer Vision Guard</CardTitle>
@@ -139,7 +139,7 @@ export function HomePage() {
             <Link to="/planner" className="group block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <Card className="h-full border-border/70 transition-all hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-900/5 dark:hover:border-indigo-800">
               <CardHeader>
-                <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/60 flex items-center justify-center text-purple-600 dark:text-purple-400 mb-2">
+                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
                   <CalendarCheck className="w-6 h-6" />
                 </div>
                 <CardTitle className="text-lg">Study Planner</CardTitle>
@@ -156,7 +156,7 @@ export function HomePage() {
             <Link to="/quiz" className="group block cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <Card className="h-full border-border/70 transition-all hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-900/5 dark:hover:border-indigo-800">
               <CardHeader>
-                <div className="w-12 h-12 rounded-xl bg-pink-50 dark:bg-pink-950/60 flex items-center justify-center text-pink-600 dark:text-pink-400 mb-2">
+                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
                   <BrainCircuit className="w-6 h-6" />
                 </div>
                 <CardTitle className="text-lg">Practice Quiz</CardTitle>

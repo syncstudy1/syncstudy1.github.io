@@ -26,6 +26,28 @@
     --radius: 0.875rem;
   }
 
+  @layer components {
+    .page-shell {
+      @apply min-h-full bg-[#f6f8fc] dark:bg-slate-950;
+    }
+
+    .page-container {
+      @apply mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10;
+    }
+
+    .page-heading {
+      @apply text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white;
+    }
+
+    .section-kicker {
+      @apply text-xs font-bold uppercase tracking-[0.18em] text-indigo-600 dark:text-indigo-400;
+    }
+
+    .surface-panel {
+      @apply border border-border/80 bg-card shadow-sm shadow-slate-900/[0.03];
+    }
+  }
+
   .dark {
     --background: 222 47% 7%;
     --foreground: 210 20% 98%;

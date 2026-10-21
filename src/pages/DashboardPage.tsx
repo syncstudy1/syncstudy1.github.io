@@ -74,7 +74,8 @@ export function DashboardPage() {
   }, [sessions])
 
   return (
-    <div className="container max-w-7xl mx-auto px-4 py-8 sm:py-10 space-y-8">
+    <div className="page-shell">
+    <div className="page-container space-y-8">
       {/* Welcome Panel */}
       <div className="flex flex-col justify-between gap-5 rounded-2xl border border-indigo-100 bg-white p-6 shadow-sm shadow-slate-900/[0.03] sm:flex-row sm:items-center sm:p-7 dark:border-indigo-900/60 dark:bg-slate-900">
         <div className="space-y-1">
@@ -209,7 +210,7 @@ export function DashboardPage() {
       </div>
 
       {/* Main Two-Column Section: Recent Sessions & Pending Tasks */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Recent Sessions Table */}
         <Card className="shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
@@ -261,7 +262,7 @@ export function DashboardPage() {
                   return (
                     <div
                       key={session.id}
-                      className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/30 transition-colors text-sm"
+                      className="flex items-center justify-between rounded-lg border border-border/70 bg-slate-50/50 p-3 text-sm transition-colors hover:border-indigo-200 hover:bg-indigo-50/40 dark:bg-slate-800/30"
                     >
                       <div className="flex items-center gap-3">
                         <span
@@ -349,7 +350,7 @@ export function DashboardPage() {
                   return (
                     <div
                       key={t.id}
-                      className="flex items-center justify-between p-3 rounded-lg border text-sm gap-2"
+                      className="flex items-center justify-between gap-2 rounded-lg border border-border/70 bg-slate-50/50 p-3 text-sm dark:bg-slate-800/30"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <button
@@ -388,6 +389,7 @@ export function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+    </div>
     </div>
   )
 }

@@ -35,7 +35,8 @@ export function PremiumPage() {
   const [paymentNoticeOpen, setPaymentNoticeOpen] = React.useState<boolean>(false)
 
   return (
-    <div className="container max-w-5xl mx-auto px-4 py-10 sm:py-14 space-y-14">
+    <div className="page-shell">
+    <div className="page-container max-w-5xl space-y-14">
       {/* Hero Section */}
       <div className="text-center space-y-4 max-w-2xl mx-auto">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/10 via-amber-500/20 to-amber-500/10 border border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400 text-xs font-semibold">
@@ -287,6 +288,7 @@ export function PremiumPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
     </div>
   )
 }

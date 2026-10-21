@@ -294,7 +294,8 @@ export function QuizPage() {
   // RENDER
   // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="container max-w-5xl mx-auto px-4 py-8 sm:py-10 space-y-8">
+    <div className="page-shell">
+    <div className="page-container max-w-5xl space-y-8">
 
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -825,6 +826,7 @@ export function QuizPage() {
           </div>
         )}
       </div>
+    </div>
     </div>
   )
 }
