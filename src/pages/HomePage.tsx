@@ -98,7 +98,7 @@ export function HomePage() {
                 </div>
                 <div className="space-y-3">
                   <div className="rounded-xl border border-slate-200 p-3 dark:border-slate-700"><p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Today’s plan</p><p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">Deep work, one block at a time.</p></div>
-                  <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-3 dark:border-emerald-900/60 dark:bg-emerald-950/30"><div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-300"><ShieldCheck className="h-4 w-4" />Camera stays on-device</div><p className="mt-1 text-[11px] leading-relaxed text-emerald-700/80 dark:text-emerald-300/80">Private focus monitoring for your workspace.</p></div>
+                  <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-3 dark:border-emerald-900/60 dark:bg-emerald-950/30"><div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-300"><ShieldCheck className="h-4 w-4" />Optional focus monitor</div><p className="mt-1 text-[11px] leading-relaxed text-emerald-700/80 dark:text-emerald-300/80">Stay aware of focus during your study sessions.</p></div>
                   <div className="flex items-center gap-2 rounded-xl bg-indigo-50 p-3 text-xs font-semibold text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300"><Sparkles className="h-4 w-4" />Plan, focus, reflect.</div>
                 </div>
               </div>

@@ -47,11 +47,11 @@ export function Footer() {
           <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs">
             {isHomepage && (
               <>
-                <Link to="/premium" className="hover:text-foreground transition-colors">Pricing</Link>
+                <Link to="/premium" className="font-semibold text-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Pricing</Link>
                 <span className="text-muted-foreground/40 hidden sm:inline">|</span>
               </>
             )}
-            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+            <Link to="/privacy" className="font-semibold text-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Privacy Policy</Link>
           </div>
         </div>
 
