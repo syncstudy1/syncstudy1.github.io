@@ -337,8 +337,7 @@ serve(async (req) => {
       })
     }
 
-    // Official replacement for the shutdown gemini-2.0-flash model (retired 2026-06-01).
-    const geminiModel = 'gemini-3.6-flash'
+    const geminiModel = 'gemini-3.1-flash-lite'
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent`
 
     const maxAttempts = type === 'quiz' ? 2 : 1
