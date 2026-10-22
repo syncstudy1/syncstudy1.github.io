@@ -24,32 +24,26 @@ export type FaceMonitorStatus =
   | 'video_playback_failed'
   | 'model_loading_failed'
   | 'monitoring_stopped'
-  | 'simulation_mode'
   | 'error'
 
 export interface FaceMonitorOptions {
   yawThreshold?: number
-  pitchThreshold?: number
   gracePeriodMs?: number
   absentGracePeriodMs?: number
   maxWarnings?: number
 }
 
 export function useFaceMonitor(options: FaceMonitorOptions = {}) {
-  const [yawThreshold, setYawThreshold] = useState<number>(options.yawThreshold ?? 25)
-  const [pitchThreshold, setPitchThreshold] = useState<number>(options.pitchThreshold ?? 20)
-  const [gracePeriodMs, setGracePeriodMs] = useState<number>(options.gracePeriodMs ?? 3000)
+  const yawThreshold = options.yawThreshold ?? 25
+  const gracePeriodMs = options.gracePeriodMs ?? 10_000
   const absentGracePeriodMs = options.absentGracePeriodMs ?? 5000
 
   const [status, setStatus] = useState<FaceMonitorStatus>('idle')
   const [calibrationProgress, setCalibrationProgress] = useState<number>(0)
-  const [baseline, setBaseline] = useState<HeadAngles | null>(null)
-  const [currentAngles, setCurrentAngles] = useState<HeadAngles | null>(null)
   const [warnings, setWarnings] = useState<number>(0)
   const [isDistracted, setIsDistracted] = useState<boolean>(false)
   const [isFaceAbsent, setIsFaceAbsent] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [isSimulationMode, setIsSimulationMode] = useState<boolean>(false)
 
   // Stream & video refs
   const streamRef = useRef<MediaStream | null>(null)
@@ -63,13 +57,9 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
   const distractionStartRef = useRef<number | null>(null)
   const absentStartRef = useRef<number | null>(null)
   const warningCooldownRef = useRef<boolean>(false)
+  const distractionWarningIssuedRef = useRef<boolean>(false)
   const isRunningRef = useRef<boolean>(false)
   const sessionIdRef = useRef<number>(0)
-
-  // Keep baseline ref in sync with state
-  useEffect(() => {
-    baselineRef.current = baseline
-  }, [baseline])
 
   /**
    * Internal hardware release helper.
@@ -103,6 +93,7 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
     distractionStartRef.current = null
     absentStartRef.current = null
     warningCooldownRef.current = false
+    distractionWarningIssuedRef.current = false
   }, [])
 
   /**
@@ -128,7 +119,7 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
   }, [cleanupHardware])
 
   /**
-   * Runs the 3-second calibration loop to establish neutral head-pose baseline.
+   * Runs the calibration loop to establish a neutral head-pose baseline.
    */
   const runCalibration = useCallback(
     async (landmarker: FaceLandmarker, video: HTMLVideoElement, currentSessionId: number): Promise<HeadAngles> => {
@@ -157,7 +148,6 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
               const angles = extractHeadAngles(result)
               if (angles) {
                 samples.push(angles)
-                setCurrentAngles(angles)
               }
             } catch (e) {
               console.warn('[SyncStudy Vision] Calibration frame detection error:', e)
@@ -183,7 +173,6 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
               pitch: Math.round(avgPitch),
             }
 
-            setBaseline(finalBaseline)
             baselineRef.current = finalBaseline
             setCalibrationProgress(100)
             resolve(finalBaseline)
@@ -223,6 +212,8 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
               // ── Face Absent Detection ──
               setIsFaceAbsent(true)
               setIsDistracted(false)
+              distractionStartRef.current = null
+              distractionWarningIssuedRef.current = false
 
               if (!absentStartRef.current) {
                 absentStartRef.current = now
@@ -243,13 +234,12 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
               // ── Face Present: Posture & Gaze Evaluation ──
               setIsFaceAbsent(false)
               absentStartRef.current = null
-              setCurrentAngles(angles)
 
               const activeBaseline = baselineRef.current || { yaw: 0, pitch: 0 }
               const deltaYaw = Math.abs(angles.yaw - activeBaseline.yaw)
-              const deltaPitch = Math.abs(angles.pitch - activeBaseline.pitch)
-
-              const distracted = deltaYaw >= yawThreshold || deltaPitch >= pitchThreshold
+              // Looking down is allowed for reading, writing, or typing. Only a
+              // significant horizontal turn away from the screen is distracting.
+              const distracted = deltaYaw >= yawThreshold
 
               if (distracted) {
                 setIsDistracted(true)
@@ -257,21 +247,19 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
                   distractionStartRef.current = now
                 } else if (
                   now - distractionStartRef.current >= gracePeriodMs &&
-                  !warningCooldownRef.current
+                  !warningCooldownRef.current &&
+                  !distractionWarningIssuedRef.current
                 ) {
                   warningCooldownRef.current = true
                   setWarnings((w) => w + 1)
                   onWarningCallbackRef.current?.()
-
-                  setTimeout(() => {
-                    warningCooldownRef.current = false
-                    distractionStartRef.current = performance.now()
-                  }, 3000)
+                  distractionWarningIssuedRef.current = true
                 }
               } else {
                 // Return to normal posture resets distraction grace timer
                 setIsDistracted(false)
                 distractionStartRef.current = null
+                distractionWarningIssuedRef.current = false
               }
             }
           } catch (err) {
@@ -284,7 +272,7 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
 
       animFrameRef.current = requestAnimationFrame(loop)
     },
-    [absentGracePeriodMs, gracePeriodMs, pitchThreshold, yawThreshold]
+    [absentGracePeriodMs, gracePeriodMs, yawThreshold]
   )
 
   /**
@@ -517,29 +505,6 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
     [cleanupHardware, runCalibration, startMonitoringLoop]
   )
 
-  // Simulation mode triggers (for testing and demo without physical webcam)
-  const triggerSimulatedDistraction = useCallback(() => {
-    setIsDistracted(true)
-    setCurrentAngles({ yaw: 35, pitch: -22 })
-    setWarnings((w) => w + 1)
-    onWarningCallbackRef.current?.()
-
-    setTimeout(() => {
-      setIsDistracted(false)
-      setCurrentAngles(baselineRef.current || { yaw: 0, pitch: 0 })
-    }, 2500)
-  }, [])
-
-  const triggerSimulatedFaceAbsent = useCallback(() => {
-    setIsFaceAbsent(true)
-    setWarnings((w) => w + 1)
-    onWarningCallbackRef.current?.()
-
-    setTimeout(() => {
-      setIsFaceAbsent(false)
-    }, 2500)
-  }, [])
-
   const resetWarnings = useCallback(() => {
     setWarnings(0)
   }, [])
@@ -554,25 +519,15 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
   return {
     status,
     calibrationProgress,
-    baseline,
-    currentAngles,
     warnings,
     isDistracted,
     isFaceAbsent,
     errorMessage,
-    isSimulationMode,
     yawThreshold,
-    pitchThreshold,
     gracePeriodMs,
-    setYawThreshold,
-    setPitchThreshold,
-    setGracePeriodMs,
-    setSimulationMode: setIsSimulationMode,
     startMonitoring,
     stopMonitoring,
     resetToIdle,
-    triggerSimulatedDistraction,
-    triggerSimulatedFaceAbsent,
     resetWarnings,
   }
 }

@@ -153,14 +153,38 @@ export function AnalyticsPage() {
     }
   }
 
-  // Format Heatmap calendar into columns of 7 days (13 weeks)
+  // Align the actual 90-day window to Monday-Sunday columns. Padding cells are
+  // intentionally null so the grid never invents future activity dates.
   const calendarWeeks = React.useMemo(() => {
-    const weeks: (typeof calendarData)[] = []
-    for (let i = 0; i < calendarData.length; i += 7) {
-      weeks.push(calendarData.slice(i, i + 7))
-    }
+    if (calendarData.length === 0) return []
+    const firstDate = new Date(`${calendarData[0].date}T12:00:00`)
+    const leadingDays = (firstDate.getDay() + 6) % 7
+    const weeks: Array<Array<(typeof calendarData)[number] | null>> = []
+
+    calendarData.forEach((day, index) => {
+      const position = leadingDays + index
+      const weekIndex = Math.floor(position / 7)
+      if (!weeks[weekIndex]) weeks[weekIndex] = Array(7).fill(null)
+      weeks[weekIndex][position % 7] = day
+    })
     return weeks
   }, [calendarData])
+
+  const heatmapGridStyle = React.useMemo(
+    () => ({ gridTemplateColumns: `3rem repeat(${calendarWeeks.length}, minmax(1rem, 1fr))` }),
+    [calendarWeeks.length]
+  )
+
+  const getMonthLabel = (week: Array<(typeof calendarData)[number] | null>, weekIndex: number) => {
+    const days = week.filter((day): day is (typeof calendarData)[number] => day !== null)
+    if (days.length === 0) return ''
+    const boundaryDay = days.find((day) => new Date(`${day.date}T12:00:00`).getDate() === 1)
+    if (weekIndex === 0 || boundaryDay) {
+      const date = boundaryDay || days[0]
+      return new Date(`${date.date}T12:00:00`).toLocaleDateString(undefined, { month: 'short' })
+    }
+    return ''
+  }
 
   return (
     <div className="page-shell">
@@ -504,21 +528,21 @@ export function AnalyticsPage() {
             }`}
           >
             <div className="inline-flex min-w-max flex-col gap-2 p-1">
-              <div className="grid grid-cols-[3rem_repeat(13,minmax(1rem,1fr))] gap-1.5 text-[10px] font-medium text-muted-foreground">
+              <div className="grid gap-1.5 text-[10px] font-medium text-muted-foreground" style={heatmapGridStyle}>
                 <span />
                 {calendarWeeks.map((week, wIdx) => (
                   <span key={wIdx} className="text-center">
-                    {new Date(`${week[0]?.date}T12:00:00`).toLocaleDateString(undefined, { month: 'short' })}
+                    {getMonthLabel(week, wIdx)}
                   </span>
                 ))}
               </div>
-              <div className="grid grid-cols-[3rem_repeat(13,minmax(1rem,1fr))] gap-1.5">
+              <div className="grid gap-1.5" style={heatmapGridStyle}>
                 <div className="grid grid-rows-7 gap-1.5 text-[10px] font-medium text-muted-foreground">
                   {['Mon', '', 'Wed', '', 'Fri', '', 'Sun'].map((label, index) => <span key={index}>{label}</span>)}
                 </div>
                 {calendarWeeks.map((week, wIdx) => (
                 <div key={wIdx} className="grid grid-rows-7 gap-1.5">
-                  {week.map((day) => (
+                  {week.map((day, dayIndex) => day ? (
                     <div
                       key={day.date}
                       className={`h-4 w-4 rounded-[4px] border transition-transform hover:scale-125 hover:ring-2 hover:ring-indigo-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${getHeatmapColor(day.minutes)}`}
@@ -526,6 +550,8 @@ export function AnalyticsPage() {
                       aria-label={`${formatHeatmapDate(day.date)}: ${day.minutes} minutes, ${day.count} ${day.count === 1 ? 'activity' : 'activities'}`}
                       tabIndex={0}
                     />
+                  ) : (
+                    <div key={`empty-${dayIndex}`} className="h-4 w-4" aria-hidden="true" />
                   ))}
                 </div>
                 ))}

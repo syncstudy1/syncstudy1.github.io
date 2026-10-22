@@ -4,7 +4,8 @@ import { useAuthStore } from "@/stores/authStore"
 import { useSubscriptionStore } from "@/stores/subscriptionStore"
 import { useStudySessions } from "@/hooks/useStudySessions"
 import { useQualifyingActivity } from "@/hooks/useQualifyingActivity"
-import { getLocalDateKeyFromTimestamp, calculateStreakStats } from "@/lib/activity"
+import { useQuizSessions } from "@/hooks/useQuizSessions"
+import { getLocalDateKeyFromTimestamp, calculateStreakStats, getQualifyingActivityDates } from "@/lib/activity"
 import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import { Button } from "@/ui/button"
 import { Badge } from "@/ui/badge"
@@ -29,18 +30,20 @@ export function Navbar() {
   const { user, profile, signOut } = useAuthStore()
   const { sessions, loading: sessionsLoading } = useStudySessions()
   const { activities } = useQualifyingActivity()
+  const { quizHistory } = useQuizSessions()
   const { isPremium, getRemainingDays } = useSubscriptionStore()
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
 
   const premiumActive = isPremium()
   const remainingDays = getRemainingDays()
   const currentStreak = React.useMemo(() => {
-    const dates = new Set(activities.map((activity) => activity.activity_date))
-    sessions
+    const sessionDates = sessions
       .filter((session) => (session.actual_duration_s || 0) > 0)
-      .forEach((session) => dates.add(getLocalDateKeyFromTimestamp(session.started_at)))
+      .map((session) => getLocalDateKeyFromTimestamp(session.started_at))
+    const quizDates = quizHistory.map((quiz) => getLocalDateKeyFromTimestamp(quiz.taken_at))
+    const dates = getQualifyingActivityDates(activities, sessionDates, quizDates)
     return calculateStreakStats(dates).currentStreak
-  }, [activities, sessions])
+  }, [activities, quizHistory, sessions])
 
   const navLinks = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard, authRequired: true },

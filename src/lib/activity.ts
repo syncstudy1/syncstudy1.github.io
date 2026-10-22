@@ -14,6 +14,18 @@ export interface QualifyingActivity {
   activity_type: QualifyingActivityType
 }
 
+export function getQualifyingActivityDates(
+  activities: Iterable<QualifyingActivity>,
+  sessionDates: Iterable<string> = [],
+  quizDates: Iterable<string> = []
+): Set<string> {
+  const dates = new Set<string>()
+  for (const activity of activities) dates.add(activity.activity_date)
+  for (const date of sessionDates) dates.add(date)
+  for (const date of quizDates) dates.add(date)
+  return dates
+}
+
 export function getLocalDateKeyFromTimestamp(timestamp: string): string {
   return getLocalDateKey(new Date(timestamp))
 }

@@ -50,6 +50,9 @@ export function useStudySessions() {
 
   useEffect(() => {
     loadSessions()
+    const refresh = () => loadSessions()
+    window.addEventListener('syncstudy:activity-recorded', refresh)
+    return () => window.removeEventListener('syncstudy:activity-recorded', refresh)
   }, [loadSessions])
 
   const saveSession = async (data: SaveSessionInput): Promise<StudySession> => {

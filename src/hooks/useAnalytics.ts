@@ -6,6 +6,7 @@ import {
   calculateStreakStats,
   getDateKeyDaysAgo,
   getLocalDateKeyFromTimestamp,
+  getQualifyingActivityDates,
 } from '@/lib/activity'
 
 export interface DailyDataPoint {
@@ -75,9 +76,11 @@ export function useAnalytics() {
       sessionMapByDate.set(date, existing)
     })
 
-    const activityDates = new Set(
-      activities.map((activity) => activity.activity_date)
-    )
+    const sessionActivityDates = sessions
+      .filter((session) => (session.actual_duration_s || 0) > 0)
+      .map((session) => getLocalDateKeyFromTimestamp(session.started_at))
+    const quizActivityDates = quizHistory.map((quiz) => getLocalDateKeyFromTimestamp(quiz.taken_at))
+    const activityDates = getQualifyingActivityDates(activities, sessionActivityDates, quizActivityDates)
     const activityCountByDate = new Map<string, number>()
     activities.forEach((activity) => {
       activityCountByDate.set(
@@ -90,13 +93,11 @@ export function useAnalytics() {
     sessions.forEach((session) => {
       if ((session.actual_duration_s || 0) > 0) {
         const date = getLocalDateKeyFromTimestamp(session.started_at)
-        activityDates.add(date)
         activityCountByDate.set(date, (activityCountByDate.get(date) || 0) + 1)
       }
     })
     quizHistory.forEach((quiz) => {
       const date = getLocalDateKeyFromTimestamp(quiz.taken_at)
-      activityDates.add(date)
       activityCountByDate.set(date, (activityCountByDate.get(date) || 0) + 1)
     })
 

@@ -496,7 +496,7 @@ export function StudySessionPage() {
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Detect head yaw & pitch deviation to warn you when distracted.
+                    Detect sustained side-looking behavior to warn you when distracted.
                   </p>
                 </div>
               </div>
@@ -649,7 +649,7 @@ export function StudySessionPage() {
                 </div>
                 <CardDescription className="text-xs">
                   {enableCamera
-                    ? 'Active head yaw & pitch calibration'
+                    ? 'Active focus monitoring'
                     : 'Vision tracking is paused.'}
                 </CardDescription>
               </CardHeader>
@@ -695,7 +695,7 @@ export function StudySessionPage() {
                   <span>Productivity Rule</span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Keep your head aligned with the screen. 25° yaw or 20° pitch sustained for over 3 seconds logs a distraction event.
+                  Keep your head aligned with the screen. A sustained side-looking posture is logged only after 10 continuous seconds.
                 </p>
               </CardContent>
             </Card>
