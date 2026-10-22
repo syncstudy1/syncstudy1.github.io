@@ -158,7 +158,7 @@ export function AnalyticsPage() {
   }, [calendarData])
 
   const heatmapGridStyle = React.useMemo(
-    () => ({ gridTemplateColumns: `3rem repeat(${calendarWeeks.length}, minmax(1rem, 1fr))` }),
+    () => ({ gridTemplateColumns: `2.5rem repeat(${calendarWeeks.length}, 14px)` }),
     [calendarWeeks.length]
   )
 
@@ -496,8 +496,8 @@ export function AnalyticsPage() {
               !premium ? 'blur-sm select-none pointer-events-none' : ''
             }`}
           >
-            <div className="grid min-w-[620px] w-full gap-2 p-1">
-              <div className="grid gap-1.5 text-[10px] font-medium text-muted-foreground" style={heatmapGridStyle}>
+            <div className="inline-grid min-w-max gap-[5px] p-1">
+              <div className="grid gap-[5px] text-[10px] font-medium text-muted-foreground" style={heatmapGridStyle}>
                 <span />
                 {calendarWeeks.map((week, wIdx) => (
                   <span key={wIdx} className="text-left">
@@ -505,22 +505,22 @@ export function AnalyticsPage() {
                   </span>
                 ))}
               </div>
-              <div className="grid gap-1.5" style={heatmapGridStyle}>
-                <div className="grid grid-rows-7 gap-1.5 text-[10px] font-medium leading-none text-muted-foreground">
+              <div className="grid gap-[5px]" style={heatmapGridStyle}>
+                <div className="grid grid-rows-7 gap-[5px] text-[10px] font-medium leading-none text-muted-foreground">
                   {['Mon', '', 'Wed', '', 'Fri', '', 'Sun'].map((label, index) => <span key={index}>{label}</span>)}
                 </div>
                 {calendarWeeks.map((week, wIdx) => (
-                <div key={wIdx} className="grid grid-rows-7 gap-1.5">
+                <div key={wIdx} className="grid grid-rows-7 gap-[5px]">
                   {week.map((day, dayIndex) => day ? (
                     <div
                       key={day.date}
-                      className={`aspect-square w-full rounded-[3px] border transition-transform hover:scale-125 hover:ring-2 hover:ring-indigo-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${getHeatmapColor(day.minutes)}`}
+                      className={`h-3.5 w-3.5 rounded-[3px] border ${getHeatmapColor(day.minutes)} transition-shadow hover:shadow-sm focus-visible:outline focus-visible:outline-1 focus-visible:outline-indigo-400`}
                       title={`${formatHeatmapDate(day.date)} — ${day.minutes} minutes, ${day.count} ${day.count === 1 ? 'activity' : 'activities'}`}
                       aria-label={`${formatHeatmapDate(day.date)}: ${day.minutes} minutes, ${day.count} ${day.count === 1 ? 'activity' : 'activities'}`}
                       tabIndex={0}
                     />
                   ) : (
-                    <div key={`empty-${dayIndex}`} className="aspect-square w-full" aria-hidden="true" />
+                    <div key={`empty-${dayIndex}`} className="h-3.5 w-3.5" aria-hidden="true" />
                   ))}
                 </div>
                 ))}
