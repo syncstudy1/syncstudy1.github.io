@@ -6,6 +6,7 @@ import { Button } from '@/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/ui/card'
 import { Badge } from '@/ui/badge'
 import { useToast } from '@/ui/toast'
+import { buildHeatmapWeeks, getHeatmapMonthLabel } from '@/lib/heatmap'
 import {
   BarChart,
   Bar,
@@ -27,7 +28,6 @@ import {
   Calendar,
   Zap,
   AlertTriangle,
-  ArrowRight,
   TrendingUp,
   BrainCircuit,
 } from 'lucide-react'
@@ -153,38 +153,14 @@ export function AnalyticsPage() {
     }
   }
 
-  // Align the actual 90-day window to Monday-Sunday columns. Padding cells are
-  // intentionally null so the grid never invents future activity dates.
   const calendarWeeks = React.useMemo(() => {
-    if (calendarData.length === 0) return []
-    const firstDate = new Date(`${calendarData[0].date}T12:00:00`)
-    const leadingDays = (firstDate.getDay() + 6) % 7
-    const weeks: Array<Array<(typeof calendarData)[number] | null>> = []
-
-    calendarData.forEach((day, index) => {
-      const position = leadingDays + index
-      const weekIndex = Math.floor(position / 7)
-      if (!weeks[weekIndex]) weeks[weekIndex] = Array(7).fill(null)
-      weeks[weekIndex][position % 7] = day
-    })
-    return weeks
+    return buildHeatmapWeeks(calendarData)
   }, [calendarData])
 
   const heatmapGridStyle = React.useMemo(
     () => ({ gridTemplateColumns: `3rem repeat(${calendarWeeks.length}, minmax(1rem, 1fr))` }),
     [calendarWeeks.length]
   )
-
-  const getMonthLabel = (week: Array<(typeof calendarData)[number] | null>, weekIndex: number) => {
-    const days = week.filter((day): day is (typeof calendarData)[number] => day !== null)
-    if (days.length === 0) return ''
-    const boundaryDay = days.find((day) => new Date(`${day.date}T12:00:00`).getDate() === 1)
-    if (weekIndex === 0 || boundaryDay) {
-      const date = boundaryDay || days[0]
-      return new Date(`${date.date}T12:00:00`).toLocaleDateString(undefined, { month: 'short' })
-    }
-    return ''
-  }
 
   return (
     <div className="page-shell">
@@ -497,7 +473,7 @@ export function AnalyticsPage() {
 
       {/* Streak Calendar (Heatmap) - Premium Feature */}
       <Card className="surface-panel overflow-hidden">
-        <CardHeader className="flex flex-col gap-4 border-b border-border/70 bg-gradient-to-r from-[#f8f7ff] to-white sm:flex-row sm:items-center sm:justify-between dark:from-indigo-950/30 dark:to-card">
+        <CardHeader className="border-b border-border/70 bg-gradient-to-r from-[#f8f7ff] to-white dark:from-indigo-950/30 dark:to-card">
           <div>
             <div className="flex items-center gap-2">
               <span className="rounded-lg bg-[#eeedff] p-2 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300"><Calendar className="h-4 w-4" /></span>
@@ -513,31 +489,24 @@ export function AnalyticsPage() {
               Your recorded focus sessions and qualifying study activity across the last 90 days.
             </CardDescription>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground" aria-label="Activity intensity legend">
-            <span>Less</span>
-            {[0, 30, 60, 120, 121].map((level) => (
-              <span key={level} className={`h-3.5 w-3.5 rounded-[4px] border ${getHeatmapColor(level)}`} />
-            ))}
-            <span>More</span>
-          </div>
         </CardHeader>
-        <CardContent className="relative">
+        <CardContent className="relative p-4 sm:p-5">
           <div
             className={`overflow-x-auto pb-3 ${
               !premium ? 'blur-sm select-none pointer-events-none' : ''
             }`}
           >
-            <div className="inline-flex min-w-max flex-col gap-2 p-1">
+            <div className="grid min-w-[620px] w-full gap-2 p-1">
               <div className="grid gap-1.5 text-[10px] font-medium text-muted-foreground" style={heatmapGridStyle}>
                 <span />
                 {calendarWeeks.map((week, wIdx) => (
-                  <span key={wIdx} className="text-center">
-                    {getMonthLabel(week, wIdx)}
+                  <span key={wIdx} className="text-left">
+                    {getHeatmapMonthLabel(week, wIdx)}
                   </span>
                 ))}
               </div>
               <div className="grid gap-1.5" style={heatmapGridStyle}>
-                <div className="grid grid-rows-7 gap-1.5 text-[10px] font-medium text-muted-foreground">
+                <div className="grid grid-rows-7 gap-1.5 text-[10px] font-medium leading-none text-muted-foreground">
                   {['Mon', '', 'Wed', '', 'Fri', '', 'Sun'].map((label, index) => <span key={index}>{label}</span>)}
                 </div>
                 {calendarWeeks.map((week, wIdx) => (
@@ -545,18 +514,26 @@ export function AnalyticsPage() {
                   {week.map((day, dayIndex) => day ? (
                     <div
                       key={day.date}
-                      className={`h-4 w-4 rounded-[4px] border transition-transform hover:scale-125 hover:ring-2 hover:ring-indigo-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${getHeatmapColor(day.minutes)}`}
+                      className={`aspect-square w-full rounded-[3px] border transition-transform hover:scale-125 hover:ring-2 hover:ring-indigo-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${getHeatmapColor(day.minutes)}`}
                       title={`${formatHeatmapDate(day.date)} — ${day.minutes} minutes, ${day.count} ${day.count === 1 ? 'activity' : 'activities'}`}
                       aria-label={`${formatHeatmapDate(day.date)}: ${day.minutes} minutes, ${day.count} ${day.count === 1 ? 'activity' : 'activities'}`}
                       tabIndex={0}
                     />
                   ) : (
-                    <div key={`empty-${dayIndex}`} className="h-4 w-4" aria-hidden="true" />
+                    <div key={`empty-${dayIndex}`} className="aspect-square w-full" aria-hidden="true" />
                   ))}
                 </div>
                 ))}
               </div>
             </div>
+          </div>
+
+          <div className="mt-1 flex items-center justify-end gap-1.5 text-xs text-muted-foreground" aria-label="Activity intensity legend">
+            <span>Less</span>
+            {[0, 30, 60, 120, 121].map((level) => (
+              <span key={level} className={`h-3.5 w-3.5 rounded-[3px] border ${getHeatmapColor(level)}`} />
+            ))}
+            <span>More</span>
           </div>
 
           {/* Premium Lock Overlay for Free Tier */}
