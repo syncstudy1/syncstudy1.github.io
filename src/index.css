@@ -71,6 +71,66 @@
   }
 }
 
+/* Lightweight, theme-aware interaction feedback. The layer never participates in hit testing. */
+.cursor-sparkles {
+  --sparkle-primary: #8b5cf6;
+  --sparkle-secondary: #c4b5fd;
+  --sparkle-highlight: #a5b4fc;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.dark .cursor-sparkles {
+  --sparkle-primary: #a78bfa;
+  --sparkle-secondary: #818cf8;
+  --sparkle-highlight: #67e8f9;
+}
+
+.cursor-sparkle {
+  position: fixed;
+  width: var(--sparkle-size);
+  height: var(--sparkle-size);
+  margin: calc(var(--sparkle-size) / -2);
+  border-radius: 999px;
+  background: var(--sparkle-primary);
+  box-shadow: 0 0 7px color-mix(in srgb, var(--sparkle-primary) 42%, transparent);
+  opacity: 0;
+  transform: translate3d(0, 0, 0) scale(1);
+  animation: cursor-sparkle-float var(--sparkle-duration) cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+.cursor-sparkle--star {
+  border-radius: 1px;
+  background: var(--sparkle-secondary);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--sparkle-secondary) 45%, transparent);
+  transform: translate3d(0, 0, 0) rotate(45deg) scale(1);
+}
+
+.cursor-sparkle--star::before,
+.cursor-sparkle--star::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--sparkle-highlight);
+}
+
+.cursor-sparkle--star::before { transform: scaleX(0.32); }
+.cursor-sparkle--star::after { transform: scaleY(0.32); }
+
+@keyframes cursor-sparkle-float {
+  0% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.65); }
+  15% { opacity: 0.82; }
+  100% { opacity: 0; transform: translate3d(var(--sparkle-x), var(--sparkle-y), 0) scale(0.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-sparkles { display: none; }
+}
+
 @layer base {
   * {
     @apply border-border;
