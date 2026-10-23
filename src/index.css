@@ -96,17 +96,17 @@
   margin: calc(var(--sparkle-size) / -2);
   border-radius: 999px;
   background: var(--sparkle-primary);
-  box-shadow: 0 0 7px color-mix(in srgb, var(--sparkle-primary) 42%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--sparkle-primary) 48%, transparent);
   opacity: 0;
-  transform: translate3d(0, 0, 0) scale(1);
+  transform: translate3d(0, 0, 0) rotate(0deg) scale(0.78);
   animation: cursor-sparkle-float var(--sparkle-duration) cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
 
 .cursor-sparkle--star {
   border-radius: 1px;
   background: var(--sparkle-secondary);
-  box-shadow: 0 0 6px color-mix(in srgb, var(--sparkle-secondary) 45%, transparent);
-  transform: translate3d(0, 0, 0) rotate(45deg) scale(1);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--sparkle-secondary) 52%, transparent);
+  transform: translate3d(0, 0, 0) rotate(45deg) scale(0.78);
 }
 
 .cursor-sparkle--star::before,
@@ -122,9 +122,10 @@
 .cursor-sparkle--star::after { transform: scaleY(0.32); }
 
 @keyframes cursor-sparkle-float {
-  0% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.65); }
-  15% { opacity: 0.82; }
-  100% { opacity: 0; transform: translate3d(var(--sparkle-x), var(--sparkle-y), 0) scale(0.08); }
+  0% { opacity: 0; transform: translate3d(0, 0, 0) rotate(0deg) scale(0.78); }
+  12% { opacity: 0.9; transform: translate3d(0, 0, 0) rotate(var(--sparkle-rotation)) scale(1); }
+  72% { opacity: 0.62; }
+  100% { opacity: 0; transform: translate3d(var(--sparkle-x), var(--sparkle-y), 0) rotate(calc(var(--sparkle-rotation) + 16deg)) scale(0.62); }
 }
 
 @media (prefers-reduced-motion: reduce) {

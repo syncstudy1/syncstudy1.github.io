@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react"
 
 const MAX_PARTICLES = 36
-const MOVEMENT_INTERVAL = 80
-const MOVEMENT_CHANCE = 0.3
+const MOVEMENT_INTERVAL = 90
+const MOVEMENT_CHANCE = 0.45
 const INTERACTIVE_SELECTOR =
   "a, button, [role=button], [role=tab], [role=menuitem], summary, input[type=submit], input[type=button]"
 
@@ -61,8 +61,9 @@ export function CursorSparkles() {
 
       const particle = document.createElement("span")
       const distance = burst ? 18 + Math.random() * 18 : 5 + Math.random() * 9
-      const duration = burst ? 450 + Math.random() * 250 : 350 + Math.random() * 250
-      const size = burst ? 3 + Math.random() * 2 : 2 + Math.random() * 1.5
+      const duration = burst ? 600 + Math.random() * 200 : 500 + Math.random() * 250
+      const size = kind === "star" ? (burst ? 27 : 20) : burst ? 3.5 : 2.5
+      const rotation = (Math.random() - 0.5) * 18
 
       particle.className = `cursor-sparkle cursor-sparkle--${kind}`
       particle.style.left = `${x}px`
@@ -71,6 +72,7 @@ export function CursorSparkles() {
       particle.style.setProperty("--sparkle-x", `${Math.cos(angle) * distance}px`)
       particle.style.setProperty("--sparkle-y", `${Math.sin(angle) * distance}px`)
       particle.style.setProperty("--sparkle-duration", `${duration}ms`)
+      particle.style.setProperty("--sparkle-rotation", `${rotation}deg`)
       container.appendChild(particle)
       activeParticlesRef.current.push(particle)
 
@@ -115,7 +117,7 @@ export function CursorSparkles() {
       const count = isTouch ? 4 : 6 + Math.floor(Math.random() * 3)
 
       for (let index = 0; index < count; index += 1) {
-        createParticle(x, y, index % 3 === 0 ? "dot" : "star", true, (Math.PI * 2 * index) / count)
+        createParticle(x, y, "star", true, (Math.PI * 2 * index) / count)
       }
       lastPointerTypeRef.current = null
     }
