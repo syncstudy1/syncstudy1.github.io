@@ -96,7 +96,35 @@ export function useSubjects() {
       throw new Error('You must be signed in to delete subjects.')
     }
 
-    const { error } = await supabase.from('subjects').delete().eq('id', id).eq('user_id', user.id)
+    const [{ count: taskCount, error: taskError }, { count: sessionCount, error: sessionError }] =
+      await Promise.all([
+        supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('subject_id', id).eq('user_id', user.id),
+        supabase
+          .from('study_sessions')
+          .select('id', { count: 'exact', head: true })
+          .eq('subject_id', id)
+          .eq('user_id', user.id),
+      ])
+
+    if (taskError || sessionError) {
+      throw taskError || sessionError || new Error('Could not check subject dependencies.')
+    }
+
+    if ((taskCount || 0) > 0 || (sessionCount || 0) > 0) {
+      const dependencies = [
+        taskCount ? `${taskCount} task${taskCount === 1 ? '' : 's'}` : '',
+        sessionCount ? `${sessionCount} study session${sessionCount === 1 ? '' : 's'}` : '',
+      ].filter(Boolean).join(' and ')
+      throw new Error(
+        `Cannot delete this subject because it is linked to ${dependencies}. Reassign or remove those records first so your study history stays intact.`
+      )
+    }
+
+    const { error } = await supabase
+      .from('subjects')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id)
     if (error) throw error
 
     setSubjects((prev) => prev.filter((s) => s.id !== id))

@@ -63,7 +63,7 @@ function formatSeconds(totalSecs: number): string {
 export function StudySessionPage() {
   const { toast } = useToast()
   const { isPremium } = useSubscriptionStore()
-  const { subjects, createSubject } = useSubjects()
+  const { subjects, createSubject, deleteSubject } = useSubjects()
   const { tasks, createTask, updateTaskStatus, deleteTask } = useTasks()
   const { saveSession } = useStudySessions()
 
@@ -106,6 +106,7 @@ export function StudySessionPage() {
   const [newSubName, setNewSubName] = React.useState<string>('')
   const [newSubColor, setNewSubColor] = React.useState<string>(PRESET_COLORS[0])
   const [isAddingSub, setIsAddingSub] = React.useState<boolean>(false)
+  const [deletingSubjectId, setDeletingSubjectId] = React.useState<string | null>(null)
 
   // Add Task Form
   const [newTaskTitle, setNewTaskTitle] = React.useState<string>('')
@@ -251,6 +252,25 @@ export function StudySessionPage() {
       })
     } finally {
       setIsAddingSub(false)
+    }
+  }
+
+  const handleDeleteSubject = async (subjectId: string, subjectName: string) => {
+    if (!window.confirm(`Delete "${subjectName}"? This cannot be undone.`)) return
+    setDeletingSubjectId(subjectId)
+    try {
+      await deleteSubject(subjectId)
+      if (selectedSubjectId === subjectId) setSelectedSubjectId('')
+      if (newTaskSubId === subjectId) setNewTaskSubId('')
+      toast({ title: 'Subject deleted', description: `Removed "${subjectName}".`, type: 'success' })
+    } catch (error) {
+      toast({
+        title: 'Subject could not be deleted',
+        description: error instanceof Error ? error.message : 'Please try again.',
+        type: 'error',
+      })
+    } finally {
+      setDeletingSubjectId(null)
     }
   }
 
@@ -811,9 +831,27 @@ export function StudySessionPage() {
                         />
                         <span className="font-medium">{sub.name}</span>
                       </div>
-                      <span className="text-[11px] text-muted-foreground">
-                        {tasks.filter((t) => t.subject_id === sub.id).length} tasks
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-muted-foreground">
+                          {tasks.filter((t) => t.subject_id === sub.id).length} tasks
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          aria-label={`Delete ${sub.name}`}
+                          title="Delete subject"
+                          disabled={deletingSubjectId === sub.id}
+                          className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                          onClick={(event) => {
+                            event.preventDefault()
+                            event.stopPropagation()
+                            void handleDeleteSubject(sub.id, sub.name)
+                          }}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>

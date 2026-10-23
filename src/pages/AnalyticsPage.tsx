@@ -1,6 +1,10 @@
 import * as React from 'react'
 import { Link } from 'react-router-dom'
 import { useAnalytics } from '@/hooks/useAnalytics'
+import { useTasks } from '@/hooks/useTasks'
+import { useQualifyingActivity } from '@/hooks/useQualifyingActivity'
+import { getLocalDateKeyFromTimestamp } from '@/lib/activity'
+import { buildAnalyticsPdf } from '@/lib/analyticsPdf'
 import { useSubscriptionStore } from '@/stores/subscriptionStore'
 import { Button } from '@/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/ui/card'
@@ -60,6 +64,12 @@ export function AnalyticsPage() {
   const { toast } = useToast()
   const { isPremium } = useSubscriptionStore()
   const premium = isPremium()
+  const { tasks } = useTasks()
+  const { activities } = useQualifyingActivity()
+  const [selectedDate, setSelectedDate] = React.useState(() => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  })
 
   const {
     dailyData,
@@ -75,8 +85,36 @@ export function AnalyticsPage() {
     avgSessionSeconds,
     bestDayThisWeek,
     sessions,
+    quizHistory,
     loading,
   } = useAnalytics()
+
+  const selectedSessions = React.useMemo(
+    () => sessions.filter((session) => getLocalDateKeyFromTimestamp(session.started_at) === selectedDate),
+    [sessions, selectedDate]
+  )
+  const selectedTasks = React.useMemo(() => tasks.filter((task) => task.deadline === selectedDate), [tasks, selectedDate])
+  const selectedQuizzes = React.useMemo(
+    () => quizHistory.filter((quiz) => getLocalDateKeyFromTimestamp(quiz.taken_at) === selectedDate),
+    [quizHistory, selectedDate]
+  )
+  const selectedActivities = React.useMemo(
+    () => activities.filter((activity) => activity.activity_date === selectedDate),
+    [activities, selectedDate]
+  )
+  const streakThroughSelectedDate = React.useMemo(() => {
+    const dates = new Set<string>([
+      ...activities.map((activity) => activity.activity_date),
+      ...sessions.filter((session) => (session.actual_duration_s || 0) > 0).map((session) => getLocalDateKeyFromTimestamp(session.started_at)),
+    ])
+    let count = 0
+    const cursor = new Date(`${selectedDate}T12:00:00`)
+    while (dates.has(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`)) {
+      count += 1
+      cursor.setDate(cursor.getDate() - 1)
+    }
+    return count
+  }, [activities, selectedDate, sessions])
 
   // Filter daily data for free tier (last 7 days only)
   const displayedDailyData = React.useMemo(() => {
@@ -93,7 +131,7 @@ export function AnalyticsPage() {
     return formatSecondsHhMm(last7DaysSecs)
   }, [dailyData, premium, totalSecondsAllTime])
 
-  // Export Data Handler (Premium Feature)
+  // Export selected-date report (Premium Feature)
   const handleExportData = () => {
     if (!premium) {
       toast({
@@ -105,43 +143,27 @@ export function AnalyticsPage() {
     }
 
     try {
-      const exportPayload = {
-        exportedAt: new Date().toISOString(),
-        version: '1.0',
-        stats: {
-          currentStreak,
-          longestStreak,
-          completedSessionsCount,
-          totalStudySeconds: totalSecondsAllTime,
-        },
-        sessions: sessions.map((s) => ({
-          id: s.id,
-          subject: s.subject?.name || 'General',
-          started_at: s.started_at,
-          ended_at: s.ended_at,
-          planned_duration_s: s.planned_duration_s,
-          actual_duration_s: s.actual_duration_s,
-          warnings: s.warning_count,
-          notes: s.notes,
-        })),
-        quizzes: quizScores,
-      }
-
-      const jsonBlob = new Blob([JSON.stringify(exportPayload, null, 2)], {
-        type: 'application/json',
+      const pdfBlob = buildAnalyticsPdf({
+        date: selectedDate,
+        sessions: selectedSessions,
+        tasks: selectedTasks,
+        quizzes: selectedQuizzes,
+        activityCount: selectedActivities.length,
+        activityTypes: selectedActivities.map((activity) => activity.activity_type.replace('_', ' ')),
+        streakDaysThroughDate: streakThroughSelectedDate,
       })
-      const url = URL.createObjectURL(jsonBlob)
+      const url = URL.createObjectURL(pdfBlob)
       const anchor = document.createElement('a')
       anchor.href = url
-      anchor.download = `syncstudy-analytics-${new Date().toISOString().split('T')[0]}.json`
+      anchor.download = `syncstudy-analytics-${selectedDate}.pdf`
       document.body.appendChild(anchor)
       anchor.click()
       document.body.removeChild(anchor)
       URL.revokeObjectURL(url)
 
       toast({
-        title: 'Data Exported!',
-        description: 'Your study history was downloaded as JSON.',
+        title: 'Analytics PDF downloaded',
+        description: `The report for ${selectedDate} was downloaded.`,
         type: 'success',
       })
     } catch {
@@ -197,6 +219,16 @@ export function AnalyticsPage() {
             <span>Record Days: {recordDays}</span>
           </Badge>
 
+          <label className="flex items-center gap-2 text-xs text-muted-foreground">
+            Report date
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(event) => setSelectedDate(event.target.value)}
+              className="h-9 rounded-xl border border-input bg-card px-2 text-foreground"
+            />
+          </label>
+
           {/* Export Data Button */}
           <Button
             variant="outline"
@@ -209,7 +241,7 @@ export function AnalyticsPage() {
             ) : (
               <Lock className="w-3.5 h-3.5 text-amber-500" />
             )}
-            Export Data
+            Download Analytics
           </Button>
         </div>
       </div>
@@ -226,7 +258,7 @@ export function AnalyticsPage() {
                 Free Tier View: Showing 7 Days History
               </p>
               <p className="text-muted-foreground">
-                Upgrade to Premium or redeem code UNLOCKALL to access full 90-day history, the streak heatmap, and CSV/JSON export.
+                Upgrade to Premium or redeem code UNLOCKALL to access full 90-day history, the streak heatmap, and PDF analytics reports.
               </p>
             </div>
           </div>

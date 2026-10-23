@@ -157,7 +157,7 @@ export function PrivacyPage() {
                   <strong className="text-foreground">Editing and Deleting Content:</strong> You can edit or delete your tasks, subjects, and study plans at any time directly in the web application.
                 </li>
                 <li>
-                  <strong className="text-foreground">Data Export:</strong> You can export your logged study sessions and analytical history in JSON format directly from the Analytics page.
+                  <strong className="text-foreground">Data Export:</strong> Premium users can download a formatted PDF report for a selected date directly from the Analytics page.
                 </li>
                 <li>
                   <strong className="text-foreground">Complete Account Deletion:</strong> If you wish to permanently delete your account, profile, and all associated study sessions from our database, send an email to the contact address below and we will remove your records.

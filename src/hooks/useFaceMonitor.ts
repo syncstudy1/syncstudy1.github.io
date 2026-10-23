@@ -6,6 +6,9 @@ import {
   type HeadAngles,
   type FaceLandmarker,
   type VisionLoadingStage,
+  type FaceCenter,
+  getFaceCenter,
+  selectPrimaryFaceIndex,
 } from '@/lib/mediapipe'
 
 export type FaceMonitorStatus =
@@ -18,6 +21,7 @@ export type FaceMonitorStatus =
   | 'loading_model'
   | 'calibrating'
   | 'monitoring'
+  | 'multiple_faces'
   | 'camera_permission_denied'
   | 'no_camera_available'
   | 'camera_in_use'
@@ -43,6 +47,7 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
   const [warnings, setWarnings] = useState<number>(0)
   const [isDistracted, setIsDistracted] = useState<boolean>(false)
   const [isFaceAbsent, setIsFaceAbsent] = useState<boolean>(false)
+  const [isMultipleFaces, setIsMultipleFaces] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   // Stream & video refs
@@ -58,6 +63,7 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
   const absentStartRef = useRef<number | null>(null)
   const warningCooldownRef = useRef<boolean>(false)
   const distractionWarningIssuedRef = useRef<boolean>(false)
+  const primaryFaceCenterRef = useRef<FaceCenter | null>(null)
   const isRunningRef = useRef<boolean>(false)
   const sessionIdRef = useRef<number>(0)
 
@@ -94,6 +100,7 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
     absentStartRef.current = null
     warningCooldownRef.current = false
     distractionWarningIssuedRef.current = false
+    primaryFaceCenterRef.current = null
   }, [])
 
   /**
@@ -104,6 +111,7 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
     setStatus('monitoring_stopped')
     setIsDistracted(false)
     setIsFaceAbsent(false)
+    setIsMultipleFaces(false)
   }, [cleanupHardware])
 
   /**
@@ -115,6 +123,7 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
     setErrorMessage(null)
     setIsDistracted(false)
     setIsFaceAbsent(false)
+    setIsMultipleFaces(false)
     setCalibrationProgress(0)
   }, [cleanupHardware])
 
@@ -145,8 +154,10 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
           if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA && video.videoWidth > 0) {
             try {
               const result = landmarker.detectForVideo(video, now)
-              const angles = extractHeadAngles(result)
+              const primaryIndex = selectPrimaryFaceIndex(result, primaryFaceCenterRef.current)
+              const angles = primaryIndex === null ? null : extractHeadAngles(result, primaryIndex)
               if (angles) {
+                primaryFaceCenterRef.current = getFaceCenter(result, primaryIndex!)
                 samples.push(angles)
               }
             } catch (e) {
@@ -206,9 +217,21 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
         ) {
           try {
             const result = landmarker.detectForVideo(video, now)
-            const angles = extractHeadAngles(result)
+            const faceCount = result.faceLandmarks?.length || 0
+            const primaryIndex = selectPrimaryFaceIndex(result, primaryFaceCenterRef.current)
+            const angles = primaryIndex === null ? null : extractHeadAngles(result, primaryIndex)
+            setIsMultipleFaces(faceCount > 1)
+            if (primaryIndex !== null) primaryFaceCenterRef.current = getFaceCenter(result, primaryIndex)
 
-            if (!angles) {
+            if (!angles && faceCount > 0) {
+              // A detected face without a reliable primary pose is a transient
+              // tracking state, not evidence that the student left or looked away.
+              setIsFaceAbsent(false)
+              setIsDistracted(false)
+              distractionStartRef.current = null
+              absentStartRef.current = null
+              distractionWarningIssuedRef.current = false
+            } else if (!angles) {
               // ── Face Absent Detection ──
               setIsFaceAbsent(true)
               setIsDistracted(false)
@@ -522,6 +545,7 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
     warnings,
     isDistracted,
     isFaceAbsent,
+    isMultipleFaces,
     errorMessage,
     yawThreshold,
     gracePeriodMs,

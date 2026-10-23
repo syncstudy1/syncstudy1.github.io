@@ -123,7 +123,7 @@ export function PremiumPage() {
                 <div className="p-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 shrink-0">
                   <Check className="w-3.5 h-3.5" />
                 </div>
-                <span className="text-foreground font-medium">Export Study Data (JSON / Audit Records)</span>
+                <span className="text-foreground font-medium">Download Analytics Reports (PDF)</span>
               </div>
 
               <div className="flex items-center gap-3">
@@ -257,7 +257,7 @@ export function PremiumPage() {
                   ❌
                 </td>
                 <td className="p-4 text-center text-emerald-600 font-semibold bg-indigo-50/30 dark:bg-indigo-950/10">
-                  ✅ JSON Export
+                  ✅ PDF Analytics Reports
                 </td>
               </tr>
             </tbody>

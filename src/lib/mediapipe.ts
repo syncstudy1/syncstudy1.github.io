@@ -5,6 +5,11 @@ export interface HeadAngles {
   pitch: number // up (-) / down (+) in degrees
 }
 
+export interface FaceCenter {
+  x: number
+  y: number
+}
+
 export type { FaceLandmarkerResult, FaceLandmarker }
 
 // Local static assets served by Vite / Netlify with CDN fallback
@@ -80,7 +85,7 @@ export async function loadFaceLandmarker(
           outputFaceBlendshapes: true,
           outputFacialTransformationMatrixes: true,
           runningMode: 'VIDEO',
-          numFaces: 1,
+          numFaces: 2,
         })
 
         console.log('[SyncStudy Vision] FaceLandmarker initialized with GPU delegate.')
@@ -102,7 +107,7 @@ export async function loadFaceLandmarker(
           outputFaceBlendshapes: true,
           outputFacialTransformationMatrixes: true,
           runningMode: 'VIDEO',
-          numFaces: 1,
+          numFaces: 2,
         })
 
         console.log('[SyncStudy Vision] FaceLandmarker initialized with CPU delegate.')
@@ -150,14 +155,54 @@ export function releaseFaceLandmarker(): void {
  *
  * Returns null if no face is detected in the frame.
  */
-export function extractHeadAngles(result: FaceLandmarkerResult): HeadAngles | null {
+export function getFaceCenter(result: FaceLandmarkerResult, faceIndex = 0): FaceCenter | null {
+  const landmarks = result.faceLandmarks?.[faceIndex]
+  if (!landmarks?.length) return null
+  const bounds = landmarks.reduce(
+    (acc, point) => ({
+      minX: Math.min(acc.minX, point.x),
+      maxX: Math.max(acc.maxX, point.x),
+      minY: Math.min(acc.minY, point.y),
+      maxY: Math.max(acc.maxY, point.y),
+    }),
+    { minX: 1, maxX: 0, minY: 1, maxY: 0 }
+  )
+  return { x: (bounds.minX + bounds.maxX) / 2, y: (bounds.minY + bounds.maxY) / 2 }
+}
+
+/** Selects the largest face initially, then keeps the closest face across frames. */
+export function selectPrimaryFaceIndex(
+  result: FaceLandmarkerResult,
+  previousCenter: FaceCenter | null
+): number | null {
+  const faces = result.faceLandmarks || []
+  if (!faces.length) return null
+  let bestIndex = 0
+  let bestScore = Number.POSITIVE_INFINITY
+  faces.forEach((landmarks, index) => {
+    const center = getFaceCenter(result, index)
+    if (!center) return
+    const xs = landmarks.map((point) => point.x)
+    const ys = landmarks.map((point) => point.y)
+    const area = (Math.max(...xs) - Math.min(...xs)) * (Math.max(...ys) - Math.min(...ys))
+    const distance = previousCenter ? Math.hypot(center.x - previousCenter.x, center.y - previousCenter.y) : 0
+    const score = previousCenter ? distance - area * 0.15 : -area
+    if (score < bestScore) {
+      bestScore = score
+      bestIndex = index
+    }
+  })
+  return bestIndex
+}
+
+export function extractHeadAngles(result: FaceLandmarkerResult, faceIndex = 0): HeadAngles | null {
   if (!result) return null
 
   const hasLandmarks = !!(result.faceLandmarks && result.faceLandmarks.length > 0)
   const hasMatrix = !!(
     result.facialTransformationMatrixes &&
-    result.facialTransformationMatrixes.length > 0 &&
-    result.facialTransformationMatrixes[0]
+    result.facialTransformationMatrixes.length > faceIndex &&
+    result.facialTransformationMatrixes[faceIndex]
   )
 
   if (!hasLandmarks && !hasMatrix) {
@@ -166,7 +211,7 @@ export function extractHeadAngles(result: FaceLandmarkerResult): HeadAngles | nu
 
   // 1. Primary Method: 4x4 Transformation Matrix
   if (hasMatrix) {
-    const rawMatrix = result.facialTransformationMatrixes![0]
+    const rawMatrix = result.facialTransformationMatrixes![faceIndex]
     const matrixData: number[] = Array.isArray(rawMatrix)
       ? rawMatrix
       : (rawMatrix as any).data
@@ -201,8 +246,8 @@ export function extractHeadAngles(result: FaceLandmarkerResult): HeadAngles | nu
   }
 
   // 2. Secondary / Fallback Method: Facial Landmark Geometry
-  if (hasLandmarks && result.faceLandmarks![0]) {
-    const landmarks = result.faceLandmarks![0]
+  if (hasLandmarks && result.faceLandmarks![faceIndex]) {
+    const landmarks = result.faceLandmarks![faceIndex]
     if (landmarks.length >= 264) {
       const noseTip = landmarks[1]
       const leftEye = landmarks[33]

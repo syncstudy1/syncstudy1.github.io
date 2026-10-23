@@ -206,5 +206,5 @@ export function useAnalytics() {
     }
   }, [activities, quizHistory, sessions])
 
-  return { ...result, sessions, loading }
+  return { ...result, sessions, quizHistory, loading }
 }
