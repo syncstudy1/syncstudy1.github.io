@@ -151,6 +151,7 @@ export function AnalyticsPage() {
         activityCount: selectedActivities.length,
         activityTypes: selectedActivities.map((activity) => activity.activity_type.replace('_', ' ')),
         streakDaysThroughDate: streakThroughSelectedDate,
+        dailyData,
       })
       const url = URL.createObjectURL(pdfBlob)
       const anchor = document.createElement('a')
