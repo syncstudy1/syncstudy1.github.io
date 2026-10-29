@@ -16,6 +16,7 @@ import { PlannerPage } from "@/pages/PlannerPage"
 import { QuizPage } from "@/pages/QuizPage"
 import { AnalyticsPage } from "@/pages/AnalyticsPage"
 import { NotFoundPage } from "@/pages/NotFoundPage"
+import { LearningAutopilotPage } from "@/pages/LearningAutopilotPage"
 
 export function App() {
   const { initialize } = useAuthStore()
@@ -73,6 +74,14 @@ export function App() {
               element={
                 <ProtectedRoute>
                   <AnalyticsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/autopilot"
+              element={
+                <ProtectedRoute>
+                  <LearningAutopilotPage />
                 </ProtectedRoute>
               }
             />
