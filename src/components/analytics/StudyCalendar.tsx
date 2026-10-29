@@ -41,7 +41,7 @@ export function StudyCalendar({
 
   return (
     <div aria-label="Study calendar">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+      <div className="mx-auto mb-3 flex w-full max-w-[22rem] flex-nowrap items-center justify-between gap-1.5">
         <div className="flex items-center gap-1.5">
           <Button type="button" variant="ghost" size="icon" onClick={onPreviousMonth} aria-label="Previous month" title="Previous month">
             <ChevronLeft className="h-4 w-4" />
@@ -57,11 +57,10 @@ export function StudyCalendar({
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-1.5 sm:gap-2" role="grid" aria-label={formatMonth(month)}>
+      <div className="mx-auto grid w-full max-w-[22rem] grid-cols-7 gap-1.5" role="grid" aria-label={formatMonth(month)}>
         {WEEKDAYS.map((weekday) => (
-          <div key={weekday} className="pb-1 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground sm:text-xs" role="columnheader">
-            <span className="sm:hidden">{weekday.slice(0, 3)}</span>
-            <span className="hidden sm:inline">{weekday}</span>
+          <div key={weekday} title={weekday} className="pb-0.5 text-center text-[10px] font-semibold uppercase tracking-wide text-muted-foreground" role="columnheader">
+            {weekday.slice(0, 3)}
           </div>
         ))}
 
@@ -80,7 +79,7 @@ export function StudyCalendar({
               aria-label={`${new Date(`${day.date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}${hasActivity ? ', study activity recorded' : ', no study activity recorded'}`}
               aria-pressed={isSelected}
               onClick={() => onSelectDate(day.date)}
-              className={`flex min-h-[4.25rem] flex-col items-center justify-start rounded-xl border p-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:min-h-[5.25rem] ${
+              className={`flex aspect-square min-h-0 flex-col items-center justify-start rounded-lg border p-1.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                 isSelected
                   ? 'border-indigo-600 bg-indigo-600 text-white shadow-sm'
                   : isAdjacent
@@ -90,14 +89,13 @@ export function StudyCalendar({
             >
               <span className={`font-semibold ${isAdjacent && !isSelected ? 'text-muted-foreground/50' : ''}`}>{day.dayOfMonth}</span>
               <span
-                className={`mt-2 h-1.5 w-1.5 rounded-full ${
+                className={`mt-1 h-1.5 w-1.5 rounded-full ${
                   hasActivity
                     ? isSelected ? 'bg-white' : 'bg-indigo-500 dark:bg-indigo-400'
                     : 'bg-transparent'
                 }`}
                 aria-hidden="true"
               />
-              {isToday && <span className={`mt-1 text-[9px] font-medium ${isSelected ? 'text-indigo-100' : 'text-indigo-600 dark:text-indigo-300'}`}>Today</span>}
             </button>
           )
         })}
