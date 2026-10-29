@@ -22,7 +22,6 @@ import {
   Loader2,
   RefreshCw,
   SkipForward,
-  Sparkles,
   Target,
 } from 'lucide-react'
 import {
@@ -187,10 +186,6 @@ export function LearningAutopilotPage() {
             <p className="mt-1 text-sm text-muted-foreground">A transparent daily recommendation built from your SyncStudy activity.</p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="gap-1.5 py-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
-              {result?.mode === 'personalized' ? 'Personalized baseline' : 'Deterministic baseline'}
-            </Badge>
             <Button variant="outline" size="sm" onClick={() => void handleRefresh()} disabled={refreshing} className="gap-1.5">
               {refreshing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
               Recalculate
@@ -244,15 +239,13 @@ export function LearningAutopilotPage() {
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg"><Compass className="h-5 w-5 text-indigo-500" />Agent status</CardTitle>
-              <CardDescription>Recommendations are recalculated from saved records.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">Mode</span><Badge variant="outline">{result?.mode || 'Loading'}</Badge></div>
               <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">Last calculation</span><span className="text-right text-xs font-medium">{formatAge(result?.calculatedAt || null)}</span></div>
               <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">Observed interactions</span><span className="text-right font-semibold">{result?.personalization.observationCount || 0} · {result?.personalization.ready ? 'bounded adaptation active' : 'still developing'}</span></div>
-              <p className="border-t pt-3 text-xs leading-relaxed text-muted-foreground">No external AI call is required. Missing scores and prerequisites remain missing rather than being treated as zero or inferred.</p>
             </CardContent>
           </Card>
         </div>
@@ -303,7 +296,6 @@ export function LearningAutopilotPage() {
           </Card>
         </div>
 
-        <p className="text-xs text-muted-foreground">{result?.notes.join(' ') || 'Preparing a recommendation from your saved data.'}</p>
       </div>
     </div>
   )
