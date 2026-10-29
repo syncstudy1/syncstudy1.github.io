@@ -3,14 +3,15 @@ import { Link } from 'react-router-dom'
 import { useAnalytics } from '@/hooks/useAnalytics'
 import { useTasks } from '@/hooks/useTasks'
 import { useQualifyingActivity } from '@/hooks/useQualifyingActivity'
-import { getLocalDateKeyFromTimestamp } from '@/lib/activity'
+import { getLocalDateKeyFromTimestamp, getQualifyingActivityDates } from '@/lib/activity'
 import { buildAnalyticsPdf } from '@/lib/analyticsPdf'
+import { StudyCalendar } from '@/components/analytics/StudyCalendar'
+import { getDateFromCalendarKey, getLocalDateKeyForCalendar, shiftCalendarMonth } from '@/lib/studyCalendar'
 import { useSubscriptionStore } from '@/stores/subscriptionStore'
 import { Button } from '@/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/ui/card'
 import { Badge } from '@/ui/badge'
 import { useToast } from '@/ui/toast'
-import { buildHeatmapWeeks, getHeatmapMonthLabel } from '@/lib/heatmap'
 import {
   BarChart,
   Bar,
@@ -43,23 +44,6 @@ function formatSecondsHhMm(totalSeconds: number): string {
   return `${hours}h ${minutes}m`
 }
 
-function getHeatmapColor(minutes: number): string {
-  if (!minutes || minutes === 0) return 'bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700'
-  if (minutes <= 30) return 'bg-indigo-100 border-indigo-200 dark:bg-indigo-950 dark:border-indigo-900'
-  if (minutes <= 60) return 'bg-indigo-300 border-indigo-400 dark:bg-indigo-800 dark:border-indigo-700'
-  if (minutes <= 120) return 'bg-indigo-500 border-indigo-600 dark:bg-indigo-600 dark:border-indigo-500'
-  return 'bg-indigo-700 border-indigo-800 dark:bg-indigo-400 dark:border-indigo-300'
-}
-
-function formatHeatmapDate(date: string): string {
-  return new Date(`${date}T12:00:00`).toLocaleDateString(undefined, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-}
-
 export function AnalyticsPage() {
   const { toast } = useToast()
   const { isPremium } = useSubscriptionStore()
@@ -67,8 +51,11 @@ export function AnalyticsPage() {
   const { tasks } = useTasks()
   const { activities } = useQualifyingActivity()
   const [selectedDate, setSelectedDate] = React.useState(() => {
+    return getLocalDateKeyForCalendar(new Date())
+  })
+  const [calendarMonth, setCalendarMonth] = React.useState(() => {
     const now = new Date()
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    return new Date(now.getFullYear(), now.getMonth(), 1, 12, 0, 0, 0)
   })
 
   const {
@@ -79,7 +66,6 @@ export function AnalyticsPage() {
     currentStreak,
     longestStreak,
     recordDays,
-    calendarData,
     totalSecondsAllTime,
     completedSessionsCount,
     avgSessionSeconds,
@@ -93,6 +79,10 @@ export function AnalyticsPage() {
     () => sessions.filter((session) => getLocalDateKeyFromTimestamp(session.started_at) === selectedDate),
     [sessions, selectedDate]
   )
+  const selectedQualifyingSessions = React.useMemo(
+    () => selectedSessions.filter((session) => (session.actual_duration_s || 0) > 0),
+    [selectedSessions]
+  )
   const selectedTasks = React.useMemo(() => tasks.filter((task) => task.deadline === selectedDate), [tasks, selectedDate])
   const selectedQuizzes = React.useMemo(
     () => quizHistory.filter((quiz) => getLocalDateKeyFromTimestamp(quiz.taken_at) === selectedDate),
@@ -101,6 +91,16 @@ export function AnalyticsPage() {
   const selectedActivities = React.useMemo(
     () => activities.filter((activity) => activity.activity_date === selectedDate),
     [activities, selectedDate]
+  )
+  const qualifyingActivityDates = React.useMemo(
+    () => getQualifyingActivityDates(
+      activities,
+      sessions
+        .filter((session) => (session.actual_duration_s || 0) > 0)
+        .map((session) => getLocalDateKeyFromTimestamp(session.started_at)),
+      quizHistory.map((quiz) => getLocalDateKeyFromTimestamp(quiz.taken_at)),
+    ),
+    [activities, quizHistory, sessions]
   )
   const streakThroughSelectedDate = React.useMemo(() => {
     const dates = new Set<string>([
@@ -176,13 +176,26 @@ export function AnalyticsPage() {
     }
   }
 
-  const calendarWeeks = React.useMemo(() => {
-    return buildHeatmapWeeks(calendarData)
-  }, [calendarData])
+  const handleCalendarDateSelect = (date: string) => {
+    setSelectedDate(date)
+    const selectedMonth = getDateFromCalendarKey(date)
+    setCalendarMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1, 12, 0, 0, 0))
+  }
 
-  const heatmapGridStyle = React.useMemo(
-    () => ({ gridTemplateColumns: `2.5rem repeat(${calendarWeeks.length}, 14px)` }),
-    [calendarWeeks.length]
+  const handleCalendarToday = () => {
+    const today = new Date()
+    setSelectedDate(getLocalDateKeyForCalendar(today))
+    setCalendarMonth(new Date(today.getFullYear(), today.getMonth(), 1, 12, 0, 0, 0))
+  }
+
+  const selectedDateLabel = getDateFromCalendarKey(selectedDate).toLocaleDateString(undefined, {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  })
+  const selectedStudySeconds = selectedQualifyingSessions.reduce(
+    (total, session) => total + (session.actual_duration_s || 0),
+    0,
   )
 
   return (
@@ -259,7 +272,7 @@ export function AnalyticsPage() {
                 Free Tier View: Showing 7 Days History
               </p>
               <p className="text-muted-foreground">
-                Upgrade to Premium or redeem code UNLOCKALL to access full 90-day history, the streak heatmap, and PDF analytics reports.
+                Upgrade to Premium or redeem code UNLOCKALL to access full study history and PDF analytics reports.
               </p>
             </div>
           </div>
@@ -504,69 +517,79 @@ export function AnalyticsPage() {
         </Card>
       </div>
 
-      {/* Streak Calendar (Heatmap) - Premium Feature */}
+      {/* Study Calendar */}
       <Card className="surface-panel overflow-hidden">
         <CardHeader className="border-b border-border/70 bg-gradient-to-r from-[#f8f7ff] to-white dark:from-indigo-950/30 dark:to-card">
           <div>
             <div className="flex items-center gap-2">
               <span className="rounded-lg bg-[#eeedff] p-2 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300"><Calendar className="h-4 w-4" /></span>
-              <CardTitle className="text-lg">Study Activity</CardTitle>
+              <CardTitle className="text-lg">Study Calendar</CardTitle>
               {!premium && (
                 <Badge variant="secondary" className="gap-1 text-[10px]">
                   <Lock className="w-3 h-3 text-amber-500" />
-                  Premium Only
+                  Premium History
                 </Badge>
               )}
             </div>
             <CardDescription className="mt-1 text-xs">
-              Your recorded focus sessions and qualifying study activity across the last 90 days.
+              Track your study days, maintain your streak, and review your daily progress.
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent className="relative p-4 sm:p-5">
-          <div
-            className={`overflow-x-auto pb-3 ${
-              !premium ? 'blur-sm select-none pointer-events-none' : ''
-            }`}
-          >
-            <div className="inline-grid min-w-max gap-[5px] p-1">
-              <div className="grid gap-[5px] text-[10px] font-medium text-muted-foreground" style={heatmapGridStyle}>
-                <span />
-                {calendarWeeks.map((week, wIdx) => (
-                  <span key={wIdx} className="text-left">
-                    {getHeatmapMonthLabel(week, wIdx)}
-                  </span>
-                ))}
-              </div>
-              <div className="grid gap-[5px]" style={heatmapGridStyle}>
-                <div className="grid grid-rows-7 gap-[5px] text-[10px] font-medium leading-none text-muted-foreground">
-                  {['Mon', '', 'Wed', '', 'Fri', '', 'Sun'].map((label, index) => <span key={index}>{label}</span>)}
-                </div>
-                {calendarWeeks.map((week, wIdx) => (
-                <div key={wIdx} className="grid grid-rows-7 gap-[5px]">
-                  {week.map((day, dayIndex) => day ? (
-                    <div
-                      key={day.date}
-                      className={`h-3.5 w-3.5 rounded-[3px] border ${getHeatmapColor(day.minutes)} transition-shadow hover:shadow-sm focus-visible:outline focus-visible:outline-1 focus-visible:outline-indigo-400`}
-                      title={`${formatHeatmapDate(day.date)} — ${day.minutes} minutes, ${day.count} ${day.count === 1 ? 'activity' : 'activities'}`}
-                      aria-label={`${formatHeatmapDate(day.date)}: ${day.minutes} minutes, ${day.count} ${day.count === 1 ? 'activity' : 'activities'}`}
-                      tabIndex={0}
-                    />
-                  ) : (
-                    <div key={`empty-${dayIndex}`} className="h-3.5 w-3.5" aria-hidden="true" />
-                  ))}
-                </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <div className={!premium ? 'blur-sm select-none pointer-events-none' : ''}>
+            <StudyCalendar
+              month={calendarMonth}
+              selectedDate={selectedDate}
+              activityDates={qualifyingActivityDates}
+              loading={loading}
+              onSelectDate={handleCalendarDateSelect}
+              onPreviousMonth={() => setCalendarMonth((month) => shiftCalendarMonth(month, -1))}
+              onNextMonth={() => setCalendarMonth((month) => shiftCalendarMonth(month, 1))}
+              onToday={handleCalendarToday}
+            />
 
-          <div className="mt-1 flex items-center justify-end gap-1.5 text-xs text-muted-foreground" aria-label="Activity intensity legend">
-            <span>Less</span>
-            {[0, 30, 60, 120, 121].map((level) => (
-              <span key={level} className={`h-3.5 w-3.5 rounded-[3px] border ${getHeatmapColor(level)}`} />
-            ))}
-            <span>More</span>
+            <div className="mt-6 border-t border-border/70 pt-5">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <h3 className="text-sm font-semibold text-foreground">Activity for {selectedDateLabel}</h3>
+                <span className="text-xs text-muted-foreground">Recorded activity only</span>
+              </div>
+
+              {selectedQualifyingSessions.length > 0 ? (
+                <div className="mt-4 space-y-3">
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    <div className="rounded-xl border bg-muted/20 p-3">
+                      <p className="text-lg font-bold text-foreground">{formatSecondsHhMm(selectedStudySeconds)}</p>
+                      <p className="text-[11px] text-muted-foreground">Qualifying study time</p>
+                    </div>
+                    <div className="rounded-xl border bg-muted/20 p-3">
+                      <p className="text-lg font-bold text-foreground">{selectedQualifyingSessions.length}</p>
+                      <p className="text-[11px] text-muted-foreground">Study sessions</p>
+                    </div>
+                    <div className="col-span-2 rounded-xl border bg-muted/20 p-3 sm:col-span-1">
+                      <p className="text-lg font-bold text-foreground">{selectedQuizzes.length}</p>
+                      <p className="text-[11px] text-muted-foreground">Quiz attempts</p>
+                    </div>
+                  </div>
+                  <div className="divide-y rounded-xl border">
+                    {selectedQualifyingSessions.map((session) => (
+                      <div key={session.id} className="flex items-center justify-between gap-3 px-3 py-2.5 text-xs">
+                        <span className="font-medium text-foreground">{session.subject?.name || 'General Study'}</span>
+                        <span className="font-mono text-muted-foreground">{formatSecondsHhMm(session.actual_duration_s)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : qualifyingActivityDates.has(selectedDate) ? (
+                <p className="mt-3 rounded-xl border bg-muted/20 p-4 text-sm text-muted-foreground">
+                  Qualifying activity was recorded for this date, but no completed study-session details are available.
+                </p>
+              ) : (
+                <p className="mt-3 rounded-xl border border-dashed p-4 text-sm text-muted-foreground">
+                  No recorded study activity for this date.
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Premium Lock Overlay for Free Tier */}
@@ -576,14 +599,14 @@ export function AnalyticsPage() {
                 <Lock className="w-6 h-6" />
               </div>
               <h4 className="text-sm font-semibold text-foreground">
-                Upgrade to View Full 90-Day Streak Heatmap
+                Upgrade to View Full Study Calendar
               </h4>
               <p className="text-xs text-muted-foreground max-w-sm mt-1 mb-3">
                 Visualize your long-term study consistency and build an unbreakable study routine.
               </p>
               <Link to="/premium">
                 <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs">
-                  Unlock Streak Heatmap
+                  Unlock Study Calendar
                 </Button>
               </Link>
             </div>

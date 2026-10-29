@@ -22,7 +22,6 @@ import {
   BrainCircuit,
   Eye,
   BarChart,
-  Calendar,
   Download,
   AlertCircle,
 } from 'lucide-react'
@@ -110,13 +109,6 @@ export function PremiumPage() {
                   <Check className="w-3.5 h-3.5" />
                 </div>
                 <span className="text-foreground font-medium">Full Analytics History (90 days)</span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="p-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 shrink-0">
-                  <Check className="w-3.5 h-3.5" />
-                </div>
-                <span className="text-foreground font-medium">Streak Calendar Heatmap</span>
               </div>
 
               <div className="flex items-center gap-3">
@@ -232,19 +224,6 @@ export function PremiumPage() {
                 </td>
                 <td className="p-4 text-center text-emerald-600 font-semibold bg-indigo-50/30 dark:bg-indigo-950/10">
                   ✅ 90 days
-                </td>
-              </tr>
-
-              <tr className="hover:bg-muted/10">
-                <td className="p-4 font-medium flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-indigo-500" />
-                  <span>Streak Calendar Heatmap</span>
-                </td>
-                <td className="p-4 text-center text-rose-500 font-bold">
-                  ❌
-                </td>
-                <td className="p-4 text-center text-emerald-600 font-semibold bg-indigo-50/30 dark:bg-indigo-950/10">
-                  ✅ Included
                 </td>
               </tr>
 

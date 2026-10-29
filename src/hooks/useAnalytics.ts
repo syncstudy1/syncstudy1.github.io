@@ -38,12 +38,6 @@ export interface WarningStatPoint {
   warnings: number
 }
 
-export interface CalendarDayPoint {
-  date: string
-  minutes: number
-  count: number
-}
-
 function dateFromKey(dateKey: string): Date {
   return new Date(`${dateKey}T12:00:00`)
 }
@@ -81,37 +75,6 @@ export function useAnalytics() {
       .map((session) => getLocalDateKeyFromTimestamp(session.started_at))
     const quizActivityDates = quizHistory.map((quiz) => getLocalDateKeyFromTimestamp(quiz.taken_at))
     const activityDates = getQualifyingActivityDates(activities, sessionActivityDates, quizActivityDates)
-    const activityCountByDate = new Map<string, number>()
-    activities.forEach((activity) => {
-      activityCountByDate.set(
-        activity.activity_date,
-        (activityCountByDate.get(activity.activity_date) || 0) + 1
-      )
-    })
-
-    // Preserve historical qualifying activity from records created before migration 003.
-    sessions.forEach((session) => {
-      if ((session.actual_duration_s || 0) > 0) {
-        const date = getLocalDateKeyFromTimestamp(session.started_at)
-        activityCountByDate.set(date, (activityCountByDate.get(date) || 0) + 1)
-      }
-    })
-    quizHistory.forEach((quiz) => {
-      const date = getLocalDateKeyFromTimestamp(quiz.taken_at)
-      activityCountByDate.set(date, (activityCountByDate.get(date) || 0) + 1)
-    })
-
-    const calendar: CalendarDayPoint[] = []
-    for (let daysAgo = 89; daysAgo >= 0; daysAgo -= 1) {
-      const date = getDateKeyDaysAgo(daysAgo)
-      const sessionData = sessionMapByDate.get(date)
-      const active = activityDates.has(date)
-      calendar.push({
-        date,
-        minutes: active ? Math.max(1, Math.round((sessionData?.actual || 0) / 60)) : 0,
-        count: active ? activityCountByDate.get(date) || 1 : 0,
-      })
-    }
 
     const daily: DailyDataPoint[] = []
     for (let daysAgo = 13; daysAgo >= 0; daysAgo -= 1) {
@@ -198,7 +161,6 @@ export function useAnalytics() {
       currentStreak: streaks.currentStreak,
       longestStreak: streaks.longestStreak,
       recordDays: streaks.recordDays,
-      calendarData: calendar,
       totalSecondsAllTime,
       completedSessionsCount,
       avgSessionSeconds,

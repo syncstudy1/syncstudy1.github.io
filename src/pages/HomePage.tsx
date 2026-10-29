@@ -199,7 +199,7 @@ export function HomePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
-                GitHub-style streak calendar heatmap keeps you motivated every day of the semester.
+                A clear study calendar keeps you motivated every day of the semester.
               </CardContent>
             </Card>
             </Link>
