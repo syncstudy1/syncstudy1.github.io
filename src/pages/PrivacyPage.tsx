@@ -1,13 +1,11 @@
 import * as React from "react"
 import { Link } from "react-router-dom"
-import { Card, CardHeader, CardTitle, CardContent } from "@/ui/card"
 import { Badge } from "@/ui/badge"
 import { Button } from "@/ui/button"
 import {
   ShieldCheck,
   Lock,
   Eye,
-  Database,
   Mail,
   ArrowLeft,
   UserCheck,
@@ -24,9 +22,9 @@ export function PrivacyPage() {
         {/* Navigation Breadcrumb / Back button */}
         <div className="flex items-center justify-between">
           <Link to="/">
-            <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
+            <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground rounded-xl">
               <ArrowLeft className="w-4 h-4" />
-              Back to Home
+              <span>Back to Home</span>
             </Button>
           </Link>
           <div className="text-xs text-muted-foreground font-mono">
@@ -38,12 +36,12 @@ export function PrivacyPage() {
         <div className="space-y-3">
           <Badge
             variant="outline"
-            className="py-1 px-3.5 rounded-full border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 gap-1.5 font-medium"
+            className="py-1 px-3.5 rounded-full border-purple-200 dark:border-purple-800 text-primary gap-1.5 font-medium"
           >
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Privacy & Data Transparency</span>
           </Badge>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-display">
             Privacy Policy
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
@@ -54,143 +52,53 @@ export function PrivacyPage() {
         {/* Content Cards */}
         <div className="space-y-6">
           {/* 1. Information We Collect */}
-          <Card className="border-border/80 shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <UserCheck className="w-5 h-5 text-indigo-500" />
-                1. Information We Collect
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed">
-              <p>
-                When you use SyncStudy, we store only the information required to run your study workspace and show your study history:
-              </p>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>
-                  <strong className="text-foreground">Google Account Details:</strong> When you sign in with Google, we receive basic identity information authorized by Google OAuth—specifically your account ID, name, email address, and profile picture URL. We never have access to your Google password.
-                </li>
-                <li>
-                  <strong className="text-foreground">Study Subjects & Tasks:</strong> The subject names, color labels, task titles, descriptions, and deadlines that you create in your planner.
-                </li>
-                <li>
-                  <strong className="text-foreground">Study Timer Logs & Analytics:</strong> The start time, end time, target duration, actual elapsed focus minutes, any study notes you add to completed sessions, and quiz completion scores.
-                </li>
-                <li>
-                  <strong className="text-foreground">Subscription & Access Status:</strong> Whether your account is on the free tier or has an active premium entitlement, along with voucher redemption timestamps if you activate an access code.
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
+          <div className="surface-panel p-6 space-y-3 rounded-2xl">
+            <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+              <UserCheck className="w-5 h-5 text-primary" />
+              1. Information We Collect
+            </h2>
+            <ul className="text-xs sm:text-sm text-muted-foreground space-y-2 list-disc pl-5 leading-relaxed">
+              <li><strong>Account Profile:</strong> When signing in with Google OAuth, we receive your email address, full name, and avatar image URL.</li>
+              <li><strong>Study Activity Data:</strong> Timestamps of study sessions, selected subject names, session durations, distraction warning counts, and task records.</li>
+              <li><strong>AI Interaction Data:</strong> Study schedule preferences and quiz generation topics sent securely to our backend AI proxy.</li>
+              <li><strong>Local Storage:</strong> Selected theme (light/dark mode) and preferred study buddy are stored on your local browser device.</li>
+            </ul>
+          </div>
 
-          {/* 2. Webcam & Computer Vision Focus Monitoring */}
-          <Card className="border-border/80 shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Eye className="w-5 h-5 text-indigo-500" />
-                2. Webcam & Computer Vision Focus Monitoring
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed">
-              <p>
-                SyncStudy includes an optional focus monitor that uses your computer&rsquo;s webcam to detect when you turn away or step away from your desk during a study session:
-              </p>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>
-                  <strong className="text-foreground">Local Browser Processing:</strong> When you choose to turn on the camera monitor and allow browser camera permissions, the video feed is read directly by your web browser on your own device. The calculations used to estimate your head position and direction run locally inside your browser.
-                </li>
-                <li>
-                  <strong className="text-foreground">Calibration Baseline:</strong> When starting, the monitor takes a brief 3-second sample while you look at the screen to establish a centered baseline. As you study, the script checks whether your head turns significantly away from this baseline or if no face is visible for a sustained period.
-                </li>
-                <li>
-                  <strong className="text-foreground">Warnings and Auto-Pause:</strong> If sustained distraction is detected, a visual alert appears on the screen. If multiple warnings occur, the study timer automatically pauses so your session length accurately reflects genuine focus time.
-                </li>
-                <li>
-                  <strong className="text-foreground">No Video or Photo Storage:</strong> The website does not record, take screenshots, or store your camera feed. Video frames are discarded in real time as they are evaluated. The only data saved to your account is the final count of distraction warnings and whether the timer auto-paused during that study session.
-                </li>
-                <li>
-                  <strong className="text-foreground">Completely Voluntary:</strong> Using the camera monitor is entirely optional. You can deny camera access in your browser or toggle the monitor off at any time, and all other study timer features continue to work normally.
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
+          {/* 2. Webcam & CV Focus Monitoring */}
+          <div className="surface-panel p-6 space-y-3 rounded-2xl border-emerald-500/20 bg-emerald-500/[0.02]">
+            <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+              <Eye className="w-5 h-5 text-emerald-500" />
+              2. Webcam & Computer Vision Focus Monitoring (100% On-Device)
+            </h2>
+            <ul className="text-xs sm:text-sm text-muted-foreground space-y-2 list-disc pl-5 leading-relaxed">
+              <li><strong>No Video Recording:</strong> Video frames from your webcam are processed entirely in your browser using Google MediaPipe Face Landmarker WebAssembly.</li>
+              <li><strong>No Cloud Video Streaming:</strong> Video streams never leave your device. No images, video clips, or biometric representations are transmitted or stored on any server.</li>
+              <li><strong>Opt-In Control:</strong> Camera monitoring is strictly optional. You can disable camera monitoring at any time without affecting timer functionality.</li>
+            </ul>
+          </div>
 
           {/* 3. Data Security & Storage */}
-          <Card className="border-border/80 shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Lock className="w-5 h-5 text-indigo-500" />
-                3. Data Security & Storage
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed">
-              <p>
-                Your account data, study sessions, and task lists are stored securely in a managed cloud database:
-              </p>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>
-                  <strong className="text-foreground">Database Access Rules:</strong> We use database Row Level Security (RLS) policies. Every request to read, create, or update study data requires a verified session token matching your user ID. Users cannot view or modify another student&rsquo;s data.
-                </li>
-                <li>
-                  <strong className="text-foreground">Encrypted Network Transmission:</strong> All data sent between your browser and our backend services is encrypted in transit using standard HTTPS/TLS encryption.
-                </li>
-                <li>
-                  <strong className="text-foreground">Security Limitations:</strong> While reasonable measures are taken to protect user information, no website or online system can guarantee total invulnerability against all potential security risks. Please keep your personal Google account secure.
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
+          <div className="surface-panel p-6 space-y-3 rounded-2xl">
+            <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+              <Lock className="w-5 h-5 text-primary" />
+              3. Data Security & Storage
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              All stored user records (profiles, subjects, tasks, session logs, quiz histories) are persisted in a secure PostgreSQL database hosted on Supabase, protected with Row-Level Security (RLS) policies ensuring users can only read and modify their own records.
+            </p>
+          </div>
 
-          {/* 4. Data Retention, Rights & Account Deletion */}
-          <Card className="border-border/80 shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Database className="w-5 h-5 text-indigo-500" />
-                4. Data Retention, Rights & Account Deletion
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm text-muted-foreground leading-relaxed">
-              <p>
-                You have full control over your study information:
-              </p>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>
-                  <strong className="text-foreground">Editing and Deleting Content:</strong> You can edit or delete your tasks, subjects, and study plans at any time directly in the web application.
-                </li>
-                <li>
-                  <strong className="text-foreground">Data Export:</strong> Premium users can download a formatted PDF report for a selected date directly from the Analytics page.
-                </li>
-                <li>
-                  <strong className="text-foreground">Complete Account Deletion:</strong> If you wish to permanently delete your account, profile, and all associated study sessions from our database, send an email to the contact address below and we will remove your records.
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          {/* 5. Contact Information */}
-          <Card className="border-border/80 shadow-sm">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Mail className="w-5 h-5 text-indigo-500" />
-                5. Contact Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-              <p>
-                If you have questions, feedback, or data deletion requests regarding this Privacy Policy, please contact:
-              </p>
-              <div className="p-4 rounded-lg bg-secondary/50 border border-border space-y-1 text-xs sm:text-sm font-mono">
-                <div><strong>Project:</strong> SyncStudy</div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Bottom Navigation */}
-        <div className="pt-4 flex flex-wrap items-center justify-between text-xs text-muted-foreground gap-3 border-t border-border">
-          <div>&copy; {new Date().getFullYear()} SyncStudy. All rights reserved.</div>
-          <Link to="/" className="hover:text-foreground underline underline-offset-4">
-            Return to SyncStudy Homepage
-          </Link>
+          {/* 4. Contact Information */}
+          <div className="surface-panel p-6 space-y-3 rounded-2xl">
+            <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+              <Mail className="w-5 h-5 text-primary" />
+              4. Contact Information
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              If you have any questions or concerns regarding this Privacy Policy or data protection in SyncStudy, please contact the development team via the project repository.
+            </p>
+          </div>
         </div>
       </div>
     </div>

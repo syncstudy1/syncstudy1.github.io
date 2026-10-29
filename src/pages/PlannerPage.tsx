@@ -1,15 +1,15 @@
-import * as React from 'react'
-import { Link } from 'react-router-dom'
-import { usePlannerStore } from '@/stores/plannerStore'
-import { useSubjects } from '@/hooks/useSubjects'
-import { useTasks } from '@/hooks/useTasks'
-import { useSubscriptionStore } from '@/stores/subscriptionStore'
-import { Button } from '@/ui/button'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/ui/card'
-import { Input } from '@/ui/input'
-import { Label } from '@/ui/label'
-import { Badge } from '@/ui/badge'
-import { useToast } from '@/ui/toast'
+import * as React from "react"
+import { Link } from "react-router-dom"
+import { usePlannerStore } from "@/stores/plannerStore"
+import { useSubjects } from "@/hooks/useSubjects"
+import { useTasks } from "@/hooks/useTasks"
+import { useSubscriptionStore } from "@/stores/subscriptionStore"
+import { Button } from "@/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/ui/card"
+import { Input } from "@/ui/input"
+import { Label } from "@/ui/label"
+import { Badge } from "@/ui/badge"
+import { useToast } from "@/ui/toast"
 import {
   Dialog,
   DialogContent,
@@ -17,7 +17,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@/ui/dialog'
+} from "@/ui/dialog"
 import {
   BrainCircuit,
   Lock,
@@ -34,8 +34,11 @@ import {
   ArrowRight,
   BookOpen,
   Check,
-} from 'lucide-react'
-import type { StudyPlanBlock } from '@/types/database'
+  CalendarDays,
+  Target,
+  Sliders,
+} from "lucide-react"
+import type { StudyPlanBlock } from "@/types/database"
 
 export function PlannerPage() {
   const { toast } = useToast()
@@ -60,16 +63,16 @@ export function PlannerPage() {
   const [selectedSubjects, setSelectedSubjects] = React.useState<string[]>([])
   const [availableHours, setAvailableHours] = React.useState<number>(4)
   const [startDate, setStartDate] = React.useState<string>(
-    new Date().toISOString().split('T')[0]
+    new Date().toISOString().split("T")[0]
   )
   const [endDate, setEndDate] = React.useState<string>(
-    new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0]
+    new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0]
   )
 
   // Edit block dialog state
   const [editingBlock, setEditingBlock] = React.useState<StudyPlanBlock | null>(null)
   const [editDuration, setEditDuration] = React.useState<number>(60)
-  const [editTips, setEditTips] = React.useState<string>('')
+  const [editTips, setEditTips] = React.useState<string>("")
 
   // Expandable saved plans
   const [expandedPlanId, setExpandedPlanId] = React.useState<string | null>(null)
@@ -96,16 +99,16 @@ export function PlannerPage() {
   const handleGenerate = async () => {
     if (selectedSubjects.length === 0) {
       toast({
-        title: 'Select at least one subject',
-        description: 'Choose which subjects should be included in your schedule.',
-        type: 'error',
+        title: "Select at least one subject",
+        description: "Choose which subjects should be included in your schedule.",
+        type: "error",
       })
       return
     }
 
     try {
       const pendingTaskTitles = tasks
-        .filter((t) => t.status !== 'done')
+        .filter((t) => t.status !== "done")
         .map((t) => `${t.title} (due: ${t.deadline})`)
 
       await generatePlan({
@@ -117,15 +120,15 @@ export function PlannerPage() {
       })
 
       toast({
-        title: 'Your study plan is ready.',
-        description: 'Review your personalized schedule below.',
-        type: 'success',
+        title: "Your study plan is ready.",
+        description: "Review your personalized schedule below.",
+        type: "success",
       })
     } catch {
       toast({
-        title: 'Generation Failed',
-        description: 'Could not generate schedule. Please try again.',
-        type: 'error',
+        title: "Generation Failed",
+        description: "Could not generate schedule. Please try again.",
+        type: "error",
       })
     }
   }
@@ -135,14 +138,14 @@ export function PlannerPage() {
     try {
       await approvePlan()
       toast({
-        title: 'Plan Approved & Saved!',
-        description: 'Your study plan is active in your timetable.',
-        type: 'success',
+        title: "Plan Approved & Saved!",
+        description: "Your study plan is active in your timetable.",
+        type: "success",
       })
     } catch {
       toast({
-        title: 'Failed to save plan',
-        type: 'error',
+        title: "Failed to save plan",
+        type: "error",
       })
     }
   }
@@ -153,8 +156,8 @@ export function PlannerPage() {
     updatePlanBlock(editingBlock.id, editDuration, editTips)
     setEditingBlock(null)
     toast({
-      title: 'Session block updated',
-      type: 'info',
+      title: "Session block updated",
+      type: "info",
     })
   }
 
@@ -174,19 +177,19 @@ export function PlannerPage() {
   // --- PREMIUM GATE SCREEN ---
   if (!isPremium()) {
     return (
-      <div className="container max-w-4xl mx-auto px-4 py-16">
-        <Card className="border-indigo-100 dark:border-indigo-900/60 shadow-xl overflow-hidden relative">
-          <div className="p-8 sm:p-12 text-center space-y-6">
-            <div className="inline-flex p-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 mb-2">
+      <div className="page-shell">
+        <div className="page-container max-w-4xl py-16">
+          <div className="surface-panel p-8 sm:p-12 text-center space-y-6 border border-purple-200/60 dark:border-purple-900/40 shadow-xl">
+            <div className="inline-flex p-4 rounded-3xl bg-primary/10 text-primary mb-2 shadow-inner">
               <Lock className="w-10 h-10" />
             </div>
 
             <div className="space-y-2 max-w-xl mx-auto">
-              <Badge className="bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border-none">
+              <Badge variant="premium" className="py-1 px-3">
                 SyncStudy Premium Exclusive
               </Badge>
-              <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-                Study Planner
+              <h1 className="text-3xl font-extrabold tracking-tight text-foreground font-display">
+                AI Study Planner
               </h1>
               <p className="text-muted-foreground text-sm leading-relaxed">
                 Create evidence-based study schedules that distribute cognitive load efficiently and help you prepare without burnout.
@@ -195,7 +198,7 @@ export function PlannerPage() {
 
             {/* Feature Highlights Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto text-left pt-2">
-              <div className="flex items-start gap-3 p-3 rounded-lg border bg-card">
+              <div className="flex items-start gap-3 p-3.5 rounded-2xl border border-border/80 bg-card">
                 <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                 <div className="text-xs">
                   <p className="font-semibold text-foreground">Adaptive 7-Day Timetables</p>
@@ -203,7 +206,7 @@ export function PlannerPage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-3 rounded-lg border bg-card">
+              <div className="flex items-start gap-3 p-3.5 rounded-2xl border border-border/80 bg-card">
                 <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                 <div className="text-xs">
                   <p className="font-semibold text-foreground">Task Backlog Integration</p>
@@ -211,7 +214,7 @@ export function PlannerPage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-3 rounded-lg border bg-card">
+              <div className="flex items-start gap-3 p-3.5 rounded-2xl border border-border/80 bg-card">
                 <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                 <div className="text-xs">
                   <p className="font-semibold text-foreground">Burnout Prevention</p>
@@ -219,7 +222,7 @@ export function PlannerPage() {
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-3 rounded-lg border bg-card">
+              <div className="flex items-start gap-3 p-3.5 rounded-2xl border border-border/80 bg-card">
                 <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                 <div className="text-xs">
                   <p className="font-semibold text-foreground">Editable Schedules</p>
@@ -231,7 +234,7 @@ export function PlannerPage() {
             {/* Action Buttons */}
             <div className="space-y-3 pt-4">
               <Link to="/premium">
-                <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-8 shadow-md">
+                <Button size="lg" className="bg-[#7651E8] hover:bg-[#6842D8] text-white font-semibold px-8 rounded-2xl shadow-lg shadow-purple-500/25">
                   Upgrade to SyncStudy Premium
                 </Button>
               </Link>
@@ -240,7 +243,7 @@ export function PlannerPage() {
               </p>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
     )
   }
@@ -248,42 +251,48 @@ export function PlannerPage() {
   // --- PREMIUM SUBSCRIBER SCREEN ---
   return (
     <div className="page-shell">
-    <div className="page-container max-w-6xl space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="flex items-center gap-2 text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white">
-            <span className="rounded-xl bg-indigo-50 p-2 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-300"><BrainCircuit className="h-6 w-6" /></span>
-            Study Planner
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Create a personalized study schedule that fits your goals, available time, and upcoming deadlines.
-          </p>
+      <div className="page-container max-w-6xl space-y-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <span className="p-2 rounded-2xl bg-primary/10 text-primary">
+                <BrainCircuit className="h-6 w-6" />
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-display">
+                Study Planner
+              </h1>
+            </div>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              Create a personalized study schedule that fits your goals, available time, and upcoming deadlines.
+            </p>
+          </div>
+
+          {currentPlan && (
+            <Button variant="outline" size="sm" onClick={discardPlan} className="rounded-xl">
+              Start New Plan
+            </Button>
+          )}
         </div>
 
-        {currentPlan && (
-          <Button variant="outline" size="sm" onClick={discardPlan}>
-            Start New Plan
-          </Button>
-        )}
-      </div>
+        {/* STEP 1: Plan Inputs (Shown when no plan is being reviewed) */}
+        {!currentPlan && (
+          <div className="surface-panel p-6 sm:p-8 space-y-6">
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-amber-500" />
+                Configure Your Study Plan
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Select which subjects and tasks to schedule, and define your daily study bandwidth.
+              </p>
+            </div>
 
-      {/* STEP 1: Plan Inputs (Shown when no plan is being reviewed) */}
-      {!currentPlan && (
-        <Card className="border-indigo-100 dark:border-indigo-900/40 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-amber-500" />
-              Configure Your Study Plan
-            </CardTitle>
-            <CardDescription className="text-xs">
-              Select which subjects and tasks to schedule, and define your daily study bandwidth.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
             {/* Subject Selector Pills */}
             <div className="space-y-2">
-              <Label className="text-sm font-semibold">Include Subjects in Timetable</Label>
+              <Label className="text-xs font-semibold text-foreground uppercase tracking-wider">
+                Include Subjects in Timetable
+              </Label>
               <div className="flex flex-wrap gap-2 pt-1">
                 {subjects.map((sub) => {
                   const isChecked = selectedSubjects.includes(sub.name)
@@ -292,18 +301,15 @@ export function PlannerPage() {
                       key={sub.id}
                       type="button"
                       onClick={() => toggleSubject(sub.name)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium border flex items-center gap-1.5 transition-all ${
+                      className={`px-3 py-1.5 rounded-full text-xs font-semibold border flex items-center gap-2 transition-all ${
                         isChecked
-                          ? 'bg-indigo-50 border-indigo-500 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-600'
-                          : 'bg-background border-border text-muted-foreground hover:border-muted-foreground/60'
+                          ? "bg-primary/15 border-primary text-primary shadow-sm"
+                          : "bg-card border-border/80 text-muted-foreground hover:border-muted-foreground"
                       }`}
                     >
-                      <span
-                        className="w-2.5 h-2.5 rounded-full"
-                        style={{ backgroundColor: sub.color }}
-                      />
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: sub.color }} />
                       <span>{sub.name}</span>
-                      {isChecked && <Check className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />}
+                      {isChecked && <Check className="w-3.5 h-3.5 text-primary" />}
                     </button>
                   )
                 })}
@@ -311,7 +317,7 @@ export function PlannerPage() {
             </div>
 
             {/* Date Range & Daily Hours Slider */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
               <div className="space-y-2">
                 <Label htmlFor="start-date" className="text-xs font-semibold">
                   Start Date
@@ -321,6 +327,7 @@ export function PlannerPage() {
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
+                  className="rounded-xl"
                 />
               </div>
 
@@ -333,13 +340,14 @@ export function PlannerPage() {
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
+                  className="rounded-xl"
                 />
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <Label className="text-xs font-semibold">Daily Study Hours</Label>
-                  <span className="font-mono text-xs font-bold text-indigo-600">
+                  <span className="font-mono text-xs font-bold text-primary">
                     {availableHours} hours / day
                   </span>
                 </div>
@@ -350,7 +358,7 @@ export function PlannerPage() {
                   step="1"
                   value={availableHours}
                   onChange={(e) => setAvailableHours(parseInt(e.target.value))}
-                  className="w-full accent-indigo-600 mt-2"
+                  className="w-full accent-primary mt-2 h-2 rounded-full bg-muted cursor-pointer"
                 />
                 <div className="flex justify-between text-[10px] text-muted-foreground">
                   <span>1h (Light)</span>
@@ -361,27 +369,29 @@ export function PlannerPage() {
             </div>
 
             {/* Backlog Tasks Preview */}
-            <div className="p-4 rounded-xl border bg-muted/20 space-y-2">
+            <div className="p-4 rounded-2xl border border-border/60 bg-muted/30 space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-foreground flex items-center gap-1.5">
-                  <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
-                  Included Backlog Tasks ({tasks.filter((t) => t.status !== 'done').length} pending)
+                  <BookOpen className="w-3.5 h-3.5 text-primary" />
+                  Included Backlog Tasks ({tasks.filter((t) => t.status !== "done").length} pending)
                 </span>
                 <span className="text-muted-foreground text-[11px]">
                   Deadlines will be prioritized in your schedule
                 </span>
               </div>
               <div className="flex flex-wrap gap-1.5 pt-1">
-                {tasks.filter((t) => t.status !== 'done').map((t) => (
-                  <Badge key={t.id} variant="secondary" className="text-[11px] font-normal">
-                    {t.title} ({t.deadline})
-                  </Badge>
-                ))}
+                {tasks
+                  .filter((t) => t.status !== "done")
+                  .map((t) => (
+                    <Badge key={t.id} variant="secondary" className="text-[11px] font-normal rounded-lg">
+                      {t.title} ({t.deadline})
+                    </Badge>
+                  ))}
               </div>
             </div>
 
             {error && (
-              <div className="p-3 rounded-lg border border-destructive/40 bg-destructive/10 text-xs text-destructive flex items-center gap-2">
+              <div className="p-3 rounded-xl border border-destructive/40 bg-destructive/10 text-xs text-destructive flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
@@ -389,7 +399,7 @@ export function PlannerPage() {
 
             <Button
               size="lg"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-6 shadow-md transition-all"
+              className="w-full bg-[#7651E8] hover:bg-[#6842D8] text-white font-semibold py-6 rounded-2xl shadow-lg shadow-purple-500/25 transition-all hover:scale-[1.01]"
               onClick={handleGenerate}
               disabled={isGenerating}
             >
@@ -401,141 +411,113 @@ export function PlannerPage() {
               ) : (
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
-                  <span>Create My Study Plan</span>
+                  <span>Generate AI Timetable</span>
                 </div>
               )}
             </Button>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        )}
 
-      {/* STEP 2: Plan Review (Shown when generated plan is ready) */}
-      {currentPlan && (
-        <div className="space-y-6 animate-in fade-in">
-          {/* Plan Header Card */}
-          <Card className="border-indigo-200 dark:border-indigo-900 bg-gradient-to-r from-indigo-50/50 to-purple-50/30 dark:from-indigo-950/20 dark:to-purple-950/10 shadow-sm">
-            <CardHeader>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <Badge className="bg-indigo-600 text-white mb-2">New Plan Generated</Badge>
-                  <CardTitle className="text-xl">{currentPlan.plan_json.title}</CardTitle>
-                  <CardDescription className="text-xs text-foreground/80 mt-1">
+        {/* STEP 2: Plan Review (when currentPlan exists) */}
+        {currentPlan && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Plan Header Card */}
+            <div className="surface-panel p-6 sm:p-8 bg-gradient-to-r from-purple-500/10 via-card to-orange-500/10 border-border/80">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <Badge variant="outline" className="text-xs font-semibold text-primary border-primary/30">
+                    Review Mode
+                  </Badge>
+                  <h2 className="text-2xl font-extrabold text-foreground font-display">
+                    {currentPlan.plan_json.title || "Your Custom Study Schedule"}
+                  </h2>
+                  <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl">
                     {currentPlan.plan_json.summary}
-                  </CardDescription>
+                  </p>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
-                  <Button variant="outline" size="sm" onClick={handleGenerate} disabled={isGenerating}>
-                    <RotateCcw className="w-3.5 h-3.5 mr-1" />
-                    Revise
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={discardPlan}>
+                <div className="flex items-center gap-2.5">
+                  <Button variant="outline" onClick={discardPlan} className="rounded-xl text-xs">
                     Discard
                   </Button>
-                  <Button
-                    size="sm"
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
-                    onClick={handleApprove}
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
-                    Approve Plan
+                  <Button onClick={handleApprove} className="bg-[#7651E8] hover:bg-[#6842D8] text-white rounded-xl text-xs gap-1.5 shadow-md">
+                    <Check className="w-4 h-4" />
+                    <span>Approve & Save Plan</span>
                   </Button>
                 </div>
               </div>
-            </CardHeader>
-          </Card>
+            </div>
 
-          {/* Schedule Days Grid */}
-          <div className="space-y-4">
-            <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-indigo-500" />
-              Daily Study Timetable (Click any block to edit duration or tips)
-            </h3>
-
+            {/* Days Schedule Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Object.entries(groupedSchedule).map(([dayLabel, blocks]) => (
-                <Card key={dayLabel} className="shadow-sm border">
-                  <CardHeader className="py-3 px-4 bg-muted/40 border-b">
-                    <CardTitle className="text-xs font-bold text-foreground uppercase tracking-wider">
-                      {dayLabel}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-3 space-y-2.5">
+              {Object.entries(groupedSchedule).map(([day, blocks]) => (
+                <div key={day} className="surface-panel p-4 space-y-3">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                    <span className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      <CalendarDays className="h-3.5 w-3.5 text-primary" />
+                      {day}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground font-semibold">
+                      {blocks.reduce((acc, b) => acc + (b.durationMinutes || 0), 0)} min total
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
                     {blocks.map((block) => (
                       <div
                         key={block.id}
-                        className="p-3 rounded-lg border bg-card hover:border-indigo-300 dark:hover:border-indigo-700 transition-all cursor-pointer group"
                         onClick={() => {
                           setEditingBlock(block)
                           setEditDuration(block.durationMinutes)
-                          setEditTips(block.tips || '')
+                          setEditTips(block.tips || "")
                         }}
+                        className="p-3 rounded-xl border border-border/60 bg-card hover:bg-muted/40 cursor-pointer transition-all hover:scale-[1.01] group space-y-1.5"
                       >
-                        <div className="flex items-center justify-between text-xs mb-1">
-                          <Badge variant="outline" className="text-[10px] py-0 px-1.5 font-medium">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
                             {block.subject}
-                          </Badge>
-                          <span className="font-mono text-muted-foreground text-[11px]">
-                            {block.timeSlot || `${block.durationMinutes}m`}
+                          </span>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
+                            {block.durationMinutes}m
                           </span>
                         </div>
-                        <p className="text-xs font-semibold text-foreground group-hover:text-indigo-600 transition-colors">
+                        <p className="text-[11px] text-muted-foreground line-clamp-1">
                           {block.taskTitle}
                         </p>
                         {block.tips && (
-                          <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2 italic">
-                            "{block.tips}"
+                          <p className="text-[10px] text-muted-foreground/80 italic line-clamp-1 border-t border-border/40 pt-1">
+                            💡 {block.tips}
                           </p>
                         )}
-                        <div className="flex items-center justify-between text-[10px] text-indigo-600 pt-1.5 mt-1 border-t opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span>Click to edit</span>
-                          <Edit2 className="w-3 h-3" />
-                        </div>
                       </div>
                     ))}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* STEP 3: Saved Approved Plans */}
-      <div className="pt-8 border-t space-y-4">
-        <h3 className="text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-indigo-500" />
-          Saved Study Plans ({savedPlans.length})
-        </h3>
+        {/* STEP 3: Saved Study Plans */}
+        {savedPlans.length > 0 && (
+          <div className="surface-panel p-6 sm:p-8 space-y-4">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" />
+              Saved Study Plans ({savedPlans.length})
+            </h2>
 
-        {savedPlans.length === 0 ? (
-          <div className="text-center py-8 border border-dashed rounded-xl text-muted-foreground text-xs italic">
-            No saved plans yet. Configure and generate your first timetable above!
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {savedPlans.map((plan) => {
-              const isExpanded = expandedPlanId === plan.id
-              const dateStr = new Date(plan.generated_at).toLocaleDateString(undefined, {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric',
-              })
-
-              return (
-                <Card key={plan.id} className="shadow-sm">
-                  <CardHeader className="py-4">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <CardTitle className="text-base">{plan.plan_json.title}</CardTitle>
-                          <Badge variant="outline" className="text-[10px]">
-                            Approved
-                          </Badge>
-                        </div>
+            <div className="space-y-3">
+              {savedPlans.map((plan) => {
+                const isExpanded = expandedPlanId === plan.id
+                return (
+                  <div key={plan.id} className="rounded-2xl border border-border/60 bg-card overflow-hidden">
+                    <div className="p-4 flex items-center justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-foreground truncate">
+                          {plan.plan_json?.title || "7-Day Schedule"}
+                        </p>
                         <p className="text-xs text-muted-foreground">
-                          Generated on {dateStr} • {plan.plan_json.dailyTargetHours}h / day •{' '}
-                          {plan.plan_json.schedule.length} session blocks
+                          Generated on {new Date(plan.generated_at).toLocaleDateString()}
                         </p>
                       </div>
 
@@ -543,107 +525,92 @@ export function PlannerPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-xs text-muted-foreground hover:text-foreground"
                           onClick={() => setExpandedPlanId(isExpanded ? null : plan.id)}
+                          className="text-xs gap-1"
                         >
-                          {isExpanded ? (
-                            <>
-                              Hide Details <ChevronUp className="w-3.5 h-3.5 ml-1" />
-                            </>
-                          ) : (
-                            <>
-                              View Schedule <ChevronDown className="w-3.5 h-3.5 ml-1" />
-                            </>
-                          )}
+                          <span>{isExpanded ? "Collapse" : "View"}</span>
+                          {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                         </Button>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
                           onClick={() => deletePlan(plan.id)}
+                          className="text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 p-1.5 h-8 w-8"
+                          title="Delete plan"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
-                  </CardHeader>
 
-                  {isExpanded && (
-                    <CardContent className="pt-0 border-t mt-2">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-4">
-                        {plan.plan_json.schedule.map((block) => (
-                          <div key={block.id} className="p-3 rounded-lg border bg-muted/20 text-xs space-y-1">
-                            <div className="flex justify-between items-center">
-                              <Badge variant="outline" className="text-[10px]">
-                                {block.subject}
-                              </Badge>
-                              <span className="font-mono text-[10px] text-muted-foreground">
-                                {block.durationMinutes} min
-                              </span>
+                    {isExpanded && (
+                      <div className="p-4 pt-0 border-t border-border/40 bg-muted/20">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-3">
+                          {plan.plan_json?.schedule?.map((b: StudyPlanBlock) => (
+                            <div key={b.id} className="p-2.5 rounded-xl border border-border/60 bg-card text-xs">
+                              <div className="flex justify-between font-bold text-foreground">
+                                <span>{b.day}: {b.subject}</span>
+                                <span>{b.durationMinutes}m</span>
+                              </div>
+                              <p className="text-[11px] text-muted-foreground mt-0.5">{b.taskTitle}</p>
                             </div>
-                            <p className="font-semibold text-foreground">{block.taskTitle}</p>
-                            <p className="text-[10px] text-muted-foreground">{block.day}</p>
-                            {block.tips && <p className="text-[10px] text-muted-foreground italic mt-1">"{block.tips}"</p>}
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </CardContent>
-                  )}
-                </Card>
-              )
-            })}
+                    )}
+                  </div>
+                )
+              })}
+            </div>
           </div>
         )}
+
+        {/* Edit Block Dialog */}
+        <Dialog open={!!editingBlock} onOpenChange={(open) => !open && setEditingBlock(null)}>
+          <DialogContent className="sm:max-w-md rounded-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-bold">Edit Study Block</DialogTitle>
+              <DialogDescription>
+                Adjust duration and revision tips for {editingBlock?.subject}.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-2">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Duration (minutes)</Label>
+                <Input
+                  type="number"
+                  min="15"
+                  max="240"
+                  value={editDuration}
+                  onChange={(e) => setEditDuration(Number(e.target.value))}
+                  className="rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold">Study Tips & Key Focus</Label>
+                <Input
+                  type="text"
+                  value={editTips}
+                  onChange={(e) => setEditTips(e.target.value)}
+                  placeholder="e.g. Focus on edge cases and active recall"
+                  className="rounded-xl"
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditingBlock(null)} className="rounded-xl">
+                Cancel
+              </Button>
+              <Button onClick={handleSaveBlockEdit} className="bg-primary text-primary-foreground rounded-xl">
+                Save Changes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      {/* Edit Block Dialog */}
-      <Dialog open={editingBlock !== null} onOpenChange={(open) => !open && setEditingBlock(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-base">Edit Session Block</DialogTitle>
-            <DialogDescription className="text-xs">
-              {editingBlock?.taskTitle} ({editingBlock?.subject})
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="block-duration" className="text-xs">
-                Duration (Minutes)
-              </Label>
-              <Input
-                id="block-duration"
-                type="number"
-                min={15}
-                max={240}
-                value={editDuration}
-                onChange={(e) => setEditDuration(parseInt(e.target.value) || 30)}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="block-tips" className="text-xs">
-                Strategy Tips & Revision Notes
-              </Label>
-              <Input
-                id="block-tips"
-                value={editTips}
-                onChange={(e) => setEditTips(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingBlock(null)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveBlockEdit} className="bg-indigo-600 hover:bg-indigo-700 text-white">
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
     </div>
   )
 }

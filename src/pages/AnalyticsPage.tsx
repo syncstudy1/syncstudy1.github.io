@@ -1,16 +1,15 @@
-import * as React from 'react'
-import { Link } from 'react-router-dom'
-import { useAnalytics } from '@/hooks/useAnalytics'
-import { useTasks } from '@/hooks/useTasks'
-import { useQualifyingActivity } from '@/hooks/useQualifyingActivity'
-import { getLocalDateKeyFromTimestamp } from '@/lib/activity'
-import { buildAnalyticsPdf } from '@/lib/analyticsPdf'
-import { useSubscriptionStore } from '@/stores/subscriptionStore'
-import { Button } from '@/ui/button'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/ui/card'
-import { Badge } from '@/ui/badge'
-import { useToast } from '@/ui/toast'
-import { buildHeatmapWeeks, getHeatmapMonthLabel } from '@/lib/heatmap'
+import * as React from "react"
+import { Link } from "react-router-dom"
+import { useAnalytics } from "@/hooks/useAnalytics"
+import { useTasks } from "@/hooks/useTasks"
+import { useQualifyingActivity } from "@/hooks/useQualifyingActivity"
+import { getLocalDateKeyFromTimestamp } from "@/lib/activity"
+import { buildAnalyticsPdf } from "@/lib/analyticsPdf"
+import { useSubscriptionStore } from "@/stores/subscriptionStore"
+import { Button } from "@/ui/button"
+import { Badge } from "@/ui/badge"
+import { useToast } from "@/ui/toast"
+import { buildHeatmapWeeks, getHeatmapMonthLabel } from "@/lib/heatmap"
 import {
   BarChart,
   Bar,
@@ -22,7 +21,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
   Legend,
-} from 'recharts'
+} from "recharts"
 import {
   Trophy,
   Download,
@@ -34,29 +33,33 @@ import {
   AlertTriangle,
   TrendingUp,
   BrainCircuit,
-} from 'lucide-react'
+  BarChart3,
+  Flame,
+  CalendarDays,
+  Sparkles,
+} from "lucide-react"
 
 function formatSecondsHhMm(totalSeconds: number): string {
-  if (!totalSeconds || totalSeconds <= 0) return '0h 0m'
+  if (!totalSeconds || totalSeconds <= 0) return "0h 0m"
   const hours = Math.floor(totalSeconds / 3600)
   const minutes = Math.floor((totalSeconds % 3600) / 60)
   return `${hours}h ${minutes}m`
 }
 
 function getHeatmapColor(minutes: number): string {
-  if (!minutes || minutes === 0) return 'bg-slate-100 border-slate-200 dark:bg-slate-800 dark:border-slate-700'
-  if (minutes <= 30) return 'bg-indigo-100 border-indigo-200 dark:bg-indigo-950 dark:border-indigo-900'
-  if (minutes <= 60) return 'bg-indigo-300 border-indigo-400 dark:bg-indigo-800 dark:border-indigo-700'
-  if (minutes <= 120) return 'bg-indigo-500 border-indigo-600 dark:bg-indigo-600 dark:border-indigo-500'
-  return 'bg-indigo-700 border-indigo-800 dark:bg-indigo-400 dark:border-indigo-300'
+  if (!minutes || minutes === 0) return "bg-muted/40 border-border/40"
+  if (minutes <= 30) return "bg-purple-200 border-purple-300 dark:bg-purple-950/60 dark:border-purple-800"
+  if (minutes <= 60) return "bg-purple-400 border-purple-500 dark:bg-purple-800/80 dark:border-purple-600"
+  if (minutes <= 120) return "bg-[#7651E8] border-[#6842D8] dark:bg-[#7651E8] dark:border-[#8E6DF0]"
+  return "bg-purple-900 border-purple-950 text-white dark:bg-purple-400 dark:border-purple-300"
 }
 
 function formatHeatmapDate(date: string): string {
   return new Date(`${date}T12:00:00`).toLocaleDateString(undefined, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
   })
 }
 
@@ -68,7 +71,7 @@ export function AnalyticsPage() {
   const { activities } = useQualifyingActivity()
   const [selectedDate, setSelectedDate] = React.useState(() => {
     const now = new Date()
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`
   })
 
   const {
@@ -102,42 +105,54 @@ export function AnalyticsPage() {
     () => activities.filter((activity) => activity.activity_date === selectedDate),
     [activities, selectedDate]
   )
+
   const streakThroughSelectedDate = React.useMemo(() => {
-    const dates = new Set<string>([
-      ...activities.map((activity) => activity.activity_date),
-      ...sessions.filter((session) => (session.actual_duration_s || 0) > 0).map((session) => getLocalDateKeyFromTimestamp(session.started_at)),
-    ])
+    const targetDate = new Date(`${selectedDate}T00:00:00`)
+    if (Number.isNaN(targetDate.getTime())) return 0
     let count = 0
-    const cursor = new Date(`${selectedDate}T12:00:00`)
-    while (dates.has(`${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`)) {
-      count += 1
+    let cursor = new Date(targetDate)
+
+    const activityDates = new Set<string>()
+    activities.forEach((activity) => activityDates.add(activity.activity_date))
+    sessions
+      .filter((session) => (session.actual_duration_s || 0) > 0)
+      .forEach((session) => activityDates.add(getLocalDateKeyFromTimestamp(session.started_at)))
+    quizHistory.forEach((quiz) => activityDates.add(getLocalDateKeyFromTimestamp(quiz.taken_at)))
+
+    while (true) {
+      const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}-${String(cursor.getDate()).padStart(2, "0")}`
+      if (!activityDates.has(key)) break
+      count++
       cursor.setDate(cursor.getDate() - 1)
     }
     return count
-  }, [activities, selectedDate, sessions])
+  }, [activities, quizHistory, selectedDate, sessions])
 
-  // Filter daily data for free tier (last 7 days only)
   const displayedDailyData = React.useMemo(() => {
     if (premium) return dailyData
     return dailyData.slice(-7)
   }, [dailyData, premium])
 
-  // Total study time: 7 days for free, all-time for premium
   const displayedTotalStudyTime = React.useMemo(() => {
-    if (premium) {
-      return formatSecondsHhMm(totalSecondsAllTime)
-    }
-    const last7DaysSecs = dailyData.slice(-7).reduce((acc, d) => acc + d.totalSeconds, 0)
-    return formatSecondsHhMm(last7DaysSecs)
-  }, [dailyData, premium, totalSecondsAllTime])
+    if (premium) return formatSecondsHhMm(totalSecondsAllTime)
+    const sevenDaySeconds = displayedDailyData.reduce((acc, curr) => acc + curr.totalSeconds, 0)
+    return formatSecondsHhMm(sevenDaySeconds)
+  }, [displayedDailyData, premium, totalSecondsAllTime])
 
-  // Export selected-date report (Premium Feature)
+  const calendarWeeks = React.useMemo(() => buildHeatmapWeeks(calendarData), [calendarData])
+
+  const heatmapGridStyle = React.useMemo(() => {
+    return {
+      gridTemplateColumns: `repeat(${calendarWeeks.length}, minmax(11px, 1fr))`,
+    }
+  }, [calendarWeeks.length])
+
   const handleExportData = () => {
     if (!premium) {
       toast({
-        title: 'Premium Required',
-        description: 'Exporting your study data history is available exclusively on SyncStudy Premium.',
-        type: 'info',
+        title: "SyncStudy Premium Feature",
+        description: "PDF report export is available exclusively for Premium members.",
+        type: "info",
       })
       return
     }
@@ -149,550 +164,362 @@ export function AnalyticsPage() {
         tasks: selectedTasks,
         quizzes: selectedQuizzes,
         activityCount: selectedActivities.length,
-        activityTypes: selectedActivities.map((activity) => activity.activity_type.replace('_', ' ')),
+        activityTypes: selectedActivities.map((activity) => activity.activity_type),
         streakDaysThroughDate: streakThroughSelectedDate,
         dailyData,
       })
-      const url = URL.createObjectURL(pdfBlob)
-      const anchor = document.createElement('a')
-      anchor.href = url
-      anchor.download = `syncstudy-analytics-${selectedDate}.pdf`
-      document.body.appendChild(anchor)
-      anchor.click()
-      document.body.removeChild(anchor)
-      URL.revokeObjectURL(url)
+
+      const downloadUrl = URL.createObjectURL(pdfBlob)
+      const downloadLink = document.createElement("a")
+      downloadLink.href = downloadUrl
+      downloadLink.download = `syncstudy-analytics-${selectedDate}.pdf`
+      document.body.appendChild(downloadLink)
+      downloadLink.click()
+      downloadLink.remove()
+      URL.revokeObjectURL(downloadUrl)
 
       toast({
-        title: 'Analytics PDF downloaded',
-        description: `The report for ${selectedDate} was downloaded.`,
-        type: 'success',
+        title: "PDF Report Downloaded",
+        description: `Exported analytics for ${selectedDate}.`,
+        type: "success",
       })
-    } catch {
+    } catch (error) {
       toast({
-        title: 'Export Failed',
-        description: 'Could not export data. Please try again.',
-        type: 'error',
+        title: "Export Failed",
+        description: "Could not generate PDF. Please try again.",
+        type: "error",
       })
     }
   }
 
-  const calendarWeeks = React.useMemo(() => {
-    return buildHeatmapWeeks(calendarData)
-  }, [calendarData])
-
-  const heatmapGridStyle = React.useMemo(
-    () => ({ gridTemplateColumns: `2.5rem repeat(${calendarWeeks.length}, 14px)` }),
-    [calendarWeeks.length]
-  )
-
   return (
     <div className="page-shell">
-    <div className="page-container space-y-8">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <p className="section-kicker mb-2">Your study signals</p>
-          <h1 className="page-heading flex items-center gap-3">
-            <span className="rounded-2xl bg-[#eeedff] p-2.5 text-indigo-700 shadow-sm dark:bg-indigo-950/60 dark:text-indigo-300"><TrendingUp className="h-6 w-6" /></span>
-            Analytics &amp; Progress
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            See how consistently you study, where your time goes, and how your practice is building momentum.
-          </p>
-        </div>
+      <div className="page-container space-y-8">
+        {/* Page Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <span className="p-2 rounded-2xl bg-primary/10 text-primary">
+                <BarChart3 className="h-6 w-6" />
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-display">
+                Analytics & Insights
+              </h1>
+            </div>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              Visualize your focus habits, quiz performance, streaks, and subject distribution.
+            </p>
+          </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Current Streak Badge */}
-          <Badge className="bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800 px-3 py-1.5 text-xs gap-1.5 font-semibold">
-            <img src="/streak-flame.svg" alt="" className="w-4 h-4 object-contain" />
-            <span>{currentStreak} Day Streak</span>
-          </Badge>
-
-          {/* Longest Streak Badge */}
-          <Badge className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-400 border border-purple-300 dark:border-purple-800 px-3 py-1.5 text-xs gap-1.5 font-semibold">
-            <Trophy className="w-4 h-4 text-purple-500" />
-            <span>Record: {longestStreak} Days</span>
-          </Badge>
-
-          {/* Distinct qualifying activity days */}
-          <Badge className="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-300 dark:border-indigo-800 px-3 py-1.5 text-xs gap-1.5 font-semibold">
-            <Calendar className="w-4 h-4 text-indigo-500" />
-            <span>Record Days: {recordDays}</span>
-          </Badge>
-
-          <label className="flex items-center gap-2 text-xs text-muted-foreground">
-            Report date
+          <div className="flex flex-wrap items-center gap-3">
             <input
               type="date"
               value={selectedDate}
-              onChange={(event) => setSelectedDate(event.target.value)}
-              className="h-9 rounded-xl border border-input bg-card px-2 text-foreground"
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="h-9 px-3 rounded-xl bg-card border border-border text-xs font-semibold"
             />
-          </label>
-
-          {/* Export Data Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-xs gap-1.5"
-            onClick={handleExportData}
-          >
-            {premium ? (
-              <Download className="w-3.5 h-3.5" />
-            ) : (
-              <Lock className="w-3.5 h-3.5 text-amber-500" />
-            )}
-            Download Analytics
-          </Button>
-        </div>
-      </div>
-
-      {/* Free Tier Notice Banner */}
-      {!premium && (
-        <div className="rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/60 dark:bg-indigo-950/30 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-indigo-600 text-white shrink-0">
-              <Zap className="w-4 h-4" />
-            </div>
-            <div>
-              <p className="font-semibold text-foreground">
-                Free Tier View: Showing 7 Days History
-              </p>
-              <p className="text-muted-foreground">
-                Upgrade to Premium or redeem code UNLOCKALL to access full 90-day history, the streak heatmap, and PDF analytics reports.
-              </p>
-            </div>
-          </div>
-          <Link to="/premium" className="shrink-0">
-            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs">
-              Upgrade to Premium
+            <Button
+              onClick={handleExportData}
+              variant="outline"
+              size="sm"
+              className="rounded-xl gap-2 text-xs font-semibold border-border/80 bg-card hover:bg-muted"
+            >
+              {premium ? <Download className="w-3.5 h-3.5 text-primary" /> : <Lock className="w-3.5 h-3.5 text-amber-500" />}
+              <span>Download PDF Report</span>
             </Button>
-          </Link>
+          </div>
         </div>
-      )}
 
-      {/* Key Stats Row (4 Cards) */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Card className="surface-panel border-l-4 border-l-indigo-400">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              {premium ? 'Total Time (All Time)' : 'Total Time (7 Days)'}
-            </CardTitle>
-            <span className="rounded-lg bg-[#eeedff] p-2 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300"><Clock className="h-4 w-4" /></span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono tracking-tight text-foreground">
-              {loading ? '...' : displayedTotalStudyTime}
+        {/* Free Tier Notice Banner */}
+        {!premium && (
+          <div className="flex items-center justify-between p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs">
+            <div className="flex items-center gap-2.5">
+              <Sparkles className="h-4 w-4 text-amber-500 flex-shrink-0" />
+              <span className="text-foreground">
+                You are viewing the 7-day study window. Upgrade to Premium for 90-day history and complete PDF exports.
+              </span>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Recorded deep work</p>
-          </CardContent>
-        </Card>
+            <Link to="/premium">
+              <Button size="sm" className="h-7 text-[11px] bg-amber-500 hover:bg-amber-600 text-white rounded-lg">
+                Upgrade
+              </Button>
+            </Link>
+          </div>
+        )}
 
-        <Card className="surface-panel">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Sessions Completed
-            </CardTitle>
-            <span className="rounded-lg bg-[#ddf5ea] p-2 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"><CheckCircle2 className="h-4 w-4" /></span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono tracking-tight text-foreground">
-              {loading ? '...' : completedSessionsCount}
+        {/* Key Stats Row (4 Metric Cards) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="metric-card bg-card border-border/60">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Total Focus Time
+              </span>
+              <Clock className="h-4 w-4 text-purple-500" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Focus intervals finished</p>
-          </CardContent>
-        </Card>
-
-        <Card className="surface-panel">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Avg. Session Length
-            </CardTitle>
-            <span className="rounded-lg bg-[#e8f1ff] p-2 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300"><Calendar className="h-4 w-4" /></span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono tracking-tight text-foreground">
-              {loading ? '...' : `${Math.round(avgSessionSeconds / 60)} min`}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Per study session</p>
-          </CardContent>
-        </Card>
-
-        <Card className="surface-panel border-l-4 border-l-amber-400">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Best Day This Week
-            </CardTitle>
-            <span className="rounded-lg bg-[#fff8ec] p-2 dark:bg-amber-950/50"><img src="/streak-flame.svg" alt="" className="h-4 w-4 object-contain" /></span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold tracking-tight text-foreground">
-              {bestDayThisWeek.label}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {bestDayThisWeek.minutes} minutes logged
+            <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums">
+              {loading ? "..." : displayedTotalStudyTime}
             </p>
-          </CardContent>
-        </Card>
-      </div>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              {premium ? "All-time logged study" : "Past 7-day active focus"}
+            </p>
+          </div>
 
-      {/* Main Charts: Daily Study Time & Planned vs Actual */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Daily Study Time Chart */}
-        <Card className="surface-panel">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-base">Daily Focus Time</CardTitle>
-                <CardDescription className="text-xs">
-                  {premium ? 'Study minutes logged per day (last 14 days)' : 'Study minutes logged (last 7 days)'}
-                </CardDescription>
-              </div>
-              <Badge variant="outline" className="text-xs">
-                Minutes
-              </Badge>
+          <div className="metric-card bg-card border-border/60">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Sessions Completed
+              </span>
+              <CheckCircle2 className="h-4 w-4 text-emerald-500" />
             </div>
-          </CardHeader>
-          <CardContent>
+            <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums">
+              {loading ? "..." : completedSessionsCount}
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-1">Verified Pomodoro cycles</p>
+          </div>
+
+          <div className="metric-card bg-card border-border/60">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Avg. Session Length
+              </span>
+              <TrendingUp className="h-4 w-4 text-blue-500" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums">
+              {loading ? "..." : `${Math.round(avgSessionSeconds / 60)}m`}
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-1">Average per study block</p>
+          </div>
+
+          <div className="metric-card bg-card border-border/60">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Current Streak
+              </span>
+              <Flame className="h-4 w-4 text-amber-500" />
+            </div>
+            <p className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums">
+              {loading ? "..." : currentStreak} {currentStreak === 1 ? "Day" : "Days"}
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-1">Longest: {longestStreak} days</p>
+          </div>
+        </div>
+
+        {/* Charts Grid 1: Daily Focus & Planned vs Actual */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Daily Focus Time Bar Chart */}
+          <div className="surface-panel p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+              <div>
+                <h2 className="text-sm sm:text-base font-bold text-foreground">Daily Focus Time</h2>
+                <p className="text-xs text-muted-foreground">Study minutes logged per day</p>
+              </div>
+            </div>
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={displayedDailyData}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis dataKey="dateLabel" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip
-                    formatter={(value: any) => [`${value} min`, 'Focused']}
-                    contentStyle={{ borderRadius: '8px', fontSize: '12px' }}
-                  />
-                  <Bar dataKey="minutes" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                  <XAxis dataKey="dateLabel" fontSize={11} tickLine={false} />
+                  <YAxis fontSize={11} tickLine={false} unit="m" />
+                  <Tooltip />
+                  <Bar dataKey="minutes" fill="#7651E8" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* Planned vs Actual Comparison */}
-        <Card className="surface-panel">
-          <CardHeader>
-            <div className="flex items-center justify-between">
+          {/* Planned vs Actual Study Bar Chart */}
+          <div className="surface-panel p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
               <div>
-                <CardTitle className="text-base">Planned vs. Actual Study</CardTitle>
-                <CardDescription className="text-xs">
-                  Goal adherence over the last 7 days
-                </CardDescription>
+                <h2 className="text-sm sm:text-base font-bold text-foreground">Planned vs Actual Focus</h2>
+                <p className="text-xs text-muted-foreground">Comparison of goal vs actual minutes</p>
               </div>
-              <Badge variant="outline" className="text-xs">
-                Comparison
-              </Badge>
             </div>
-          </CardHeader>
-          <CardContent>
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={dailyData.slice(-7)}>
+                <BarChart data={displayedDailyData}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis dataKey="dateLabel" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip
-                    formatter={(value: any, name: any) => [
-                      `${value} min`,
-                      name === 'minutes' ? 'Actual' : 'Planned',
-                    ]}
-                    contentStyle={{ borderRadius: '8px', fontSize: '12px' }}
-                  />
-                  <Legend
-                    formatter={(value) => (value === 'minutes' ? 'Actual Focus' : 'Planned Target')}
-                    wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
-                  />
-                  <Bar dataKey="plannedMinutes" fill="#94a3b8" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="minutes" fill="#10b981" radius={[4, 4, 0, 0]} />
+                  <XAxis dataKey="dateLabel" fontSize={11} tickLine={false} />
+                  <YAxis fontSize={11} tickLine={false} unit="m" />
+                  <Tooltip />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Bar dataKey="plannedMinutes" name="Target" fill="#FFD8C2" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="minutes" name="Actual" fill="#7651E8" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
 
-      {/* Secondary Charts: Weekly Trend Line Chart & Quiz Mastery */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Weekly Trend */}
-        <Card className="surface-panel">
-          <CardHeader>
-            <CardTitle className="text-base">Weekly Study Hours Trend</CardTitle>
-            <CardDescription className="text-xs">
-              Aggregate study volume across the last 8 weeks
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-60 w-full">
+        {/* Charts Grid 2: Weekly Trend & Quiz Performance */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Weekly Study Hours Trend Line Chart */}
+          <div className="surface-panel p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+              <div>
+                <h2 className="text-sm sm:text-base font-bold text-foreground">Weekly Study Trend</h2>
+                <p className="text-xs text-muted-foreground">Cumulative hours studied per week</p>
+              </div>
+            </div>
+            <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={weeklyData}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis dataKey="week" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip
-                    formatter={(val: any) => [`${val} hrs`, 'Total Study']}
-                    contentStyle={{ borderRadius: '8px', fontSize: '12px' }}
-                  />
+                  <XAxis dataKey="week" fontSize={11} tickLine={false} />
+                  <YAxis fontSize={11} tickLine={false} unit="h" />
+                  <Tooltip />
                   <Line
                     type="monotone"
                     dataKey="hours"
-                    stroke="#8b5cf6"
+                    stroke="#7651E8"
                     strokeWidth={3}
-                    dot={{ r: 4 }}
-                    activeDot={{ r: 6 }}
+                    dot={{ fill: "#7651E8", r: 4 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* Quiz Scores Mastery Trend */}
-        <Card className="surface-panel">
-          <CardHeader>
-            <div className="flex items-center justify-between">
+          {/* Quiz Score Performance */}
+          <div className="surface-panel p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
               <div>
-                <CardTitle className="text-base">Quiz Score Performance</CardTitle>
-                <CardDescription className="text-xs">
-                  Percentage scores on generated practice quizzes
-                </CardDescription>
+                <h2 className="text-sm sm:text-base font-bold text-foreground">Quiz Scores</h2>
+                <p className="text-xs text-muted-foreground">Historical test percentages over time</p>
               </div>
-              <Badge variant="outline" className="text-xs text-amber-600 border-amber-300">
-                Practice Quizzes
-              </Badge>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="h-60 w-full">
-              {quizScores.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center space-y-2">
-                  <BrainCircuit className="w-8 h-8 text-muted-foreground" />
-                  <p className="text-xs text-muted-foreground">No quiz scores recorded yet.</p>
-                  <Link to="/quiz">
-                    <Button size="sm" variant="outline" className="text-xs">
-                      Take a Quiz
-                    </Button>
-                  </Link>
-                </div>
-              ) : (
+            {quizScores.length === 0 ? (
+              <div className="h-64 flex flex-col items-center justify-center text-muted-foreground text-xs">
+                <BrainCircuit className="h-8 w-8 mb-2 opacity-50" />
+                <p>No practice quiz records available.</p>
+                <Link to="/quiz" className="text-primary hover:underline font-semibold mt-1">
+                  Take a quiz
+                </Link>
+              </div>
+            ) : (
+              <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={quizScores}>
                     <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                    <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                    <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-                    <Tooltip
-                      formatter={(val: any, _name: any, item: any) => [
-                        `${val}% (${item.payload.subject})`,
-                        'Score',
-                      ]}
-                      contentStyle={{ borderRadius: '8px', fontSize: '12px' }}
-                    />
+                    <XAxis dataKey="date" fontSize={11} tickLine={false} />
+                    <YAxis fontSize={11} tickLine={false} unit="%" domain={[0, 100]} />
+                    <Tooltip />
                     <Line
                       type="monotone"
                       dataKey="percentage"
-                      stroke="#f59e0b"
+                      stroke="#E9A23B"
                       strokeWidth={3}
-                      dot={{ r: 4 }}
-                      activeDot={{ r: 6 }}
+                      dot={{ fill: "#E9A23B", r: 4 }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Streak Calendar (Heatmap) - Premium Feature */}
-      <Card className="surface-panel overflow-hidden">
-        <CardHeader className="border-b border-border/70 bg-gradient-to-r from-[#f8f7ff] to-white dark:from-indigo-950/30 dark:to-card">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="rounded-lg bg-[#eeedff] p-2 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300"><Calendar className="h-4 w-4" /></span>
-              <CardTitle className="text-lg">Study Activity</CardTitle>
-              {!premium && (
-                <Badge variant="secondary" className="gap-1 text-[10px]">
-                  <Lock className="w-3 h-3 text-amber-500" />
-                  Premium Only
-                </Badge>
-              )}
-            </div>
-            <CardDescription className="mt-1 text-xs">
-              Your recorded focus sessions and qualifying study activity across the last 90 days.
-            </CardDescription>
+              </div>
+            )}
           </div>
-        </CardHeader>
-        <CardContent className="relative p-4 sm:p-5">
-          <div
-            className={`overflow-x-auto pb-3 ${
-              !premium ? 'blur-sm select-none pointer-events-none' : ''
-            }`}
-          >
-            <div className="inline-grid min-w-max gap-[5px] p-1">
-              <div className="grid gap-[5px] text-[10px] font-medium text-muted-foreground" style={heatmapGridStyle}>
-                <span />
-                {calendarWeeks.map((week, wIdx) => (
-                  <span key={wIdx} className="text-left">
-                    {getHeatmapMonthLabel(week, wIdx)}
-                  </span>
-                ))}
-              </div>
-              <div className="grid gap-[5px]" style={heatmapGridStyle}>
-                <div className="grid grid-rows-7 gap-[5px] text-[10px] font-medium leading-none text-muted-foreground">
-                  {['Mon', '', 'Wed', '', 'Fri', '', 'Sun'].map((label, index) => <span key={index}>{label}</span>)}
-                </div>
-                {calendarWeeks.map((week, wIdx) => (
-                <div key={wIdx} className="grid grid-rows-7 gap-[5px]">
-                  {week.map((day, dayIndex) => day ? (
-                    <div
-                      key={day.date}
-                      className={`h-3.5 w-3.5 rounded-[3px] border ${getHeatmapColor(day.minutes)} transition-shadow hover:shadow-sm focus-visible:outline focus-visible:outline-1 focus-visible:outline-indigo-400`}
-                      title={`${formatHeatmapDate(day.date)} — ${day.minutes} minutes, ${day.count} ${day.count === 1 ? 'activity' : 'activities'}`}
-                      aria-label={`${formatHeatmapDate(day.date)}: ${day.minutes} minutes, ${day.count} ${day.count === 1 ? 'activity' : 'activities'}`}
-                      tabIndex={0}
-                    />
-                  ) : (
-                    <div key={`empty-${dayIndex}`} className="h-3.5 w-3.5" aria-hidden="true" />
-                  ))}
-                </div>
-                ))}
-              </div>
+        </div>
+
+        {/* 90-Day Streak Activity Heatmap */}
+        <div className="surface-panel p-6 sm:p-8 space-y-4 relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
+            <div>
+              <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-primary" />
+                <span>90-Day Study Activity Heatmap</span>
+              </h2>
+              <p className="text-xs text-muted-foreground">Consistency is the single biggest predictor of mastery</p>
+            </div>
+            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <span>Less</span>
+              <span className="h-2.5 w-2.5 rounded bg-muted/40" />
+              <span className="h-2.5 w-2.5 rounded bg-purple-200 dark:bg-purple-950" />
+              <span className="h-2.5 w-2.5 rounded bg-purple-400 dark:bg-purple-800" />
+              <span className="h-2.5 w-2.5 rounded bg-[#7651E8]" />
+              <span>More</span>
             </div>
           </div>
 
-          <div className="mt-1 flex items-center justify-end gap-1.5 text-xs text-muted-foreground" aria-label="Activity intensity legend">
-            <span>Less</span>
-            {[0, 30, 60, 120, 121].map((level) => (
-              <span key={level} className={`h-3.5 w-3.5 rounded-[3px] border ${getHeatmapColor(level)}`} />
-            ))}
-            <span>More</span>
+          {/* Heatmap Grid */}
+          <div className="overflow-x-auto pb-2">
+            <div className="min-w-[620px]">
+              <div className="grid gap-1.5" style={heatmapGridStyle}>
+                {calendarWeeks.map((week, wIdx) => (
+                  <div key={wIdx} className="grid grid-rows-7 gap-1.5">
+                    {week.map((d, dIdx) => (
+                      <div
+                        key={dIdx}
+                        className={`h-3 w-3 rounded-sm border ${
+                          d ? getHeatmapColor(d.minutes) : "opacity-0"
+                        }`}
+                        title={d ? `${formatHeatmapDate(d.date)}: ${d.minutes} minutes` : ""}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Premium Lock Overlay for Free Tier */}
           {!premium && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/60 backdrop-blur-[2px] p-6 text-center z-10">
-              <div className="p-3 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 mb-2">
-                <Lock className="w-6 h-6" />
-              </div>
-              <h4 className="text-sm font-semibold text-foreground">
-                Upgrade to View Full 90-Day Streak Heatmap
-              </h4>
-              <p className="text-xs text-muted-foreground max-w-sm mt-1 mb-3">
-                Visualize your long-term study consistency and build an unbreakable study routine.
+            <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-10">
+              <Lock className="h-8 w-8 text-amber-500 mb-2" />
+              <h3 className="text-base font-bold text-foreground">Full 90-Day Heatmap is a Premium Feature</h3>
+              <p className="text-xs text-muted-foreground max-w-sm mt-1 mb-4">
+                Track long-term learning consistency and visual streaks across months of study.
               </p>
               <Link to="/premium">
-                <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs">
-                  Unlock Streak Heatmap
+                <Button size="sm" className="bg-[#7651E8] hover:bg-[#6842D8] text-white rounded-xl">
+                  Unlock with Premium
                 </Button>
               </Link>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Warning Stats & Distraction Trends */}
-      <Card className="surface-panel">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-base flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-500" />
-                Distraction Frequency & Posture Shifts
-              </CardTitle>
-              <CardDescription className="text-xs">
-                Warnings logged by computer vision monitor over the last 14 days
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="h-48 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={warningStats}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
-                <Tooltip
-                  formatter={(val: any) => [`${val} warnings`, 'Distractions']}
-                  contentStyle={{ borderRadius: '8px', fontSize: '12px' }}
-                />
-                <Bar dataKey="warnings" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Recent Sessions Table (Last 20) */}
-      <Card className="surface-panel">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="text-base">Focus Sessions Record</CardTitle>
-            <CardDescription className="text-xs">
-              Audit log of completed study intervals
-            </CardDescription>
-          </div>
-          <Badge variant="outline" className="text-xs">
-            {sessions.length} recorded
-          </Badge>
-        </CardHeader>
-        <CardContent>
+        {/* Sessions Record Table */}
+        <div className="surface-panel p-5 sm:p-6 space-y-4">
+          <h2 className="text-base font-bold text-foreground">Recent Study Records</h2>
           {sessions.length === 0 ? (
-            <div className="text-center py-10 text-muted-foreground text-xs italic">
-              No sessions found in study records.
-            </div>
+            <p className="text-xs text-muted-foreground py-4 text-center">No study records logged yet.</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left">
-                <thead className="bg-muted/50 text-muted-foreground font-semibold">
-                  <tr>
-                    <th className="p-2.5 rounded-l-md">Subject</th>
-                    <th className="p-2.5">Date & Time</th>
-                    <th className="p-2.5">Duration</th>
-                    <th className="p-2.5">Target</th>
-                    <th className="p-2.5">Warnings</th>
-                    <th className="p-2.5 rounded-r-md">Notes</th>
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-border/80 text-muted-foreground uppercase tracking-wider text-[10px]">
+                    <th className="py-2.5 px-3">Subject</th>
+                    <th className="py-2.5 px-3">Date & Time</th>
+                    <th className="py-2.5 px-3">Duration</th>
+                    <th className="py-2.5 px-3">Target</th>
+                    <th className="py-2.5 px-3">Distractions</th>
+                    <th className="py-2.5 px-3">Notes</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y">
-                  {sessions.slice(0, 20).map((s) => (
-                    <tr key={s.id} className="hover:bg-muted/20">
-                      <td className="p-2.5 font-medium flex items-center gap-2">
-                        <span
-                          className="w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ backgroundColor: s.subject?.color || '#6366f1' }}
-                        />
-                        <span>{s.subject?.name || 'General Study'}</span>
+                <tbody className="divide-y divide-border/40 font-medium">
+                  {sessions.slice(0, 15).map((s) => (
+                    <tr key={s.id} className="hover:bg-muted/30 transition-colors">
+                      <td className="py-2.5 px-3 font-semibold text-foreground">
+                        {s.subject?.name || "Independent"}
                       </td>
-                      <td className="p-2.5 text-muted-foreground">
-                        {new Date(s.started_at).toLocaleDateString(undefined, {
-                          month: 'short',
-                          day: 'numeric',
-                        })}{' '}
-                        at{' '}
-                        {new Date(s.started_at).toLocaleTimeString(undefined, {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
+                      <td className="py-2.5 px-3 text-muted-foreground">
+                        {new Date(s.started_at).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
                       </td>
-                      <td className="p-2.5 font-mono font-medium">
-                        {formatSecondsHhMm(s.actual_duration_s)}
+                      <td className="py-2.5 px-3 text-primary font-bold tabular-nums">
+                        {formatSecondsHhMm(s.actual_duration_s || 0)}
                       </td>
-                      <td className="p-2.5 font-mono text-muted-foreground">
-                        {formatSecondsHhMm(s.planned_duration_s)}
+                      <td className="py-2.5 px-3 text-muted-foreground tabular-nums">
+                        {formatSecondsHhMm(s.planned_duration_s || 0)}
                       </td>
-                      <td className="p-2.5">
-                        {s.warning_count > 0 ? (
-                          <span className="text-amber-600 font-medium">
-                            {s.warning_count} ⚠
-                          </span>
+                      <td className="py-2.5 px-3">
+                        {s.warning_count && s.warning_count > 0 ? (
+                          <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-300">
+                            {s.warning_count}
+                          </Badge>
                         ) : (
-                          <span className="text-emerald-600">0</span>
+                          <span className="text-emerald-500 font-semibold">0</span>
                         )}
                       </td>
-                      <td className="p-2.5 text-muted-foreground max-w-xs truncate">
-                        {s.notes || '—'}
+                      <td className="py-2.5 px-3 text-muted-foreground max-w-xs truncate">
+                        {s.notes || "-"}
                       </td>
                     </tr>
                   ))}
@@ -700,9 +527,8 @@ export function AnalyticsPage() {
               </table>
             </div>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </div>
     </div>
   )
 }
