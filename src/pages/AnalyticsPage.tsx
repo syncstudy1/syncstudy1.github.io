@@ -145,13 +145,18 @@ export function AnalyticsPage() {
     try {
       const pdfBlob = buildAnalyticsPdf({
         date: selectedDate,
-        sessions: selectedSessions,
-        tasks: selectedTasks,
-        quizzes: selectedQuizzes,
+        selectedSessions,
+        selectedTasks,
+        selectedQuizzes,
         activityCount: selectedActivities.length,
         activityTypes: selectedActivities.map((activity) => activity.activity_type.replace('_', ' ')),
         streakDaysThroughDate: streakThroughSelectedDate,
+        sessions,
         dailyData,
+        weeklyData,
+        quizScores,
+        warningStats,
+        bestDayThisWeek,
       })
       const url = URL.createObjectURL(pdfBlob)
       const anchor = document.createElement('a')
