@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/ui/dialog"
 import { Loader2, KeyRound, CheckCircle2, AlertCircle, Ticket } from "lucide-react"
+import { BrandLockup } from "@/components/brand/BrandLockup"
 
 export function Footer() {
   const location = useLocation()
@@ -35,10 +36,8 @@ export function Footer() {
     <footer className="border-t border-border/70 bg-card/70 mt-auto text-sm text-muted-foreground">
       <div className="container mx-auto px-4 py-10">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Link to="/" className="font-semibold text-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-              SyncStudy
-            </Link>
+          <div className="flex items-center gap-3">
+            <BrandLockup compact />
             <span>&copy; {new Date().getFullYear()}</span>
             <span>&bull;</span>
             <span>Personal Study Companion</span>

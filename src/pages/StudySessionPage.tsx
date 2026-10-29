@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useLocation } from 'react-router-dom'
 import { useStudyTimer } from '@/hooks/useStudyTimer'
 import { useSubjects } from '@/hooks/useSubjects'
 import { useTasks } from '@/hooks/useTasks'
@@ -61,6 +62,7 @@ function formatSeconds(totalSecs: number): string {
 }
 
 export function StudySessionPage() {
+  const location = useLocation()
   const { toast } = useToast()
   const { isPremium } = useSubscriptionStore()
   const { subjects, createSubject, deleteSubject } = useSubjects()
@@ -101,6 +103,9 @@ export function StudySessionPage() {
 
   // Management section toggle
   const [showManagement, setShowManagement] = React.useState<boolean>(false)
+  React.useEffect(() => {
+    if (location.hash === '#management') setShowManagement(true)
+  }, [location.hash])
 
   // Add Subject Form
   const [newSubName, setNewSubName] = React.useState<string>('')
@@ -786,7 +791,7 @@ export function StudySessionPage() {
       </Dialog>
 
       {/* Collapsible Subject and Task Management Section */}
-      <div className="pt-6 border-t">
+      <div id="management" className="pt-6 border-t">
         <button
           type="button"
           className="w-full flex items-start justify-between gap-4 rounded-xl px-3 py-3 text-left text-foreground transition-colors hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30"
