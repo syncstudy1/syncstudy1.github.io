@@ -33,12 +33,11 @@ import {
   Trash2,
   ChevronDown,
   ChevronUp,
+  Sparkles,
   Check,
 } from 'lucide-react'
 import type { TaskStatus } from '@/types/database'
 import { CameraMonitor } from '@/components/vision/CameraMonitor'
-import { SparkleIcon } from '@/components/brand/SparkleIcon'
-import { StudyRoomExtras } from '@/components/study/StudyRoomExtras'
 
 const PRESET_COLORS = [
   '#3b82f6', // Blue
@@ -311,15 +310,16 @@ export function StudySessionPage() {
 
   return (
     <div className="page-shell">
-    <div className="page-container max-w-7xl space-y-8">
+    <div className="page-container max-w-5xl space-y-8">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="flex items-center gap-2 text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white">
-            Study Room <span aria-hidden="true">☕</span>
+            <span className="rounded-xl bg-indigo-50 p-2 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-300"><Clock className="h-6 w-6" /></span>
+            Study Room
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            A focused mind can turn small study sessions into big achievements.
+            Focus timer integrated with real-time distraction detection and adaptive pauses.
           </p>
         </div>
 
@@ -540,7 +540,7 @@ export function StudySessionPage() {
       ) : (
         /* Active Timer Display */
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <Card className="study-timer-card lg:col-span-2 border-indigo-100 dark:border-indigo-900/40 shadow-lg flex flex-col items-center justify-center p-8 text-center">
+          <Card className="lg:col-span-2 border-indigo-100 dark:border-indigo-900/40 shadow-lg flex flex-col items-center justify-center p-8 text-center">
             {/* Subject Pill */}
             {currentSubject && (
               <div
@@ -711,7 +711,7 @@ export function StudySessionPage() {
             <Card className="bg-indigo-50/40 dark:bg-indigo-950/20 border-indigo-100 dark:border-indigo-900/30">
               <CardContent className="p-4 space-y-2">
                 <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-400 font-semibold text-xs">
-                  <SparkleIcon size={16} />
+                  <Sparkles className="w-4 h-4" />
                   <span>Productivity Rule</span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
@@ -722,8 +722,6 @@ export function StudySessionPage() {
           </div>
         </div>
       )}
-
-      <StudyRoomExtras />
 
       {/* Summary Dialog */}
       <Dialog open={summaryOpen} onOpenChange={setSummaryOpen}>

@@ -16,6 +16,7 @@ import {
   Crown,
   Check,
   X,
+  Sparkles,
   Zap,
   ShieldCheck,
   BrainCircuit,
@@ -25,7 +26,6 @@ import {
   Download,
   AlertCircle,
 } from 'lucide-react'
-import { SparkleIcon } from '@/components/brand/SparkleIcon'
 
 export function PremiumPage() {
   const { isPremium, getRemainingDays } = useSubscriptionStore()
@@ -198,7 +198,7 @@ export function PremiumPage() {
 
               <tr className="hover:bg-muted/10">
                 <td className="p-4 font-medium flex items-center gap-2">
-                  <SparkleIcon size={16} />
+                  <Sparkles className="w-4 h-4 text-indigo-500" />
                   <span>Study Planner</span>
                 </td>
                 <td className="p-4 text-center text-rose-500 font-bold">

@@ -9,12 +9,12 @@ import { calculateStreakStats, getLocalDateKeyFromTimestamp } from '@/lib/activi
 import { Button } from '@/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/ui/card'
 import { Badge } from '@/ui/badge'
-import { SparkleIcon } from '@/components/brand/SparkleIcon'
 import {
   Timer,
   Clock,
   CheckCircle2,
   Calendar,
+  Sparkles,
   ArrowRight,
   BookOpen,
   BrainCircuit,
@@ -197,7 +197,7 @@ export function DashboardPage() {
           <div className="p-5 rounded-xl border bg-card hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-sm flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 group-hover:scale-105 transition-transform">
-                <SparkleIcon size={20} />
+                <Sparkles className="w-5 h-5" />
               </div>
               <div>
                 <h4 className="text-sm font-semibold text-foreground">Practice Quiz</h4>

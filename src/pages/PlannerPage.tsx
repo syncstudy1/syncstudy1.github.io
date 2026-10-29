@@ -21,6 +21,7 @@ import {
 import {
   BrainCircuit,
   Lock,
+  Sparkles,
   Calendar,
   Clock,
   CheckCircle2,
@@ -34,7 +35,6 @@ import {
   BookOpen,
   Check,
 } from 'lucide-react'
-import { SparkleIcon } from '@/components/brand/SparkleIcon'
 import type { StudyPlanBlock } from '@/types/database'
 
 export function PlannerPage() {
@@ -273,7 +273,7 @@ export function PlannerPage() {
         <Card className="border-indigo-100 dark:border-indigo-900/40 shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <SparkleIcon size={20} />
+              <Sparkles className="w-5 h-5 text-amber-500" />
               Configure Your Study Plan
             </CardTitle>
             <CardDescription className="text-xs">
@@ -400,7 +400,7 @@ export function PlannerPage() {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <SparkleIcon size={16} />
+                  <Sparkles className="w-4 h-4" />
                   <span>Create My Study Plan</span>
                 </div>
               )}
