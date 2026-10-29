@@ -1,35 +1,29 @@
-import * as React from "react"
-import { Link, useNavigate } from "react-router-dom"
-import { useAuthStore } from "@/stores/authStore"
-import { useStudySessions } from "@/hooks/useStudySessions"
-import { useQualifyingActivity } from "@/hooks/useQualifyingActivity"
-import { useTasks } from "@/hooks/useTasks"
-import { useSubjects } from "@/hooks/useSubjects"
-import { calculateStreakStats, getLocalDateKeyFromTimestamp } from "@/lib/activity"
-import { Button } from "@/ui/button"
-import { Badge } from "@/ui/badge"
+import * as React from 'react'
+import { Link } from 'react-router-dom'
+import { useAuthStore } from '@/stores/authStore'
+import { useStudySessions } from '@/hooks/useStudySessions'
+import { useQualifyingActivity } from '@/hooks/useQualifyingActivity'
+import { useTasks } from '@/hooks/useTasks'
+import { useSubjects } from '@/hooks/useSubjects'
+import { calculateStreakStats, getLocalDateKeyFromTimestamp } from '@/lib/activity'
+import { Button } from '@/ui/button'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/ui/card'
+import { Badge } from '@/ui/badge'
 import {
   Timer,
   Clock,
   CheckCircle2,
-  Circle,
   Calendar,
   Sparkles,
   ArrowRight,
   BookOpen,
   BrainCircuit,
-  Plus,
-  Play,
-  Flame,
-  TrendingUp,
-  Target,
-  ChevronLeft,
-  ChevronRight,
-  ListTodo,
-} from "lucide-react"
+  AlertTriangle,
+  PlusCircle,
+} from 'lucide-react'
 
 function formatDurationHhMm(totalSeconds: number): string {
-  if (!totalSeconds || totalSeconds <= 0) return "0m"
+  if (!totalSeconds || totalSeconds <= 0) return '0m'
   const hours = Math.floor(totalSeconds / 3600)
   const minutes = Math.floor((totalSeconds % 3600) / 60)
   if (hours > 0) {
@@ -40,27 +34,21 @@ function formatDurationHhMm(totalSeconds: number): string {
 
 function getGreeting(): string {
   const hour = new Date().getHours()
-  if (hour < 12) return "Good morning"
-  if (hour < 17) return "Good afternoon"
-  return "Good evening"
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  return 'Good evening'
 }
 
 export function DashboardPage() {
-  const navigate = useNavigate()
   const { user, profile } = useAuthStore()
   const { sessions, loading: sessionsLoading, todayTotalSeconds, weekTotalSeconds } = useStudySessions()
   const { activities } = useQualifyingActivity()
-  const { tasks, loading: tasksLoading, updateTaskStatus, createTask } = useTasks()
-  const { subjects, loading: subjectsLoading } = useSubjects()
+  const { tasks, loading: tasksLoading, updateTaskStatus } = useTasks()
+  const { subjects } = useSubjects()
 
-  const [currentCalendarDate, setCurrentCalendarDate] = React.useState(new Date())
-  const [quickTaskTitle, setQuickTaskTitle] = React.useState("")
-  const [isAddingTask, setIsAddingTask] = React.useState(false)
-
-  const userName = profile?.full_name?.split(" ")[0] || user?.user_metadata?.full_name?.split(" ")[0] || "Scholar"
+  const userName = profile?.full_name || user?.user_metadata?.full_name || 'Scholar'
   const greeting = getGreeting()
 
-  // Streak calculation
   const currentStreak = React.useMemo(() => {
     const dates = new Set(activities.map((activity) => activity.activity_date))
     sessions
@@ -69,583 +57,339 @@ export function DashboardPage() {
     return calculateStreakStats(dates).currentStreak
   }, [activities, sessions])
 
-  // Completed tasks count
-  const completedTasksCount = React.useMemo(() => {
-    return tasks.filter((t) => t.status === "done").length
-  }, [tasks])
-
   // Pending tasks
   const pendingTasks = React.useMemo(() => {
-    return tasks.filter((t) => t.status !== "done").slice(0, 6)
+    return tasks
+      .filter((t) => t.status !== 'done')
+      .slice(0, 5)
   }, [tasks])
 
-  // Recent sessions
+  const pendingCount = tasks.filter((t) => t.status !== 'done').length
+
+  // Recent 5 sessions
   const recentSessions = React.useMemo(() => {
     return [...sessions]
       .sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime())
       .slice(0, 5)
   }, [sessions])
 
-  // Subject completion stats
-  const subjectStats = React.useMemo(() => {
-    return subjects.map((subj) => {
-      const subjTasks = tasks.filter((t) => t.subject_id === subj.id)
-      const doneCount = subjTasks.filter((t) => t.status === "done").length
-      const totalCount = subjTasks.length
-      const percent = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0
-      const subjSessions = sessions.filter((s) => s.subject_id === subj.id)
-      const totalSecs = subjSessions.reduce((acc, s) => acc + (s.actual_duration_s || 0), 0)
-      return {
-        ...subj,
-        totalTasks: totalCount,
-        doneTasks: doneCount,
-        percent,
-        studyTimeFormatted: formatDurationHhMm(totalSecs),
-      }
-    })
-  }, [subjects, tasks, sessions])
-
-  // Quick task creation
-  const handleCreateQuickTask = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!quickTaskTitle.trim()) return
-    setIsAddingTask(true)
-    try {
-      await createTask({
-        title: quickTaskTitle.trim(),
-        subject_id: subjects[0]?.id,
-      })
-      setQuickTaskTitle("")
-    } catch (err) {
-      console.error("Failed to create task", err)
-    } finally {
-      setIsAddingTask(false)
-    }
-  }
-
-  // Calendar dates computation
-  const calendarDays = React.useMemo(() => {
-    const year = currentCalendarDate.getFullYear()
-    const month = currentCalendarDate.getMonth()
-    const firstDay = new Date(year, month, 1)
-    const lastDay = new Date(year, month + 1, 0)
-    const startingDayIndex = (firstDay.getDay() + 6) % 7 // Monday start (0-6)
-    const totalDays = lastDay.getDate()
-
-    const activityDates = new Set(activities.map((a) => a.activity_date))
-    sessions.forEach((s) => {
-      if ((s.actual_duration_s || 0) > 0) {
-        activityDates.add(getLocalDateKeyFromTimestamp(s.started_at))
-      }
-    })
-
-    const days = []
-    // Previous month padding
-    for (let i = 0; i < startingDayIndex; i++) {
-      days.push({ day: null, hasActivity: false, isToday: false })
-    }
-    // Days of month
-    const today = new Date()
-    for (let d = 1; d <= totalDays; d++) {
-      const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`
-      const isToday =
-        today.getFullYear() === year && today.getMonth() === month && today.getDate() === d
-      days.push({
-        day: d,
-        hasActivity: activityDates.has(dateStr),
-        isToday,
-      })
-    }
-    return days
-  }, [currentCalendarDate, activities, sessions])
-
-  const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ]
-
   return (
     <div className="page-shell">
-      <div className="page-container space-y-6 sm:space-y-8">
-        {/* Welcome Section (from Reference Image C) */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#FFF6ED] via-[#F8F1FF] to-[#EDEAFF] dark:from-[#1F1B2E] dark:via-[#1B1827] dark:to-[#171523] p-6 sm:p-8 border border-purple-200/50 dark:border-purple-900/30 shadow-sm">
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="space-y-2 max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 dark:bg-white/10 backdrop-blur-md border border-purple-200/60 dark:border-purple-800/40 text-xs font-semibold text-primary">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                <span>{greeting}, {userName}</span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground font-display">
-                Make space for{" "}
-                <span className="bg-gradient-to-r from-[#7651E8] via-[#A78BFA] to-[#FF9B7A] bg-clip-text text-transparent">
-                  meaningful learning.
-                </span>
-              </h1>
-              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                Plan your day. Protect your focus. Make every session count.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Link to="/study">
-                <Button className="h-11 px-5 rounded-xl gap-2.5 font-semibold bg-[#7651E8] hover:bg-[#6842D8] text-white shadow-lg shadow-purple-500/25 transition-all hover:scale-[1.02]">
-                  <Play className="w-4 h-4 fill-white" />
-                  <span>Start Study Room</span>
-                </Button>
-              </Link>
-              <Link to="/planner">
-                <Button variant="outline" className="h-11 px-5 rounded-xl gap-2 bg-card/80 backdrop-blur border-border/80 hover:bg-card">
-                  <BrainCircuit className="w-4 h-4 text-primary" />
-                  <span>AI Planner</span>
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          {/* Abstract ambient decorative backdrop */}
-          <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-30 dark:opacity-10 pointer-events-none bg-gradient-to-l from-[#FFD8C2] to-transparent rounded-r-3xl" />
+    <div className="page-container space-y-8">
+      {/* Welcome Panel */}
+      <div className="flex flex-col justify-between gap-5 rounded-2xl border border-indigo-100 bg-white p-6 shadow-sm shadow-slate-900/[0.03] sm:flex-row sm:items-center sm:p-7 dark:border-indigo-900/60 dark:bg-slate-900">
+        <div className="space-y-1">
+          <Badge className="mb-2 border border-indigo-100 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300">Ready to learn</Badge>
+          <h1 className="text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl dark:text-white">{greeting}, {userName}!</h1>
+          <p className="max-w-xl text-sm text-slate-600 dark:text-slate-300">Track your focus, follow your personalized study schedule, and test your knowledge with practice quizzes.</p>
         </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link to="/study">
+            <Button className="gap-2">
+              <Timer className="w-4 h-4" />
+              Start Study Session
+            </Button>
+          </Link>
+        </div>
+      </div>
 
-        {/* Key Study Metrics (4 Cards from Reference Image C) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* 1. Today's Study Time */}
-          <div className="metric-card bg-card border-border/60">
-            <div className="flex items-center justify-between mb-3">
-              <div className="h-10 w-10 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center">
-                <Clock className="h-5 w-5" />
-              </div>
-              <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
-                <TrendingUp className="h-3 w-3" />
-                <span>Today</span>
-              </span>
+      {/* Stats Grid (4 Cards) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Today's study time */}
+        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:-translate-y-0.5 hover:shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Today's Focus
+            </CardTitle>
+            <span className="rounded-lg bg-indigo-50 p-2 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-300"><Clock className="w-4 h-4" /></span>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-mono tracking-tight text-foreground">
+              {sessionsLoading ? '...' : formatDurationHhMm(todayTotalSeconds)}
             </div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-              Focus Time
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums tracking-tight">
-              {sessionsLoading ? "..." : formatDurationHhMm(todayTotalSeconds)}
-            </h2>
-            <p className="text-[11px] text-muted-foreground mt-2">
-              {weekTotalSeconds > 0 ? `${formatDurationHhMm(weekTotalSeconds)} this week` : "Start a session to log hours"}
-            </p>
-          </div>
+            <p className="text-xs text-muted-foreground mt-1">Logged study today</p>
+          </CardContent>
+        </Card>
 
-          {/* 2. Tasks Completed */}
-          <div className="metric-card bg-card border-border/60">
-            <div className="flex items-center justify-between mb-3">
-              <div className="h-10 w-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-                <CheckCircle2 className="h-5 w-5" />
-              </div>
-              <span className="text-xs font-semibold text-primary">
-                {pendingTasks.length} pending
-              </span>
+        {/* This week's total */}
+        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:-translate-y-0.5 hover:shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              This Week
+            </CardTitle>
+            <span className="rounded-lg bg-emerald-50 p-2 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-300"><Calendar className="w-4 h-4" /></span>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-mono tracking-tight text-foreground">
+              {sessionsLoading ? '...' : formatDurationHhMm(weekTotalSeconds)}
             </div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-              Tasks Completed
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums tracking-tight">
-              {tasksLoading ? "..." : completedTasksCount}
-            </h2>
-            <p className="text-[11px] text-muted-foreground mt-2">
-              Across all linked subjects
-            </p>
-          </div>
+            <p className="text-xs text-muted-foreground mt-1">Last 7 rolling days</p>
+          </CardContent>
+        </Card>
 
-          {/* 3. Focus Streak */}
-          <div className="metric-card bg-card border-border/60">
-            <div className="flex items-center justify-between mb-3">
-              <div className="h-10 w-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-                <Flame className="h-5 w-5" />
-              </div>
-              <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-700 dark:text-amber-300">
-                Active
-              </Badge>
-            </div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+        {/* Current streak */}
+        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:-translate-y-0.5 hover:shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Current Streak
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums tracking-tight">
-              {sessionsLoading ? "..." : currentStreak} {currentStreak === 1 ? "Day" : "Days"}
-            </h2>
-            <p className="text-[11px] text-muted-foreground mt-2">
-              {currentStreak > 0 ? "Momentum is on your side!" : "Log a session today to start"}
-            </p>
-          </div>
-
-          {/* 4. Active Subjects */}
-          <div className="metric-card bg-card border-border/60">
-            <div className="flex items-center justify-between mb-3">
-              <div className="h-10 w-10 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-                <BookOpen className="h-5 w-5" />
-              </div>
-              <span className="text-xs font-semibold text-rose-600 dark:text-rose-400">
-                {subjects.length} Total
-              </span>
+            </CardTitle>
+            <span className="rounded-lg bg-amber-50 p-2 dark:bg-amber-950/60"><img src="/streak-flame.svg" alt="" className="w-4 h-4 object-contain" /></span>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-mono tracking-tight text-foreground flex items-center gap-1.5">
+              <span>{sessionsLoading ? '...' : currentStreak}</span>
+              <span className="text-sm font-normal text-muted-foreground">days</span>
             </div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-              Study Subjects
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tabular-nums tracking-tight">
-              {subjectsLoading ? "..." : subjects.length}
-            </h2>
-            <p className="text-[11px] text-muted-foreground mt-2">
-              Organized with custom goals
-            </p>
-          </div>
-        </div>
+            <p className="text-xs text-muted-foreground mt-1">≥5 min/day to maintain</p>
+          </CardContent>
+        </Card>
 
-        {/* Main Dashboard Layout: Schedule / Recent (Left 2 cols) & Tasks / Calendar / Timer (Right 1 col) */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-          {/* Left Column (2 cols on large screen) */}
-          <div className="lg:col-span-2 space-y-6 sm:space-y-8">
-            {/* Today at a Glance / Schedule Panel (from Reference Image C) */}
-            <div className="surface-panel p-5 sm:p-6 space-y-5">
-              <div className="flex items-center justify-between border-b border-border/60 pb-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                    <Calendar className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-bold text-foreground">
-                      Today at a glance
-                    </h2>
-                    <p className="text-xs text-muted-foreground">
-                      Your completed and upcoming study activities
-                    </p>
-                  </div>
-                </div>
+        {/* Pending tasks count */}
+        <Card className="border-indigo-100/80 shadow-sm transition-shadow hover:-translate-y-0.5 hover:shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Pending Tasks
+            </CardTitle>
+            <span className="rounded-lg bg-sky-50 p-2 text-sky-600 dark:bg-sky-950/60 dark:text-sky-300"><CheckCircle2 className="w-4 h-4" /></span>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold font-mono tracking-tight text-foreground">
+              {tasksLoading ? '...' : pendingCount}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Assignments in queue</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Actions Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Link to="/study" className="group">
+          <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 group-hover:scale-105 transition-transform">
+                <Timer className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-foreground">Study Room</h4>
+                <p className="text-xs text-muted-foreground">Focus timer with webcam posture tracking</p>
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+          </div>
+        </Link>
+
+        <Link to="/planner" className="group">
+          <div className="p-5 rounded-xl border bg-card hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-sm flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 group-hover:scale-105 transition-transform">
+                <BrainCircuit className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-foreground">Study Planner</h4>
+                <p className="text-xs text-muted-foreground">Generate tailored 7-day study timetables</p>
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+          </div>
+        </Link>
+
+        <Link to="/quiz" className="group">
+          <div className="p-5 rounded-xl border bg-card hover:border-indigo-300 dark:hover:border-indigo-700 transition-all shadow-sm flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 group-hover:scale-105 transition-transform">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold text-foreground">Practice Quiz</h4>
+                <p className="text-xs text-muted-foreground">Adaptive practice questions & instant scoring</p>
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+          </div>
+        </Link>
+      </div>
+
+      {/* Main Two-Column Section: Recent Sessions & Pending Tasks */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {/* Recent Sessions Table */}
+        <Card className="shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <div>
+              <CardTitle className="text-lg">Recent Focus Sessions</CardTitle>
+              <CardDescription className="text-xs">Your last 5 recorded sessions</CardDescription>
+            </div>
+            <Link to="/analytics">
+              <Button variant="ghost" size="sm" className="text-xs text-indigo-600 hover:text-indigo-700">
+                View All
+                <ArrowRight className="w-3.5 h-3.5 ml-1" />
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {sessionsLoading ? (
+              <div className="space-y-3 py-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-12 bg-muted/40 animate-pulse rounded-lg" />
+                ))}
+              </div>
+            ) : recentSessions.length === 0 ? (
+              <div className="text-center py-12 space-y-3 border border-dashed rounded-xl">
+                <Clock className="w-8 h-8 text-muted-foreground mx-auto" />
+                <p className="text-sm font-medium">No sessions recorded yet</p>
+                <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+                  Start your first focus session to track your study streaks and warnings.
+                </p>
                 <Link to="/study">
-                  <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-primary hover:text-primary">
-                    <span>Open Room</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
+                  <Button size="sm" className="mt-2 text-xs">
+                    Start Session
                   </Button>
                 </Link>
               </div>
+            ) : (
+              <div className="space-y-3">
+                {recentSessions.map((session) => {
+                  const sub =
+                    session.subject || subjects.find((s) => s.id === session.subject_id)
+                  const dateStr = new Date(session.started_at).toLocaleDateString(undefined, {
+                    month: 'short',
+                    day: 'numeric',
+                  })
+                  const timeStr = new Date(session.started_at).toLocaleTimeString(undefined, {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
 
-              {/* Sessions Timeline */}
-              {recentSessions.length === 0 ? (
-                <div className="text-center py-10 px-4 rounded-2xl bg-muted/40 border border-dashed border-border">
-                  <Timer className="h-10 w-10 text-muted-foreground mx-auto mb-2 opacity-60" />
-                  <p className="text-sm font-semibold text-foreground">No sessions recorded yet today</p>
-                  <p className="text-xs text-muted-foreground max-w-sm mx-auto mt-1 mb-4">
-                    Ready to build your focus? Choose your study buddy and start a 25-minute Pomodoro session.
-                  </p>
-                  <Link to="/study">
-                    <Button size="sm" className="bg-primary text-primary-foreground gap-1.5">
-                      <Play className="h-3.5 w-3.5 fill-current" />
-                      <span>Start Your First Session</span>
-                    </Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {recentSessions.map((s, idx) => {
-                    const subj = subjects.find((sub) => sub.id === s.subject_id)
-                    const date = new Date(s.started_at)
-                    const timeStr = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                    const durationStr = formatDurationHhMm(s.actual_duration_s || 0)
+                  return (
+                    <div
+                      key={session.id}
+                      className="flex items-center justify-between rounded-lg border border-border/70 bg-slate-50/50 p-3 text-sm transition-colors hover:border-indigo-200 hover:bg-indigo-50/40 dark:bg-slate-800/30"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span
+                          className="w-3 h-3 rounded-full shrink-0"
+                          style={{ backgroundColor: sub?.color || '#6366f1' }}
+                        />
+                        <div>
+                          <p className="font-semibold text-xs sm:text-sm">
+                            {sub?.name || 'General Study'}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground">
+                            {dateStr} at {timeStr}
+                          </p>
+                        </div>
+                      </div>
 
-                    return (
-                      <div
-                        key={s.id || idx}
-                        className="flex items-center justify-between p-3.5 rounded-xl border border-border/60 bg-card hover:bg-muted/40 transition-colors gap-3"
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div
-                            className="h-3 w-3 rounded-full flex-shrink-0"
-                            style={{ backgroundColor: subj?.color || "#A78BFA" }}
-                          />
-                          <div className="min-w-0">
-                            <p className="text-sm font-semibold text-foreground truncate">
-                              {subj?.name || "Independent Study"}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {timeStr} • {durationStr} logged
-                              {s.warning_count && s.warning_count > 0 ? ` • ${s.warning_count} distractions` : ""}
-                            </p>
-                          </div>
+                      <div className="flex items-center gap-4 text-right">
+                        <div>
+                          <p className="font-mono font-medium text-xs sm:text-sm">
+                            {formatDurationHhMm(session.actual_duration_s)}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">
+                            of {formatDurationHhMm(session.planned_duration_s)}
+                          </p>
                         </div>
 
-                        <Badge
-                          variant="outline"
-                          className="text-[11px] font-medium border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 flex-shrink-0"
-                        >
-                          Completed
-                        </Badge>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Subject Pulse / Learning Progress (from Reference Image C) */}
-            <div className="surface-panel p-5 sm:p-6 space-y-4">
-              <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-lg bg-orange-500/10 text-orange-600 flex items-center justify-center">
-                    <Target className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h2 className="text-base font-bold text-foreground">Subject Pulse</h2>
-                    <p className="text-xs text-muted-foreground">Progress across your active study subjects</p>
-                  </div>
-                </div>
-                <Link to="/study" className="text-xs text-primary hover:underline font-medium">
-                  Manage Subjects
-                </Link>
-              </div>
-
-              {subjectStats.length === 0 ? (
-                <p className="text-xs text-muted-foreground py-4 text-center">
-                  Loading subjects or no subjects created yet.
-                </p>
-              ) : (
-                <div className="space-y-4">
-                  {subjectStats.slice(0, 4).map((subj) => (
-                    <div key={subj.id} className="space-y-1.5">
-                      <div className="flex items-center justify-between text-xs font-semibold">
-                        <span className="flex items-center gap-2 text-foreground">
-                          <span
-                            className="h-2.5 w-2.5 rounded-full"
-                            style={{ backgroundColor: subj.color || "#7651E8" }}
-                          />
-                          {subj.name}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {subj.percent}% ({subj.doneTasks}/{subj.totalTasks} tasks) • {subj.studyTimeFormatted}
-                        </span>
-                      </div>
-                      <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{
-                            width: `${Math.max(subj.percent, 8)}%`,
-                            backgroundColor: subj.color || "#7651E8",
-                          }}
-                        />
+                        {session.warning_count > 0 ? (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] py-0.5 border-amber-500/40 text-amber-600 gap-1"
+                          >
+                            <AlertTriangle className="w-3 h-3" />
+                            {session.warning_count}
+                          </Badge>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] py-0.5 border-emerald-500/40 text-emerald-600"
+                          >
+                            0 warnings
+                          </Badge>
+                        )}
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Right Column: Tasks, Calendar & Focus Timer Preview (from Reference Image C) */}
-          <div className="space-y-6">
-            {/* Today's Tasks Card (from Reference Image C) */}
-            <div className="surface-panel p-5 sm:p-6 space-y-4">
-              <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                <div>
-                  <h2 className="text-base font-bold text-foreground">Today's Tasks</h2>
-                  <p className="text-xs text-muted-foreground">
-                    {pendingTasks.length} tasks remaining • Stay consistent!
-                  </p>
-                </div>
+                  )
+                })}
               </div>
+            )}
+          </CardContent>
+        </Card>
 
-              {/* Quick Add Task Form */}
-              <form onSubmit={handleCreateQuickTask} className="flex gap-2">
-                <input
-                  type="text"
-                  value={quickTaskTitle}
-                  onChange={(e) => setQuickTaskTitle(e.target.value)}
-                  placeholder="Add a new task..."
-                  disabled={isAddingTask}
-                  className="flex-1 h-9 px-3 rounded-xl bg-muted/50 border border-border/80 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-                />
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={isAddingTask || !quickTaskTitle.trim()}
-                  className="h-9 px-3 rounded-xl bg-primary text-primary-foreground text-xs gap-1"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  <span>Add</span>
-                </Button>
-              </form>
-
-              {/* Task list */}
-              {pendingTasks.length === 0 ? (
-                <div className="text-center py-6 text-muted-foreground">
-                  <CheckCircle2 className="h-8 w-8 text-emerald-500 mx-auto mb-1 opacity-80" />
-                  <p className="text-xs font-semibold text-foreground">All caught up!</p>
-                  <p className="text-[11px] text-muted-foreground">No pending tasks for today.</p>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {pendingTasks.map((t) => {
-                    const subj = subjects.find((s) => s.id === t.subject_id)
-                    return (
-                      <div
-                        key={t.id}
-                        className="flex items-start gap-2.5 p-2.5 rounded-xl border border-border/60 bg-card hover:bg-muted/40 transition-colors group"
-                      >
+        {/* Pending Tasks List */}
+        <Card className="shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <div>
+              <CardTitle className="text-lg">Tasks in Progress</CardTitle>
+              <CardDescription className="text-xs">Upcoming deadlines and assignments</CardDescription>
+            </div>
+            <Link to="/study">
+              <Button variant="ghost" size="sm" className="text-xs text-indigo-600 hover:text-indigo-700">
+                <PlusCircle className="w-3.5 h-3.5 mr-1" />
+                Add Task
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            {tasksLoading ? (
+              <div className="space-y-3 py-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-12 bg-muted/40 animate-pulse rounded-lg" />
+                ))}
+              </div>
+            ) : pendingTasks.length === 0 ? (
+              <div className="text-center py-12 space-y-3 border border-dashed rounded-xl">
+                <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto" />
+                <p className="text-sm font-medium">All caught up!</p>
+                <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+                  You have no pending tasks. Add a new assignment in the Study Room to plan ahead.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {pendingTasks.map((t) => {
+                  const sub = subjects.find((s) => s.id === t.subject_id)
+                  return (
+                    <div
+                      key={t.id}
+                      className="flex items-center justify-between gap-2 rounded-lg border border-border/70 bg-slate-50/50 p-3 text-sm dark:bg-slate-800/30"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
                         <button
                           type="button"
-                          onClick={() => updateTaskStatus(t.id, "done")}
-                          className="mt-0.5 text-muted-foreground hover:text-emerald-500 transition-colors flex-shrink-0"
-                          title="Mark complete"
-                        >
-                          <Circle className="h-4 w-4" />
-                        </button>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-foreground truncate group-hover:text-primary transition-colors">
-                            {t.title}
-                          </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            {subj && (
+                          onClick={() => updateTaskStatus(t.id, 'done')}
+                          className="w-4 h-4 rounded-full border border-muted-foreground/60 hover:border-emerald-500 hover:bg-emerald-50 shrink-0 transition-colors"
+                          title="Mark completed"
+                        />
+                        <div className="min-w-0 truncate">
+                          <p className="font-medium text-xs sm:text-sm truncate">{t.title}</p>
+                          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                            {sub && (
                               <span
-                                className="text-[10px] px-1.5 py-0.5 rounded-md font-medium"
-                                style={{
-                                  backgroundColor: `${subj.color}20`,
-                                  color: subj.color,
-                                }}
+                                className="font-semibold"
+                                style={{ color: sub.color }}
                               >
-                                {subj.name}
+                                {sub.name}
                               </span>
                             )}
-                            {t.deadline && (
-                              <span className="text-[10px] text-muted-foreground">
-                                Due {t.deadline}
-                              </span>
-                            )}
+                            <span>Due: {t.deadline}</span>
                           </div>
                         </div>
                       </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
 
-            {/* Interactive Calendar Widget (from Reference Image C) */}
-            <div className="surface-panel p-5 space-y-3">
-              <div className="flex items-center justify-between border-b border-border/60 pb-2">
-                <span className="text-sm font-bold text-foreground">
-                  {monthNames[currentCalendarDate.getMonth()]} {currentCalendarDate.getFullYear()}
-                </span>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCurrentCalendarDate(
-                        new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() - 1, 1)
-                      )
-                    }
-                    className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCurrentCalendarDate(new Date())}
-                    className="px-2 py-0.5 text-[10px] font-semibold rounded bg-muted hover:bg-muted/80"
-                  >
-                    Today
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCurrentCalendarDate(
-                        new Date(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth() + 1, 1)
-                      )
-                    }
-                    className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                </div>
+                      <Badge
+                        variant={t.status === 'in_progress' ? 'default' : 'secondary'}
+                        className="text-[10px] shrink-0 capitalize"
+                      >
+                        {t.status.replace('_', ' ')}
+                      </Badge>
+                    </div>
+                  )
+                })}
               </div>
-
-              {/* Day header */}
-              <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-muted-foreground">
-                <span>MO</span>
-                <span>TU</span>
-                <span>WE</span>
-                <span>TH</span>
-                <span>FR</span>
-                <span>SA</span>
-                <span>SU</span>
-              </div>
-
-              {/* Calendar Grid */}
-              <div className="grid grid-cols-7 gap-1 text-center">
-                {calendarDays.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className={`h-7 w-7 mx-auto rounded-full flex flex-col items-center justify-center text-xs relative ${
-                      item.isToday
-                        ? "bg-primary text-white font-bold shadow-sm"
-                        : item.hasActivity
-                        ? "font-semibold text-foreground bg-purple-500/10 text-primary"
-                        : "text-muted-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {item.day || ""}
-                    {item.hasActivity && !item.isToday && (
-                      <span className="absolute bottom-0.5 h-1 w-1 rounded-full bg-primary" />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Focus Timer Mini Card & Quote (from Reference Image C) */}
-            <div className="surface-panel p-5 text-center space-y-4 bg-gradient-to-br from-card via-card to-[#FFF6ED]/30 dark:to-[#221A33]/30">
-              <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <Target className="h-4 w-4 text-primary" />
-                  Focus Timer
-                </span>
-                <span className="text-primary font-bold">25 min</span>
-              </div>
-
-              {/* Circular preview */}
-              <div className="relative w-28 h-28 mx-auto flex items-center justify-center">
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    className="stroke-muted"
-                    strokeWidth="8"
-                    fill="none"
-                  />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    className="stroke-primary"
-                    strokeWidth="8"
-                    strokeDasharray="251.2"
-                    strokeDashoffset="62.8"
-                    strokeLinecap="round"
-                    fill="none"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-lg font-extrabold text-foreground tabular-nums">25:00</span>
-                  <span className="text-[9px] uppercase tracking-wider text-muted-foreground">Focus</span>
-                </div>
-              </div>
-
-              <Link to="/study" className="block w-full">
-                <Button className="w-full bg-[#7651E8] hover:bg-[#6842D8] text-white rounded-xl gap-2 h-9 text-xs font-semibold shadow-sm">
-                  <Play className="h-3.5 w-3.5 fill-white" />
-                  <span>Launch Study Room</span>
-                </Button>
-              </Link>
-
-              {/* Motivational Quote pill */}
-              <p className="text-[11px] text-muted-foreground italic bg-muted/40 p-2.5 rounded-xl border border-border/50">
-                &ldquo;Discipline today builds the life you want tomorrow.&rdquo;
-              </p>
-            </div>
-          </div>
-        </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
+    </div>
     </div>
   )
 }

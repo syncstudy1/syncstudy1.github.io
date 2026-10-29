@@ -34,7 +34,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-1">
-            <img src="/syncstudy-logo-full.jpg" alt="SyncStudy" className="h-8 w-8 rounded-lg object-contain" />
+            <img src="/syncstudy-logo.svg" alt="" className="h-8 w-8 object-contain" />
             <DialogTitle className="text-xl">Welcome to SyncStudy</DialogTitle>
           </div>
           <DialogDescription>

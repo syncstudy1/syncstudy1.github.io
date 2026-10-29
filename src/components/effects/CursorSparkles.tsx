@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react"
 
 const MAX_PARTICLES = 36
-const MOVEMENT_INTERVAL = 85
-const MOVEMENT_CHANCE = 0.5
+const MOVEMENT_INTERVAL = 90
+const MOVEMENT_CHANCE = 0.45
 const INTERACTIVE_SELECTOR =
   "a, button, [role=button], [role=tab], [role=menuitem], summary, input[type=submit], input[type=button]"
 
@@ -32,36 +32,16 @@ function isExcludedInteractiveTarget(target: Element) {
 
 export function CursorSparkles() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const auroraGlowRef = useRef<HTMLDivElement>(null)
   const activeParticlesRef = useRef<HTMLElement[]>([])
   const lastMovementRef = useRef(0)
   const lastPointerTypeRef = useRef<string | null>(null)
-  const glowPosRef = useRef({ currentX: -100, currentY: -100, targetX: -100, targetY: -100 })
-  const animFrameRef = useRef<number | null>(null)
 
   useEffect(() => {
     const container = containerRef.current
-    const glowEl = auroraGlowRef.current
     if (!container) return
 
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)")
     const shouldReduceMotion = () => reducedMotionQuery.matches
-
-    // Smooth delayed cursor glow loop
-    const updateGlow = () => {
-      if (glowEl && !shouldReduceMotion()) {
-        const { currentX, currentY, targetX, targetY } = glowPosRef.current
-        const dx = targetX - currentX
-        const dy = targetY - currentY
-        // Smooth delayed interpolation
-        glowPosRef.current.currentX += dx * 0.12
-        glowPosRef.current.currentY += dy * 0.12
-
-        glowEl.style.transform = `translate3d(${glowPosRef.current.currentX}px, ${glowPosRef.current.currentY}px, 0)`
-      }
-      animFrameRef.current = requestAnimationFrame(updateGlow)
-    }
-    animFrameRef.current = requestAnimationFrame(updateGlow)
 
     const removeParticle = (particle: HTMLElement) => {
       particle.remove()
@@ -80,11 +60,10 @@ export function CursorSparkles() {
       }
 
       const particle = document.createElement("span")
-      const distance = burst ? 18 + Math.random() * 20 : 6 + Math.random() * 10
-      const duration = burst ? 580 + Math.random() * 180 : 480 + Math.random() * 200
-      // 20x20px star per design brief
-      const size = kind === "star" ? (burst ? 24 : 20) : burst ? 4 : 2.5
-      const rotation = (Math.random() - 0.5) * 24
+      const distance = burst ? 18 + Math.random() * 18 : 5 + Math.random() * 9
+      const duration = burst ? 600 + Math.random() * 200 : 500 + Math.random() * 250
+      const size = kind === "star" ? (burst ? 27 : 20) : burst ? 3.5 : 2.5
+      const rotation = (Math.random() - 0.5) * 18
 
       particle.className = `cursor-sparkle cursor-sparkle--${kind}`
       particle.style.left = `${x}px`
@@ -102,21 +81,19 @@ export function CursorSparkles() {
 
     const spawnMovementSparkle = (event: PointerEvent) => {
       if (event.pointerType !== "mouse" || shouldReduceMotion()) return
-
-      // Update target for smooth delayed aurora glow
-      glowPosRef.current.targetX = event.clientX
-      glowPosRef.current.targetY = event.clientY
-
       const now = performance.now()
       if (now - lastMovementRef.current < MOVEMENT_INTERVAL || Math.random() > MOVEMENT_CHANCE) return
       lastMovementRef.current = now
 
-      createParticle(
-        event.clientX + (Math.random() - 0.5) * 8,
-        event.clientY + (Math.random() - 0.5) * 8,
-        "star",
-        false,
-      )
+      const count = Math.random() > 0.7 ? 2 : 1
+      for (let index = 0; index < count; index += 1) {
+        createParticle(
+          event.clientX + (Math.random() - 0.5) * 10,
+          event.clientY + (Math.random() - 0.5) * 10,
+          Math.random() > 0.65 ? "dot" : "star",
+          false,
+        )
+      }
     }
 
     const rememberPointerType = (event: PointerEvent) => {
@@ -130,6 +107,7 @@ export function CursorSparkles() {
       if (isExcludedInteractiveTarget(target)) return
 
       const interactive = target.closest(INTERACTIVE_SELECTOR)
+
       const pointerType = lastPointerTypeRef.current
       const bounds = interactive?.getBoundingClientRect()
       const hasPointerCoordinates = event.clientX !== 0 || event.clientY !== 0
@@ -149,7 +127,6 @@ export function CursorSparkles() {
     document.addEventListener("click", spawnClickBurst)
 
     return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
       document.removeEventListener("pointermove", spawnMovementSparkle)
       document.removeEventListener("pointerdown", rememberPointerType)
       document.removeEventListener("click", spawnClickBurst)
@@ -158,10 +135,5 @@ export function CursorSparkles() {
     }
   }, [])
 
-  return (
-    <div ref={containerRef} className="cursor-sparkles" aria-hidden="true">
-      {/* Liquid Glass Aurora delayed glow element */}
-      <div ref={auroraGlowRef} className="cursor-aurora-glow" />
-    </div>
-  )
+  return <div ref={containerRef} className="cursor-sparkles" aria-hidden="true" />
 }
