@@ -1,12 +1,9 @@
 import * as React from 'react'
-import { useLocation, useSearchParams } from 'react-router-dom'
 import { useStudyTimer } from '@/hooks/useStudyTimer'
 import { useSubjects } from '@/hooks/useSubjects'
 import { useTasks } from '@/hooks/useTasks'
 import { useStudySessions } from '@/hooks/useStudySessions'
 import { useSubscriptionStore } from '@/stores/subscriptionStore'
-import { useAuthStore } from '@/stores/authStore'
-import { recordAutopilotFeedback } from '@/lib/autopilotFeedback'
 import { Button } from '@/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/ui/card'
 import { Input } from '@/ui/input'
@@ -64,9 +61,6 @@ function formatSeconds(totalSecs: number): string {
 }
 
 export function StudySessionPage() {
-  const location = useLocation()
-  const [searchParams] = useSearchParams()
-  const { user } = useAuthStore()
   const { toast } = useToast()
   const { isPremium } = useSubscriptionStore()
   const { subjects, createSubject, deleteSubject } = useSubjects()
@@ -107,17 +101,6 @@ export function StudySessionPage() {
 
   // Management section toggle
   const [showManagement, setShowManagement] = React.useState<boolean>(false)
-  React.useEffect(() => {
-    const subjectParam = searchParams.get('subject')
-    const taskParam = searchParams.get('task')
-    const durationParam = Number(searchParams.get('duration'))
-    if (subjectParam) setSelectedSubjectId(subjectParam)
-    if (taskParam) setSelectedTaskId(taskParam)
-    if (Number.isFinite(durationParam) && durationParam > 0) setDurationMinutes(Math.min(180, Math.max(1, durationParam)))
-  }, [searchParams])
-  React.useEffect(() => {
-    if (location.hash === '#management') setShowManagement(true)
-  }, [location.hash])
 
   // Add Subject Form
   const [newSubName, setNewSubName] = React.useState<string>('')
@@ -211,8 +194,6 @@ export function StudySessionPage() {
         notes: finalNotes || null,
         subject: currentSubject,
       })
-      const autopilotKey = searchParams.get('autopilot')
-      if (autopilotKey && user) recordAutopilotFeedback(user.id, 'completed', autopilotKey)
 
       // If a task was selected and user studied at least 15 min, suggest status update
       if (selectedTaskId) {
@@ -805,7 +786,7 @@ export function StudySessionPage() {
       </Dialog>
 
       {/* Collapsible Subject and Task Management Section */}
-      <div id="management" className="pt-6 border-t">
+      <div className="pt-6 border-t">
         <button
           type="button"
           className="w-full flex items-start justify-between gap-4 rounded-xl px-3 py-3 text-left text-foreground transition-colors hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30"
