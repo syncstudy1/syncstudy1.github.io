@@ -15,6 +15,7 @@ import { StudySessionPage } from "@/pages/StudySessionPage"
 import { PlannerPage } from "@/pages/PlannerPage"
 import { QuizPage } from "@/pages/QuizPage"
 import { AnalyticsPage } from "@/pages/AnalyticsPage"
+import { LearningAutopilotPage } from "@/pages/LearningAutopilotPage"
 import { NotFoundPage } from "@/pages/NotFoundPage"
 
 export function App() {
@@ -73,6 +74,14 @@ export function App() {
               element={
                 <ProtectedRoute>
                   <AnalyticsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/autopilot"
+              element={
+                <ProtectedRoute>
+                  <LearningAutopilotPage />
                 </ProtectedRoute>
               }
             />

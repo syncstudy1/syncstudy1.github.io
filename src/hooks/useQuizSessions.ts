@@ -15,16 +15,19 @@ export interface SaveQuizInput {
 export function useQuizSessions() {
   const [quizHistory, setQuizHistory] = useState<QuizSession[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
   const { user } = useAuthStore()
 
   const loadQuizzes = useCallback(async () => {
     if (!user || !isSupabaseConfigured) {
       setQuizHistory([])
+      setError(null)
       setLoading(false)
       return
     }
 
     setLoading(true)
+    setError(null)
 
     try {
       const { data, error } = await supabase
@@ -39,6 +42,7 @@ export function useQuizSessions() {
     } catch (err) {
       console.error('Failed to load quiz sessions:', err)
       setQuizHistory([])
+      setError(err instanceof Error ? err.message : 'Could not load quiz history.')
     } finally {
       setLoading(false)
     }
@@ -72,6 +76,7 @@ export function useQuizSessions() {
 
     const sessionData = created as QuizSession
     setQuizHistory((prev) => [sessionData, ...prev])
+    window.dispatchEvent(new CustomEvent('syncstudy:data-changed', { detail: { type: 'quiz-saved' } }))
     return sessionData
   }
 
@@ -86,6 +91,7 @@ export function useQuizSessions() {
   return {
     quizHistory,
     loading,
+    error,
     todayQuizCount,
     saveQuizSession,
     refreshQuizzes: loadQuizzes,

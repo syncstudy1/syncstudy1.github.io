@@ -17,6 +17,7 @@ import {
   CalendarDays,
   FileQuestion,
   BarChart3,
+  BrainCircuit,
   LogOut,
   Crown,
   Menu,
@@ -51,6 +52,7 @@ export function Navbar() {
     { name: "Study Planner", path: "/planner", icon: CalendarDays, authRequired: true },
     { name: "Practice Quiz", path: "/quiz", icon: FileQuestion, authRequired: true },
     { name: "Analytics", path: "/analytics", icon: BarChart3, authRequired: true },
+    { name: "Learning Autopilot", path: "/autopilot", icon: BrainCircuit, authRequired: true },
   ]
 
   const handleSignOut = async () => {

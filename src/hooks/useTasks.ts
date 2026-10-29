@@ -14,16 +14,19 @@ export interface CreateTaskInput {
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
   const { user } = useAuthStore()
 
   const loadTasks = useCallback(async () => {
     if (!user || !isSupabaseConfigured) {
       setTasks([])
+      setError(null)
       setLoading(false)
       return
     }
 
     setLoading(true)
+    setError(null)
 
     try {
       const { data, error } = await supabase
@@ -38,6 +41,7 @@ export function useTasks() {
     } catch (err) {
       console.error('Failed to load tasks:', err)
       setTasks([])
+      setError(err instanceof Error ? err.message : 'Could not load tasks.')
     } finally {
       setLoading(false)
     }
@@ -72,6 +76,7 @@ export function useTasks() {
 
     const taskData = created as Task
     setTasks((prev) => [taskData, ...prev])
+    window.dispatchEvent(new CustomEvent('syncstudy:data-changed', { detail: { type: 'task-added' } }))
     return taskData
   }
 
@@ -89,6 +94,7 @@ export function useTasks() {
     if (error) throw error
 
     setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, status } : t)))
+    window.dispatchEvent(new CustomEvent('syncstudy:data-changed', { detail: { type: 'task-updated' } }))
   }
 
   const deleteTask = async (id: string): Promise<void> => {
@@ -105,11 +111,13 @@ export function useTasks() {
     if (error) throw error
 
     setTasks((prev) => prev.filter((t) => t.id !== id))
+    window.dispatchEvent(new CustomEvent('syncstudy:data-changed', { detail: { type: 'task-deleted' } }))
   }
 
   return {
     tasks,
     loading,
+    error,
     refreshTasks: loadTasks,
     createTask,
     updateTaskStatus,

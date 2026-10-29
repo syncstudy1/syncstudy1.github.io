@@ -19,16 +19,19 @@ export interface SaveSessionInput {
 export function useStudySessions() {
   const [sessions, setSessions] = useState<StudySession[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
   const { user } = useAuthStore()
 
   const loadSessions = useCallback(async () => {
     if (!user || !isSupabaseConfigured) {
       setSessions([])
+      setError(null)
       setLoading(false)
       return
     }
 
     setLoading(true)
+    setError(null)
 
     try {
       const { data, error } = await supabase
@@ -43,6 +46,7 @@ export function useStudySessions() {
     } catch (err) {
       console.error('Failed to load study sessions:', err)
       setSessions([])
+      setError(err instanceof Error ? err.message : 'Could not load study sessions.')
     } finally {
       setLoading(false)
     }
@@ -80,6 +84,7 @@ export function useStudySessions() {
 
     const sessionData = created as StudySession
     setSessions((prev) => [sessionData, ...prev])
+    window.dispatchEvent(new CustomEvent('syncstudy:data-changed', { detail: { type: 'study-session-saved' } }))
     if (sessionData.actual_duration_s > 0) {
       try {
         await recordQualifyingActivity(
@@ -113,6 +118,7 @@ export function useStudySessions() {
   return {
     sessions,
     loading,
+    error,
     refreshSessions: loadSessions,
     saveSession,
     todayTotalSeconds,

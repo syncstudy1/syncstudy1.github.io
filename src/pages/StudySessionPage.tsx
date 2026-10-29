@@ -1,9 +1,11 @@
 import * as React from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useStudyTimer } from '@/hooks/useStudyTimer'
 import { useSubjects } from '@/hooks/useSubjects'
 import { useTasks } from '@/hooks/useTasks'
 import { useStudySessions } from '@/hooks/useStudySessions'
 import { useSubscriptionStore } from '@/stores/subscriptionStore'
+import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/ui/button'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/ui/card'
 import { Input } from '@/ui/input'
@@ -38,6 +40,8 @@ import {
 } from 'lucide-react'
 import type { TaskStatus } from '@/types/database'
 import { CameraMonitor } from '@/components/vision/CameraMonitor'
+import { getAutopilotFeedbackEventId, recordAutopilotFeedback } from '@/lib/autopilotPersonalization'
+import type { AutopilotActionType } from '@/lib/learningAutopilot'
 
 const PRESET_COLORS = [
   '#3b82f6', // Blue
@@ -61,7 +65,9 @@ function formatSeconds(totalSecs: number): string {
 }
 
 export function StudySessionPage() {
+  const [searchParams] = useSearchParams()
   const { toast } = useToast()
+  const { user } = useAuthStore()
   const { isPremium } = useSubscriptionStore()
   const { subjects, createSubject, deleteSubject } = useSubjects()
   const { tasks, createTask, updateTaskStatus, deleteTask } = useTasks()
@@ -93,6 +99,9 @@ export function StudySessionPage() {
   const [durationMinutes, setDurationMinutes] = React.useState<number>(25)
   const [enableCamera, setEnableCamera] = React.useState<boolean>(false)
   const [startTimeIso, setStartTimeIso] = React.useState<string>('')
+  const autopilotInitialized = React.useRef(false)
+  const autopilotActionId = searchParams.get('autopilotActionId')
+  const autopilotActionType = searchParams.get('autopilotActionType') as AutopilotActionType | null
 
   // Summary dialog state
   const [summaryOpen, setSummaryOpen] = React.useState<boolean>(false)
@@ -123,6 +132,22 @@ export function StudySessionPage() {
       setSelectedSubjectId(subjects[0].id)
     }
   }, [subjects, selectedSubjectId])
+
+  React.useEffect(() => {
+    if (autopilotInitialized.current || (subjects.length === 0 && tasks.length === 0)) return
+    const requestedSubjectId = searchParams.get('subjectId')
+    const requestedTaskId = searchParams.get('taskId')
+    const requestedDuration = Number(searchParams.get('duration'))
+    if (requestedSubjectId && subjects.some((subject) => subject.id === requestedSubjectId)) {
+      setSelectedSubjectId(requestedSubjectId)
+    } else if (requestedTaskId) {
+      const requestedTask = tasks.find((task) => task.id === requestedTaskId)
+      if (requestedTask?.subject_id) setSelectedSubjectId(requestedTask.subject_id)
+    }
+    if (requestedTaskId && tasks.some((task) => task.id === requestedTaskId)) setSelectedTaskId(requestedTaskId)
+    if (Number.isFinite(requestedDuration) && requestedDuration > 0) setDurationMinutes(Math.min(180, Math.max(1, Math.round(requestedDuration))))
+    autopilotInitialized.current = true
+  }, [searchParams, subjects, tasks])
 
   const currentSubject = React.useMemo(() => {
     return subjects.find((s) => s.id === selectedSubjectId)
@@ -194,6 +219,16 @@ export function StudySessionPage() {
         notes: finalNotes || null,
         subject: currentSubject,
       })
+
+      if (user && autopilotActionId && autopilotActionType) {
+        recordAutopilotFeedback(user.id, {
+          id: getAutopilotFeedbackEventId(autopilotActionId, 'session-completed', startTimeIso || String(completedElapsed)),
+          actionId: autopilotActionId,
+          actionType: autopilotActionType,
+          kind: 'session-completed',
+          actualMinutes: Math.round(completedElapsed / 60),
+        })
+      }
 
       // If a task was selected and user studied at least 15 min, suggest status update
       if (selectedTaskId) {

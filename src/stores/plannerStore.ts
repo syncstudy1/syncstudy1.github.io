@@ -128,6 +128,7 @@ export const usePlannerStore = create<PlannerState>((set, get) => ({
         savedPlans: [created, ...state.savedPlans],
         currentPlan: null,
       }))
+      window.dispatchEvent(new CustomEvent('syncstudy:data-changed', { detail: { type: 'study-plan-saved' } }))
     } catch (err: any) {
       console.error('Error saving approved study plan:', err)
       throw err
@@ -149,6 +150,7 @@ export const usePlannerStore = create<PlannerState>((set, get) => ({
       set((state) => ({
         savedPlans: state.savedPlans.filter((p) => p.id !== planId),
       }))
+      window.dispatchEvent(new CustomEvent('syncstudy:data-changed', { detail: { type: 'study-plan-deleted' } }))
     } catch (err) {
       console.error('Failed to delete plan:', err)
     }

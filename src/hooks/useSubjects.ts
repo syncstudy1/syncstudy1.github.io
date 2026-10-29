@@ -14,16 +14,19 @@ const DEFAULT_SUBJECTS: Omit<Subject, 'id' | 'user_id'>[] = [
 export function useSubjects() {
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
   const { user } = useAuthStore()
 
   const loadSubjects = useCallback(async () => {
     if (!user || !isSupabaseConfigured) {
       setSubjects([])
+      setError(null)
       setLoading(false)
       return
     }
 
     setLoading(true)
+    setError(null)
 
     try {
       const { data, error } = await supabase
@@ -57,6 +60,7 @@ export function useSubjects() {
     } catch (err) {
       console.error('Failed to load subjects:', err)
       setSubjects([])
+      setError(err instanceof Error ? err.message : 'Could not load subjects.')
     } finally {
       setLoading(false)
     }
@@ -88,6 +92,7 @@ export function useSubjects() {
 
     const created = data as Subject
     setSubjects((prev) => [...prev, created])
+    window.dispatchEvent(new CustomEvent('syncstudy:data-changed', { detail: { type: 'subject-added' } }))
     return created
   }
 
@@ -128,11 +133,13 @@ export function useSubjects() {
     if (error) throw error
 
     setSubjects((prev) => prev.filter((s) => s.id !== id))
+    window.dispatchEvent(new CustomEvent('syncstudy:data-changed', { detail: { type: 'subject-deleted' } }))
   }
 
   return {
     subjects,
     loading,
+    error,
     refreshSubjects: loadSubjects,
     createSubject,
     deleteSubject,
