@@ -13,7 +13,6 @@ import { useToast } from '@/ui/toast'
 import confetti from 'canvas-confetti'
 import {
   BrainCircuit,
-  Sparkles,
   CheckCircle2,
   XCircle,
   ArrowRight,
@@ -25,6 +24,7 @@ import {
 } from 'lucide-react'
 import type { QuizQuestion, QuizDifficulty } from '@/types/database'
 import { recordQualifyingActivity } from '@/lib/activity'
+import { SparkleIcon } from '@/components/brand/SparkleIcon'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -315,7 +315,7 @@ export function QuizPage() {
             variant="outline"
             className="text-xs px-3 py-1.5 border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400 gap-1.5 self-start sm:self-auto"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <SparkleIcon size={14} />
             <span>Free Tier: {remainingFreeQuizzes}/1 quiz remaining today</span>
           </Badge>
         )}
@@ -326,7 +326,7 @@ export function QuizPage() {
         <Card className="border-amber-100 dark:border-amber-950/40 shadow-sm">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-amber-500" />
+              <SparkleIcon size={20} />
               Set Up Your Practice Quiz
             </CardTitle>
             <CardDescription className="text-xs">
@@ -493,7 +493,7 @@ export function QuizPage() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4" />
+                    <SparkleIcon size={16} />
                     <span>Generate Practice Quiz</span>
                   </div>
                 )}
@@ -597,7 +597,7 @@ export function QuizPage() {
             {isAnswerSubmitted && (
               <div className="p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/40 bg-indigo-50/40 dark:bg-indigo-950/20 space-y-2 animate-in fade-in">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                  <SparkleIcon size={16} />
                   <h4 className="text-xs font-bold text-indigo-950 dark:text-indigo-200 uppercase tracking-wider">
                     Explanation
                   </h4>

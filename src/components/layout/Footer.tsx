@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from "@/ui/dialog"
 import { Loader2, KeyRound, CheckCircle2, AlertCircle, Ticket } from "lucide-react"
+import { Logo } from "@/components/brand/Logo"
 
 export function Footer() {
   const location = useLocation()
@@ -32,13 +33,11 @@ export function Footer() {
   }
 
   return (
-    <footer className="border-t border-border/70 bg-card/70 mt-auto text-sm text-muted-foreground">
+    <footer className="border-t border-white/40 bg-white/20 mt-auto text-sm text-muted-foreground backdrop-blur-xl">
       <div className="container mx-auto px-4 py-10">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Link to="/" className="font-semibold text-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-              SyncStudy
-            </Link>
+            <Link to="/" className="flex items-center gap-2 font-semibold text-foreground hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"><Logo variant="mark" className="h-7 w-7" /><span>SyncStudy</span></Link>
             <span>&copy; {new Date().getFullYear()}</span>
             <span>&bull;</span>
             <span>Personal Study Companion</span>

@@ -3,12 +3,12 @@ import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/ui/card"
 import { useAuthStore } from "@/stores/authStore"
+import { SparkleIcon } from "@/components/brand/SparkleIcon"
 import {
   Timer,
   Eye,
   CalendarCheck,
   BrainCircuit,
-  Sparkles,
   BarChart,
   ShieldCheck,
   Zap,
@@ -99,7 +99,7 @@ export function HomePage() {
                 <div className="space-y-3">
                   <div className="rounded-xl border border-slate-200 p-3 dark:border-slate-700"><p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Today’s plan</p><p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">Deep work, one block at a time.</p></div>
                   <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-3 dark:border-emerald-900/60 dark:bg-emerald-950/30"><div className="flex items-center gap-2 text-xs font-semibold text-emerald-700 dark:text-emerald-300"><ShieldCheck className="h-4 w-4" />Optional focus monitor</div><p className="mt-1 text-[11px] leading-relaxed text-emerald-700/80 dark:text-emerald-300/80">Stay aware of focus during your study sessions.</p></div>
-                  <div className="flex items-center gap-2 rounded-xl bg-indigo-50 p-3 text-xs font-semibold text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300"><Sparkles className="h-4 w-4" />Plan, focus, reflect.</div>
+                  <div className="flex items-center gap-2 rounded-xl bg-indigo-50 p-3 text-xs font-semibold text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300"><SparkleIcon size={16} />Plan, focus, reflect.</div>
                 </div>
               </div>
             </div>
@@ -208,7 +208,7 @@ export function HomePage() {
             <Card className="h-full border-border/70 transition-all hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-900/5 dark:hover:border-indigo-800">
               <CardHeader>
                 <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/60 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-2">
-                  <Sparkles className="w-6 h-6" />
+                  <SparkleIcon size={24} />
                 </div>
                 <CardTitle className="text-lg">Premium Flexibility</CardTitle>
                 <CardDescription>
