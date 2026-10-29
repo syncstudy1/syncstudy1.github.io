@@ -10,6 +10,7 @@ import {
   getFaceCenter,
   selectPrimaryFaceIndex,
 } from '@/lib/mediapipe'
+import { isSideLooking } from '@/lib/faceDistraction'
 
 export type FaceMonitorStatus =
   | 'idle'
@@ -58,7 +59,7 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
   const onWarningCallbackRef = useRef<(() => void) | null>(null)
 
   // Operational refs
-  const baselineRef = useRef<HeadAngles | null>(null)
+  const baselineRef = useRef<Pick<HeadAngles, 'yaw'> | null>(null)
   const distractionStartRef = useRef<number | null>(null)
   const absentStartRef = useRef<number | null>(null)
   const warningCooldownRef = useRef<boolean>(false)
@@ -131,7 +132,7 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
    * Runs the calibration loop to establish a neutral head-pose baseline.
    */
   const runCalibration = useCallback(
-    async (landmarker: FaceLandmarker, video: HTMLVideoElement, currentSessionId: number): Promise<HeadAngles> => {
+    async (landmarker: FaceLandmarker, video: HTMLVideoElement, currentSessionId: number): Promise<Pick<HeadAngles, 'yaw'>> => {
       setStatus('calibrating')
       setCalibrationProgress(0)
 
@@ -178,10 +179,9 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
             }
 
             const avgYaw = samples.reduce((acc, s) => acc + s.yaw, 0) / samples.length
-            const avgPitch = samples.reduce((acc, s) => acc + s.pitch, 0) / samples.length
             const finalBaseline: HeadAngles = {
               yaw: Math.round(avgYaw),
-              pitch: Math.round(avgPitch),
+              pitch: 0,
             }
 
             baselineRef.current = finalBaseline
@@ -258,11 +258,10 @@ export function useFaceMonitor(options: FaceMonitorOptions = {}) {
               setIsFaceAbsent(false)
               absentStartRef.current = null
 
-              const activeBaseline = baselineRef.current || { yaw: 0, pitch: 0 }
-              const deltaYaw = Math.abs(angles.yaw - activeBaseline.yaw)
-              // Looking down is allowed for reading, writing, or typing. Only a
-              // significant horizontal turn away from the screen is distracting.
-              const distracted = deltaYaw >= yawThreshold
+              const activeBaseline = baselineRef.current || { yaw: 0 }
+              // Pitch/downward gaze is intentionally excluded. Only sustained
+              // horizontal side-looking behavior can enter the grace timer.
+              const distracted = isSideLooking(angles, activeBaseline.yaw, yawThreshold)
 
               if (distracted) {
                 setIsDistracted(true)
