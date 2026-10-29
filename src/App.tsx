@@ -16,6 +16,7 @@ import { PlannerPage } from "@/pages/PlannerPage"
 import { QuizPage } from "@/pages/QuizPage"
 import { AnalyticsPage } from "@/pages/AnalyticsPage"
 import { NotFoundPage } from "@/pages/NotFoundPage"
+import { WorkspacePage } from "@/pages/WorkspacePage"
 
 export function App() {
   const { initialize } = useAuthStore()
@@ -76,6 +77,9 @@ export function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/tasks" element={<ProtectedRoute><WorkspacePage /></ProtectedRoute>} />
+            <Route path="/subjects" element={<ProtectedRoute><WorkspacePage /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><WorkspacePage /></ProtectedRoute>} />
 
             {/* Fallback */}
             <Route path="*" element={<NotFoundPage />} />
