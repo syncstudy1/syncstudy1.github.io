@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/ui/button"
 import { useAuthStore } from "@/stores/authStore"
 import { Loader2 } from "lucide-react"
-import { BrandLockup } from "@/components/brand/BrandLockup"
 
 interface AuthModalProps {
   open: boolean
@@ -35,7 +34,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-1">
-            <BrandLockup compact />
+            <img src="/syncstudy-logo.svg" alt="" className="h-8 w-8 object-contain" />
             <DialogTitle className="text-xl">Welcome to SyncStudy</DialogTitle>
           </div>
           <DialogDescription>

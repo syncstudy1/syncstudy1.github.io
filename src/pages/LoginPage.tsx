@@ -4,7 +4,6 @@ import { useAuthStore } from "@/stores/authStore"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui/card"
 import { Button } from "@/ui/button"
 import { Loader2, AlertCircle, ShieldCheck } from "lucide-react"
-import { BrandLockup } from "@/components/brand/BrandLockup"
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -15,8 +14,7 @@ export function LoginPage() {
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null)
 
   // Redirect target if arriving from a protected route
-  const fromLocation = (location.state as any)?.from
-  const from = fromLocation ? `${fromLocation.pathname}${fromLocation.search || ""}${fromLocation.hash || ""}` : "/dashboard"
+  const from = (location.state as any)?.from?.pathname || "/dashboard"
 
   // Check URL parameters or hash for errors from Google OAuth
   React.useEffect(() => {
@@ -77,7 +75,7 @@ export function LoginPage() {
     <div className="page-shell flex min-h-[calc(100vh-8rem)] items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.12),_transparent_45%)] px-4 py-12">
       <Card className="w-full max-w-md border-border/70 shadow-xl shadow-indigo-900/5">
         <CardHeader className="space-y-3 text-center pb-6">
-          <BrandLockup href="/" />
+          <img src="/syncstudy-logo.svg" alt="SyncStudy logo" className="mx-auto h-16 w-16 object-contain mb-1" />
           <CardTitle className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             Welcome to SyncStudy
           </CardTitle>
